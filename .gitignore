@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.log
+server/uploads/
+# Google service account keys
+*service-account*.json
+.DS_Store

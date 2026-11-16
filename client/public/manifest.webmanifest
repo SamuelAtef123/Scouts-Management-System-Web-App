@@ -1,0 +1,9 @@
+{
+  "name": "Light of the World Scouts",
+  "short_name": "Scouts",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#23277d",
+  "icons": [{ "src": "/logo.jpg", "sizes": "586x587", "type": "image/jpeg", "purpose": "any" }]
+}
