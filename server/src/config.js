@@ -1,4 +1,13 @@
 import 'dotenv/config';
+import dns from 'node:dns';
+
+// Some home routers/ISPs cannot answer the SRV/TXT DNS lookups that "mongodb+srv://" Atlas
+// connection strings need ("querySrv/queryTxt ETIMEOUT"). DNS_SERVERS lets Node use public DNS instead.
+if (process.env.DNS_SERVERS) {
+  const servers = process.env.DNS_SERVERS.split(',').map((s) => s.trim()).filter(Boolean);
+  dns.setServers(servers);
+  dns.promises.setServers(servers);
+}
 
 function required(name, fallback) {
   const value = process.env[name] ?? fallback;
