@@ -44,7 +44,11 @@ async function request(method, path, body) {
     throw new ApiError(0, 'No connection. Check your internet and try again.');
   }
 
-  const data = await res.json().catch(() => ({}));
+  const data = await res.json().catch(() => null);
+  if (data === null && !res.ok) {
+    // No JSON at all: the API server itself did not answer (not running, or crashed).
+    throw new ApiError(res.status, 'Cannot reach the server. Make sure it is running, then try again.');
+  }
   if (!res.ok) {
     if (res.status === 401 && path !== '/auth/login') onUnauthorized();
     throw new ApiError(res.status, data.message || 'Something went wrong');

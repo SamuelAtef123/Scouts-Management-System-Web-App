@@ -103,7 +103,9 @@ async function seedDemo(leader) {
 }
 
 async function main() {
-  await mongoose.connect(config.mongoUri);
+  await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 8000 }).catch((err) => {
+    throw new Error(`Could not connect to MongoDB (${err.message}). Make sure MongoDB is running, or set MONGO_URI in server/.env.`);
+  });
 
   const username = (process.env.SEED_ADMIN_USERNAME || 'leader').toLowerCase();
   const password = process.env.SEED_ADMIN_PASSWORD || (config.isProduction ? '' : 'leader123');

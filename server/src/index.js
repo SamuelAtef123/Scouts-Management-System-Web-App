@@ -61,7 +61,13 @@ app.use((err, _req, res, _next) => {
 });
 
 async function start() {
-  await mongoose.connect(config.mongoUri);
+  try {
+    await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 8000 });
+  } catch (err) {
+    console.error(`\nCould not connect to MongoDB at ${config.mongoUri.replace(/\/\/[^@]*@/, '//***@')}`);
+    console.error('Make sure MongoDB is installed and running, or set MONGO_URI in server/.env to your MongoDB Atlas connection string.\n');
+    throw err;
+  }
   app.listen(config.port, () => {
     console.log(`Server running on http://localhost:${config.port}`);
     console.log(isDriveEnabled() ? 'Uploads go to Google Drive' : `Google Drive not configured: uploads saved in ${LOCAL_UPLOAD_DIR}`);
