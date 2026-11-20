@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { User } from '../models/User.js';
 import { requireAuth, signToken } from '../middleware/auth.js';
 import { asyncHandler, badRequest, HttpError } from '../utils/httpError.js';
-import { hasGlobalAccess, canManageUsers } from '../utils/access.js';
+import { hasGlobalAccess, canManageUsers, canViewAllTeams } from '../utils/access.js';
 
 const router = Router();
 
@@ -20,7 +20,9 @@ export function publicUser(user) {
   return {
     ...user.toJSON(),
     permissions: {
-      allTeams: hasGlobalAccess(user),
+      allTeams: hasGlobalAccess(user), // manage events and tasks of every team
+      viewAllTeams: canViewAllTeams(user), // see every team's events
+      takeAttendance: user.role === 'database_team',
       manageUsers: canManageUsers(user),
     },
   };

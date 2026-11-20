@@ -44,7 +44,7 @@ export default function Events() {
       <header className="page-head">
         <div>
           <h1>Events</h1>
-          <p className="muted">{user.permissions.allTeams ? 'All teams of the group' : `${user.team} team and whole-group events`}</p>
+          <p className="muted">{user.permissions.viewAllTeams ? 'All teams of the group' : `${user.team} team and whole-group events`}</p>
         </div>
         <button className="btn btn-primary desktop-only" onClick={() => setCreating(true)}>
           <Plus size={18} /> New event
@@ -59,7 +59,7 @@ export default function Events() {
         ))}
       </div>
 
-      {user.permissions.allTeams && (
+      {user.permissions.viewAllTeams && (
         <div className="chips" role="group" aria-label="Filter by team">
           <button className={`chip ${!team ? 'active' : ''}`} onClick={() => setParam('team', '')}>
             All teams

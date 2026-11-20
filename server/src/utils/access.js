@@ -25,23 +25,32 @@ export function canManageTeam(user, team) {
   return Boolean(team) && Boolean(user?.team) && user.team === team;
 }
 
+/**
+ * Can view the events of every team. Group-wide leaders, plus all 5 Database/Attendance
+ * members, who take attendance for every team's sessions (viewing is not managing).
+ */
+export function canViewAllTeams(user) {
+  return hasGlobalAccess(user) || user?.role === ROLES.DATABASE_TEAM;
+}
+
 /** Teams whose events this user can see (whole-group events are visible to everyone). */
 export function visibleTeams(user, allTeams) {
-  if (hasGlobalAccess(user)) return allTeams;
+  if (canViewAllTeams(user)) return allTeams;
   return user?.team ? [user.team] : [];
 }
 
 export function canSeeEvent(user, event) {
-  return event.team === null || event.team === undefined || canManageTeam(user, event.team) || user?.team === event.team;
+  if (event.team === null || event.team === undefined) return true;
+  return canViewAllTeams(user) || user?.team === event.team;
 }
 
 /**
- * Who records attendance: anyone who manages the event, plus every member
- * of the Database/Attendance team (for any event that takes attendance).
+ * Who records attendance: ONLY the 5 members of the Database/Attendance team
+ * (privileged or not), for any event that takes attendance. No other role can.
  */
 export function canRecordAttendance(user, event) {
   if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) return false;
-  return canManageTeam(user, event.team) || user?.role === ROLES.DATABASE_TEAM;
+  return user?.role === ROLES.DATABASE_TEAM;
 }
 
 /** Who can create, edit and deactivate user accounts. */

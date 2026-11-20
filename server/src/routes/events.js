@@ -4,7 +4,7 @@ import { Event } from '../models/Event.js';
 import { Task } from '../models/Task.js';
 import { User } from '../models/User.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
-import { canManageTeam, canRecordAttendance, canSeeEvent, hasGlobalAccess, visibleTeams } from '../utils/access.js';
+import { canManageTeam, canRecordAttendance, canSeeEvent, canViewAllTeams, hasGlobalAccess, visibleTeams } from '../utils/access.js';
 import { ATTENDANCE_EVENT_TYPES, ATTENDANCE_STATUSES, EVENT_TYPES, GROUP_EVENT_TYPES, TEAMS } from '../constants.js';
 
 const router = Router();
@@ -92,7 +92,7 @@ router.get(
     else if (team) {
       if (!allowed.includes(team)) throw forbidden('You can only view events of your own team');
       filter.team = team;
-    } else if (!hasGlobalAccess(req.user)) {
+    } else if (!canViewAllTeams(req.user)) {
       // Own team's events plus whole-group events.
       filter.team = { $in: [...allowed, null] };
     }

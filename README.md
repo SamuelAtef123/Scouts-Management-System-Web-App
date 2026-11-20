@@ -45,7 +45,7 @@ The app is designed for phones first and also works on a computer.
 
 - Roles only decide permissions. Team membership decides who is on an attendance sheet, so every member belongs to a team. The Scouts Leader, Helpers and the Database team belong to the Gawala team; on its first start, the server moves anyone without a team into Gawala.
 - Before the first save, the sheet lists the current members. When it is first saved, the list is fixed and each member's team at that moment is stored, so later team changes don't alter past sheets. After attendance is taken, the event's type and team can't be changed.
-- Who records attendance: anyone who can manage the event, plus every Database / Attendance team member. Anyone who can see the event can view its sheet.
+- Who records attendance: **only the 5 Database / Attendance team members**, for any event. Everyone else, including the Scouts Leader, can only view the sheet of an event they can see.
 - Profile: attendance rate = present ÷ (present + absent). Excused sessions don't count against the member.
 
 Teams: Ashbal (أشبال), Zahrat (زهرات), Kashafeen (كشافين), Morshedat (مرشدات), Gawala (جوالة). Each team has a colour taken from the logo.

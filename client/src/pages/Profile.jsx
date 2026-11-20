@@ -91,6 +91,7 @@ export default function Profile() {
           {user.permissions.allTeams
             ? 'You can manage events and tasks of every team and of the whole group.'
             : `You can manage events and tasks of the ${user.team} team.`}
+          {user.permissions.takeAttendance && ' You take attendance for every team.'}
         </p>
       </section>
 
