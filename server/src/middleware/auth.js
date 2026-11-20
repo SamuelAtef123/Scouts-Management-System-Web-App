@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { config } from '../config.js';
 import { User } from '../models/User.js';
 import { HttpError, asyncHandler } from '../utils/httpError.js';
-import { canManageUsers } from '../utils/access.js';
+import { canManageUsers, canViewMembers } from '../utils/access.js';
 
 export function signToken(user) {
   return jwt.sign({ sub: user._id.toString() }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
@@ -27,6 +27,11 @@ export const requireAuth = asyncHandler(async (req, _res, next) => {
 });
 
 export function requireUserAdmin(req, _res, next) {
-  if (!canManageUsers(req.user)) return next(new HttpError(403, 'Only group leaders can manage members'));
+  if (!canManageUsers(req.user)) return next(new HttpError(403, 'Only the privileged Database/Attendance members can add or edit members'));
+  next();
+}
+
+export function requireMemberViewer(req, _res, next) {
+  if (!canViewMembers(req.user)) return next(new HttpError(403, 'You cannot view member details'));
   next();
 }

@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
 import { User } from '../models/User.js';
-import { requireUserAdmin } from '../middleware/auth.js';
+import { requireMemberViewer, requireUserAdmin } from '../middleware/auth.js';
+import { attendanceRates, attendanceStats } from './stats.js';
 import { asyncHandler, badRequest, notFound } from '../utils/httpError.js';
-import { hasGlobalAccess } from '../utils/access.js';
+import { canViewMembers, hasGlobalAccess } from '../utils/access.js';
 import { ROLES, ROLE_VALUES, TEAMS } from '../constants.js';
 import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 
@@ -44,7 +45,7 @@ router.get(
   '/',
   asyncHandler(async (req, res) => {
     const filter = {};
-    const showInactive = req.query.includeInactive === 'true' && hasGlobalAccess(req.user);
+    const showInactive = req.query.includeInactive === 'true' && canViewMembers(req.user);
     if (!showInactive) filter.isActive = true;
 
     if (req.query.team) filter.team = String(req.query.team);
@@ -52,6 +53,27 @@ router.get(
 
     const users = await User.find(filter).sort({ name: 1 });
     res.json({ users });
+  })
+);
+
+// Attendance percentage of every member, for the Members page.
+router.get(
+  '/attendance',
+  requireMemberViewer,
+  asyncHandler(async (_req, res) => {
+    res.json({ rates: await attendanceRates() });
+  })
+);
+
+// One member's details and attendance breakdown (view only).
+router.get(
+  '/:id',
+  requireMemberViewer,
+  asyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) throw notFound('Member not found');
+    const user = await User.findById(req.params.id);
+    if (!user) throw notFound('Member not found');
+    res.json({ user, attendance: await attendanceStats(user._id) });
   })
 );
 

@@ -11,7 +11,7 @@ export function useNavItems() {
     { to: '/events', label: 'Events', icon: CalendarDays },
     { to: '/tasks', label: 'My tasks', icon: ListChecks },
   ];
-  if (user?.permissions.manageUsers) items.push({ to: '/members', label: 'Members', icon: Users });
+  if (user?.permissions.viewMembers) items.push({ to: '/members', label: 'Members', icon: Users });
   items.push({ to: '/profile', label: 'Profile', icon: UserRound });
   return items;
 }

@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
-import { Plus, Search, Shield, Users } from 'lucide-react';
+import { ClipboardCheck, Pencil, Plus, Search, Shield, Users } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
-import { ROLES, ROLE_LABEL, TEAMS } from '../constants.js';
+import { EVENT_TYPES, ROLES, ROLE_LABEL, TEAMS } from '../constants.js';
 import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast } from '../components/ui.jsx';
 
 function MemberForm({ member, onClose, onSaved }) {
@@ -135,11 +135,120 @@ function MemberForm({ member, onClose, onSaved }) {
   );
 }
 
+/** Read-only view of a member: details and attendance. */
+function MemberDetails({ member, onClose, onEdit }) {
+  const { data, error, loading } = useApi(`/users/${member._id}`);
+  const a = data?.attendance;
+  return (
+    <Modal
+      title="Member"
+      onClose={onClose}
+      footer={
+        <>
+          <button type="button" className="btn btn-ghost" onClick={onClose}>
+            Close
+          </button>
+          {onEdit && (
+            <button type="button" className="btn btn-primary" onClick={onEdit}>
+              <Pencil size={16} /> Edit
+            </button>
+          )}
+        </>
+      }
+    >
+      <div className="member-detail-head">
+        <Avatar name={member.name} team={member.team} size={56} />
+        <div>
+          <h3>{member.name}</h3>
+          <p className="muted">@{member.username}</p>
+        </div>
+      </div>
+      <dl className="detail-list">
+        <div>
+          <dt>Role</dt>
+          <dd>
+            {ROLE_LABEL[member.role]}
+            {member.isPrivileged && ' (privileged)'}
+          </dd>
+        </div>
+        <div>
+          <dt>Team</dt>
+          <dd>{member.team ? <TeamChip team={member.team} size="sm" /> : '–'}</dd>
+        </div>
+        {member.attendanceTeam && (
+          <div>
+            <dt>Takes attendance for</dt>
+            <dd>{member.attendanceTeam}</dd>
+          </div>
+        )}
+        <div>
+          <dt>Phone</dt>
+          <dd>{member.phone ? <a href={`tel:${member.phone}`}>{member.phone}</a> : '–'}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{member.isActive ? 'Active' : 'Inactive'}</dd>
+        </div>
+      </dl>
+
+      <h3 className="detail-section">
+        <ClipboardCheck size={17} /> Attendance
+      </h3>
+      {loading && !data ? (
+        <Spinner />
+      ) : error ? (
+        <ErrorBox message={error} />
+      ) : !a.sessions ? (
+        <p className="muted">No attendance recorded yet.</p>
+      ) : (
+        <>
+          <div className="attend-rate">
+            <div className="rate-ring" style={{ '--p': a.rate ?? 0 }}>
+              <span>{a.rate === null ? '–' : `${a.rate}%`}</span>
+            </div>
+            <div>
+              <strong>
+                {a.present} of {a.present + a.absent} sessions attended
+              </strong>
+              <p className="muted">
+                {a.absent} absent · {a.excused} excused
+              </p>
+            </div>
+          </div>
+          <div className="attend-types">
+            {EVENT_TYPES.filter((t) => t.attendance && a.byType[t.id]).map((t) => {
+              const c = a.byType[t.id];
+              return (
+                <div key={t.id} className="attend-type">
+                  <span>{t.label}</span>
+                  <b>
+                    {c.present}/{c.present + c.absent}
+                  </b>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </Modal>
+  );
+}
+
+function RateBadge({ rate }) {
+  if (rate === null || rate === undefined) return <span className="rate-badge rate-none">–</span>;
+  const tone = rate >= 75 ? 'good' : rate >= 50 ? 'mid' : 'low';
+  return <span className={`rate-badge rate-${tone}`}>{rate}%</span>;
+}
+
 export default function Members() {
   const toast = useToast();
+  const { user } = useAuth();
+  const canEdit = user.permissions.manageUsers; // only the privileged Database/Attendance members
   const { data, error, loading, reload, setData } = useApi('/users?includeInactive=true');
+  const rates = useApi('/users/attendance');
   const [query, setQuery] = useState('');
   const [team, setTeam] = useState('');
+  const [viewing, setViewing] = useState(null);
   const [editing, setEditing] = useState(null); // {} for new
 
   const members = useMemo(() => {
@@ -154,12 +263,17 @@ export default function Members() {
       <header className="page-head">
         <div>
           <h1>Members</h1>
-          <p className="muted">{data ? `${data.users.filter((u) => u.isActive).length} active members` : 'Gawala team accounts'}</p>
+          <p className="muted">
+            {data ? `${data.users.filter((u) => u.isActive).length} active members` : 'Gawala team accounts'}
+            {!canEdit && ' · view only'}
+          </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setEditing({})}>
-          <Plus size={18} /> <span className="desktop-only-inline">Add member</span>
-          <span className="mobile-only-inline">Add</span>
-        </button>
+        {canEdit && (
+          <button className="btn btn-primary" onClick={() => setEditing({})}>
+            <Plus size={18} /> <span className="desktop-only-inline">Add member</span>
+            <span className="mobile-only-inline">Add</span>
+          </button>
+        )}
       </header>
 
       <div className="search">
@@ -187,7 +301,7 @@ export default function Members() {
       ) : (
         <div className="member-list">
           {members.map((u) => (
-            <button key={u._id} className={`member ${u.isActive ? '' : 'inactive'}`} onClick={() => setEditing(u)}>
+            <button key={u._id} className={`member ${u.isActive ? '' : 'inactive'}`} onClick={() => setViewing(u)}>
               <Avatar name={u.name} team={u.team} />
               <span className="member-text">
                 <strong>
@@ -200,19 +314,37 @@ export default function Members() {
                   {!u.isActive && ' · Inactive'}
                 </span>
               </span>
-              {u.team && <TeamChip team={u.team} size="sm" />}
+              <span className="member-side">
+                {u.team && <TeamChip team={u.team} size="sm" />}
+                <RateBadge rate={rates.data?.rates[u._id]?.rate} />
+              </span>
             </button>
           ))}
         </div>
       )}
 
-      {editing && (
+      {viewing && (
+        <MemberDetails
+          member={viewing}
+          onClose={() => setViewing(null)}
+          onEdit={
+            canEdit
+              ? () => {
+                  setEditing(viewing);
+                  setViewing(null);
+                }
+              : undefined
+          }
+        />
+      )}
+
+      {editing && canEdit && (
         <MemberForm
           member={editing._id ? editing : undefined}
           onClose={() => setEditing(null)}
-          onSaved={(user, created) => {
+          onSaved={(saved, created) => {
             setData((d) => ({
-              users: created ? [...d.users, user].sort((a, b) => a.name.localeCompare(b.name)) : d.users.map((u) => (u._id === user._id ? user : u)),
+              users: created ? [...d.users, saved].sort((a, b) => a.name.localeCompare(b.name)) : d.users.map((u) => (u._id === saved._id ? saved : u)),
             }));
             setEditing(null);
             toast(created ? 'Member added' : 'Member updated');

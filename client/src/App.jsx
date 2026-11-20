@@ -31,7 +31,7 @@ export default function App() {
         <Route path="events" element={<Events />} />
         <Route path="events/:id" element={<EventDetail />} />
         <Route path="tasks" element={<MyTasks />} />
-        {user.permissions.manageUsers && <Route path="members" element={<Members />} />}
+        {user.permissions.viewMembers && <Route path="members" element={<Members />} />}
         <Route path="profile" element={<Profile />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

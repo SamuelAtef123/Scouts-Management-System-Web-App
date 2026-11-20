@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { User } from '../models/User.js';
 import { requireAuth, signToken } from '../middleware/auth.js';
 import { asyncHandler, badRequest, HttpError } from '../utils/httpError.js';
-import { hasGlobalAccess, canManageUsers, canViewAllTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
+import { hasGlobalAccess, canManageUsers, canViewAllTeams, canViewMembers, attendanceTeamOf, visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
 
 const router = Router();
@@ -25,7 +25,8 @@ export function publicUser(user) {
       viewAllTeams: canViewAllTeams(user), // see every team's events
       teams: visibleTeams(user, TEAMS), // teams whose events they see (plus whole-group events)
       attendanceTeam: attendanceTeamOf(user), // the team they take attendance for, if any
-      manageUsers: canManageUsers(user),
+      viewMembers: canViewMembers(user), // Members page: details and attendance %
+      manageUsers: canManageUsers(user), // add / edit / deactivate members
     },
   };
 }

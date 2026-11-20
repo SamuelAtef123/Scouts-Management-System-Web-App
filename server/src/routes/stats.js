@@ -30,6 +30,25 @@ export async function attendanceStats(userId) {
   return { ...total, sessions: counted + total.excused, rate: counted ? Math.round((total.present / counted) * 100) : null, byType };
 }
 
+/** Attendance rate of every member who is on at least one sheet: userId -> { present, absent, excused, rate }. */
+export async function attendanceRates() {
+  const rows = await Event.aggregate([
+    { $unwind: '$attendance' },
+    { $group: { _id: { user: '$attendance.user', status: '$attendance.status' }, n: { $sum: 1 } } },
+  ]);
+  const out = {};
+  for (const r of rows) {
+    const id = r._id.user.toString();
+    out[id] ??= { present: 0, absent: 0, excused: 0 };
+    out[id][r._id.status] += r.n;
+  }
+  for (const c of Object.values(out)) {
+    const counted = c.present + c.absent;
+    c.rate = counted ? Math.round((c.present / counted) * 100) : null;
+  }
+  return out;
+}
+
 // Small personal summary for the home screen. Full KPIs come later.
 router.get(
   '/me',

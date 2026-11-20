@@ -87,7 +87,15 @@ export function canManageEvent(user, event) {
   return canManageTeam(user, event.team);
 }
 
-/** Who can create, edit and deactivate user accounts. */
+/**
+ * Who can create, edit and deactivate member accounts: only the 2 privileged
+ * Database/Attendance members. The Scouts Leader and Helpers can only view members.
+ */
 export function canManageUsers(user) {
+  return user?.role === ROLES.DATABASE_TEAM && user.isPrivileged === true;
+}
+
+/** Who can open the Members page: view every member's details and attendance percentage. */
+export function canViewMembers(user) {
   return hasGlobalAccess(user);
 }
