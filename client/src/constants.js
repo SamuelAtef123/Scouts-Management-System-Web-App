@@ -38,7 +38,7 @@ export const ACCEPTED_FILES = '.pdf,.doc,.docx,image/*';
 // Preparation Meetings are created only by the Scouts Leader, Helpers, and a Team Leader for their own team.
 export const EVENT_TYPES = [
   { id: 'team_session', label: 'Team Session', hint: "Attendance of the team's members", attendance: true, group: false },
-  { id: 'preparation_meeting', label: 'Preparation Meeting', hint: "Attendance of the team's members", attendance: true, group: false },
+  { id: 'preparation_meeting', label: 'Preparation Meeting', hint: "Attendance of the team's members · no tasks", attendance: true, group: false, noTasks: true },
   { id: 'gawala_session', label: 'Gawala Session', hint: 'Whole group · attendance of all teams', attendance: true, group: true },
   { id: 'other', label: 'Others', hint: 'No attendance', attendance: false, group: false },
 ];

@@ -85,6 +85,7 @@ router.post(
   '/',
   asyncHandler(async (req, res) => {
     const event = await loadEvent(req.body.event, req.user, { manage: 'tasks' });
+    if (event.type === 'preparation_meeting') throw badRequest('Preparation Meetings do not have tasks');
     const title = String(req.body.title || '').trim();
     if (!title) throw badRequest('Task title is required');
     const assignee = await checkAssignee(req.body.assignee, event, req.user);

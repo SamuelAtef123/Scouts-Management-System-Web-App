@@ -198,6 +198,10 @@ router.put(
     }
     fields.team = checkTypeAndTeam(req.user, type, team);
 
+    if (type === 'preparation_meeting' && event.type !== 'preparation_meeting' && (await Task.exists({ event: event._id }))) {
+      throw badRequest('Preparation Meetings do not have tasks. Delete this event\'s tasks first, or keep its type.');
+    }
+
     const teamChanged = fields.team !== event.team;
     Object.assign(event, fields);
     await event.save();

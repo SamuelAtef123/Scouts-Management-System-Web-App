@@ -152,45 +152,50 @@ export default function EventDetail() {
         </section>
       )}
 
-      <div className="section-head">
-        <h2>Tasks</h2>
-        {canManageTasks && (
-          <button className="btn btn-primary btn-sm" onClick={() => setTaskForm({})}>
-            <Plus size={16} /> Add task
-          </button>
-        )}
-      </div>
+      {/* Preparation Meetings have no tasks. */}
+      {!type.noTasks && (
+        <>
+        <div className="section-head">
+          <h2>Tasks</h2>
+          {canManageTasks && (
+            <button className="btn btn-primary btn-sm" onClick={() => setTaskForm({})}>
+              <Plus size={16} /> Add task
+            </button>
+          )}
+        </div>
 
-      {tasks.length > 0 && (
-        <div className="progress-line">
-          <div className="bar">
-            <div style={{ width: `${progress}%` }} />
+        {tasks.length > 0 && (
+          <div className="progress-line">
+            <div className="bar">
+              <div style={{ width: `${progress}%` }} />
+            </div>
+            <span>
+              {done} of {tasks.length} done
+            </span>
           </div>
-          <span>
-            {done} of {tasks.length} done
-          </span>
-        </div>
-      )}
+        )}
 
-      {tasks.length === 0 ? (
-        <EmptyState
-          icon={ListChecks}
-          title="No tasks yet"
-          text={canManageTasks ? 'Split the work: add tasks and assign them to leaders.' : 'Tasks for this event will appear here.'}
-          action={
-            canManageTasks && (
-              <button className="btn btn-primary" onClick={() => setTaskForm({})}>
-                <Plus size={18} /> Add the first task
-              </button>
-            )
-          }
-        />
-      ) : (
-        <div className="stack">
-          {tasks.map((t) => (
-            <TaskCard key={t._id} task={t} onChange={upsertTask} onEdit={(task) => setTaskForm(task)} onDelete={removeTask} />
-          ))}
-        </div>
+        {tasks.length === 0 ? (
+          <EmptyState
+            icon={ListChecks}
+            title="No tasks yet"
+            text={canManageTasks ? 'Split the work: add tasks and assign them to leaders.' : 'Tasks for this event will appear here.'}
+            action={
+              canManageTasks && (
+                <button className="btn btn-primary" onClick={() => setTaskForm({})}>
+                  <Plus size={18} /> Add the first task
+                </button>
+              )
+            }
+          />
+        ) : (
+          <div className="stack">
+            {tasks.map((t) => (
+              <TaskCard key={t._id} task={t} onChange={upsertTask} onEdit={(task) => setTaskForm(task)} onDelete={removeTask} />
+            ))}
+          </div>
+        )}
+        </>
       )}
 
       {editing && (

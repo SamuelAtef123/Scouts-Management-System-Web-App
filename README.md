@@ -31,7 +31,7 @@ The app is designed for phones first and also works on a computer.
 - Only the person a task is assigned to can upload its material and change its status.
 - People with team-only access can assign tasks to members of that team. People with access to every team can assign tasks to anyone.
 - **Members** management (adding accounts and resetting passwords) is available to the roles that have access to every team.
-- **Preparation Meetings** belong to one team. Only the Scouts Leader, the Scouts Leader Helpers, and a Team Leader (for their own team) can create, edit or delete them. That team's leaders and helpers can still add tasks to them.
+- **Preparation Meetings** belong to one team. Only the Scouts Leader, the Scouts Leader Helpers, and a Team Leader (for their own team) can create, edit or delete them. Preparation Meetings have **no tasks**.
 - **Gawala Sessions** (whole-group events) are created and managed by the leaders who have access to every team.
 - The rules live in one place: `server/src/utils/access.js`.
 
