@@ -99,7 +99,6 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
                 disabled={locked && form.type !== t.id}
               >
                 <strong>{t.label}</strong>
-                <small>{t.hint}</small>
               </button>
             ))}
           </div>
