@@ -4,7 +4,7 @@ import { User } from '../models/User.js';
 import { requireMemberViewer, requireUserAdmin } from '../middleware/auth.js';
 import { attendanceRates, attendanceStats } from './stats.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
-import { canViewMembers, hasGlobalAccess, memberTeams } from '../utils/access.js';
+import { TEAM_LEVEL_ROLES, canViewMembers, hasGlobalAccess, memberTeams } from '../utils/access.js';
 import { ROLES, ROLE_VALUES, TEAMS } from '../constants.js';
 import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 
@@ -28,6 +28,22 @@ function readUserFields(body, { partial }) {
   if (body.isPrivileged !== undefined) out.isPrivileged = Boolean(body.isPrivileged);
   if (body.isActive !== undefined) out.isActive = Boolean(body.isActive);
   return out;
+}
+
+/**
+ * A non-privileged Database member manages only their assigned team: the member must be
+ * (and stay) in that team, and can only be a Team Leader or Team Leader Helper.
+ */
+function checkManagerScope(manager, member, { before } = {}) {
+  if (hasGlobalAccess(manager)) return;
+  const teams = memberTeams(manager);
+  if (before && !teams.includes(before.team)) throw notFound('Member not found');
+  if (before && !TEAM_LEVEL_ROLES.includes(before.role)) {
+    throw forbidden('Only the Scouts Leader team and privileged Database members can edit this member');
+  }
+  if (!teams.includes(member.team)) throw forbidden(`You can only manage members of the ${teams.join(', ')} team`);
+  if (!TEAM_LEVEL_ROLES.includes(member.role)) throw forbidden('You can only add Team Leaders and Team Leader Helpers');
+  if (member.isPrivileged) throw forbidden('You cannot make a member privileged');
 }
 
 function checkRoleTeam(user) {
@@ -101,6 +117,7 @@ router.post(
 
     const user = new User(fields);
     checkRoleTeam(user);
+    checkManagerScope(req.user, user);
     await user.setPassword(password);
     await user.save();
     res.status(201).json({ user });
@@ -115,6 +132,8 @@ router.put(
     const user = await User.findById(req.params.id);
     if (!user) throw notFound('Member not found');
 
+    const before = { team: user.team, role: user.role };
+    checkManagerScope(req.user, user, { before });
     const fields = readUserFields(req.body, { partial: true });
     if (fields.username && fields.username !== user.username && ATTENDANCE_ASSIGNMENTS[user.username]) {
       throw badRequest('This username is used in the fixed attendance assignments, so it cannot be changed from the app');
@@ -128,6 +147,7 @@ router.put(
 
     Object.assign(user, fields);
     checkRoleTeam(user);
+    checkManagerScope(req.user, user, { before });
     if (req.body.password) {
       if (String(req.body.password).length < 6) throw badRequest('The password must be at least 6 characters');
       await user.setPassword(String(req.body.password));

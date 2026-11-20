@@ -14,7 +14,7 @@ The app is designed for phones first and also works on a computer.
 - **Event types**: Team Session, Preparation Meeting, Gawala Session and Others. A Gawala Session belongs to the whole group, so everyone sees it; every other type belongs to one team.
 - **Attendance**: each event except "Others" has an attendance sheet. Mark each member Present, Absent or Excused; anyone left unmarked is saved as absent. Each member's attendance rate is shown on their Profile.
 - **Home**: a personal summary showing open, done and overdue tasks, your next tasks and upcoming events.
-- **Members**: every member's details and attendance percentage. The Scouts Leader and Helpers view everyone; the 3 non-privileged Database / Attendance members view their assigned team; the 2 privileged ones can also add accounts, set roles and teams, reset passwords and deactivate members.
+- **Members**: every member's details and attendance percentage. The Scouts Leader and Helpers view everyone; all 5 Database / Attendance members can add accounts, edit them, reset passwords and deactivate members (the 3 non-privileged ones only for their assigned team).
 - **Profile**: change your own password.
 
 ## Who can do what
@@ -32,8 +32,8 @@ The app is designed for phones first and also works on a computer.
 - People with team-only access can assign tasks to members of that team. People with access to every team can assign tasks to anyone.
 - **Members page** (details and attendance percentage):
   - Scouts Leader and Scouts Leader Helpers: **view** all members.
-  - The 2 privileged Database / Attendance members: view all members, and **add, edit or deactivate** accounts and reset passwords. Only they can edit.
-  - The other 3 Database / Attendance members: **view only the members of their assigned team**.
+  - The 2 privileged Database / Attendance members: view all members, and **add, edit or deactivate** accounts and reset passwords.
+  - The other 3 Database / Attendance members: view, **add, edit or deactivate** members of **their assigned team only**. They can only give the Team Leader or Team Leader Helper role, and can't move a member out of their team.
   - Team Leaders and Team Leader Helpers: no Members page.
 - **Preparation Meetings** belong to one team. Only the Scouts Leader, the Scouts Leader Helpers, and a Team Leader (for their own team) can create, edit or delete them. Preparation Meetings have **no tasks**.
 - **Gawala Sessions** (whole-group events) are created and managed by the leaders who have access to every team.
@@ -165,7 +165,7 @@ All routes except login need an `Authorization: Bearer <token>` header.
 | POST | `/api/tasks/:id/materials` | Upload material (`multipart/form-data`, field `file`) |
 | DELETE | `/api/tasks/:id/materials/:materialId` | Remove an uploaded file |
 | GET | `/api/users`, `/api/users/:id`, `/api/users/attendance` | Members, one member's details and attendance, everyone's attendance % |
-| POST/PUT | `/api/users[/:id]` | Add or edit members (privileged Database / Attendance members only) |
+| POST/PUT | `/api/users[/:id]` | Add or edit members (Database / Attendance team; the 3 non-privileged ones for their assigned team only) |
 | GET | `/api/stats/me` | The home screen summary and your attendance |
 
 ## Coming later

@@ -9,12 +9,16 @@ import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast
 function MemberForm({ member, onClose, onSaved }) {
   const { user } = useAuth();
   const isSelf = member?._id === user._id;
+  // The 3 non-privileged Database members manage only their assigned team, and only these roles.
+  const limited = !user.permissions.allTeams;
+  const teamOptions = TEAMS.filter((t) => (user.permissions.memberTeams || []).includes(t.id));
+  const roleOptions = limited ? ROLES.filter((r) => ['team_leader', 'team_leader_helper'].includes(r.id)) : ROLES;
   const [form, setForm] = useState({
     name: member?.name || '',
     username: member?.username || '',
     phone: member?.phone || '',
     role: member?.role || 'team_leader_helper',
-    team: member?.team || '',
+    team: member?.team || (limited ? teamOptions[0]?.id || '' : ''),
     isPrivileged: member?.isPrivileged || false,
     isActive: member?.isActive ?? true,
     password: '',
@@ -78,7 +82,7 @@ function MemberForm({ member, onClose, onSaved }) {
               }}
               disabled={isSelf}
             >
-              {ROLES.map((r) => (
+              {roleOptions.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.label}
                 </option>
@@ -88,7 +92,7 @@ function MemberForm({ member, onClose, onSaved }) {
           <Field label="Team" hint="Decides whose attendance sheet they appear on">
             <select value={form.team} onChange={set('team')} required>
               <option value="">Choose a team</option>
-              {TEAMS.map((t) => (
+              {teamOptions.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.id}
                 </option>
@@ -108,7 +112,7 @@ function MemberForm({ member, onClose, onSaved }) {
             This is fixed by the system and can't be changed here.
           </p>
         )}
-        {form.role === 'database_team' && (
+        {form.role === 'database_team' && !limited && (
           <label className="check">
             <input type="checkbox" checked={form.isPrivileged} onChange={set('isPrivileged')} />
             <span>

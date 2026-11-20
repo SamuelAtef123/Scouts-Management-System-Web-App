@@ -27,7 +27,7 @@ export const requireAuth = asyncHandler(async (req, _res, next) => {
 });
 
 export function requireUserAdmin(req, _res, next) {
-  if (!canManageUsers(req.user)) return next(new HttpError(403, 'Only the privileged Database/Attendance members can add or edit members'));
+  if (!canManageUsers(req.user)) return next(new HttpError(403, 'Only the Database/Attendance team can add or edit members'));
   next();
 }
 

@@ -88,12 +88,16 @@ export function canManageEvent(user, event) {
 }
 
 /**
- * Who can create, edit and deactivate member accounts: only the 2 privileged
- * Database/Attendance members. The Scouts Leader and Helpers can only view members.
+ * Who can add, edit and deactivate member accounts: all 5 Database/Attendance members.
+ * The 2 privileged ones manage every team; the other 3 only the team they are assigned to
+ * (see memberTeams). The Scouts Leader and Helpers can only view members.
  */
 export function canManageUsers(user) {
-  return user?.role === ROLES.DATABASE_TEAM && user.isPrivileged === true;
+  return user?.role === ROLES.DATABASE_TEAM && memberTeams(user).length > 0;
 }
+
+/** Limited managers (the 3 non-privileged Database members) may only give these roles. */
+export const TEAM_LEVEL_ROLES = [ROLES.TEAM_LEADER, ROLES.TEAM_LEADER_HELPER];
 
 /**
  * Teams whose members this user can view on the Members page (details and attendance %):
