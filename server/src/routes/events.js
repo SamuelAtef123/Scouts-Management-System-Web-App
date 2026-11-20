@@ -4,7 +4,7 @@ import { Event } from '../models/Event.js';
 import { Task } from '../models/Task.js';
 import { User } from '../models/User.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
-import { attendanceTeamOf, canManageTeam, canRecordAttendance, canSeeEvent, canViewAllTeams, hasGlobalAccess, visibleTeams } from '../utils/access.js';
+import { canManageEvent, canManageTeam, canRecordAttendance, canSeeEvent, canViewAllTeams, hasGlobalAccess, recordableTeams, visibleTeams } from '../utils/access.js';
 import { ATTENDANCE_EVENT_TYPES, ATTENDANCE_STATUSES, EVENT_TYPES, GROUP_EVENT_TYPES, TEAMS } from '../constants.js';
 
 const router = Router();
@@ -40,27 +40,43 @@ function readEventFields(body, { partial }) {
   return out;
 }
 
-/** Checks that `user` may give an event this type and team. */
+/** Checks that `user` may give an event this type and team; returns the team to store. */
 function checkTypeAndTeam(user, type, team) {
   if (GROUP_EVENT_TYPES.includes(type)) {
-    if (!hasGlobalAccess(user)) throw forbidden('Only group leaders can create Preparation Meetings and Gawala Sessions');
+    if (!hasGlobalAccess(user)) throw forbidden('Only group leaders can create Gawala Sessions');
     return null;
   }
-  if (type === 'team_session' && !team) throw badRequest('Choose the team this session is for');
-  if (!canManageTeam(user, team)) {
+  if ((type === 'team_session' || type === 'preparation_meeting') && !team) throw badRequest('Choose the team this event is for');
+  if (!canManageEvent(user, { type, team })) {
+    if (type === 'preparation_meeting') {
+      throw forbidden('Preparation Meetings are created only by the Scouts Leader, Scouts Leader Helpers, and a Team Leader for their own team');
+    }
     throw forbidden(team ? 'You can only manage events of your own team' : 'Only group leaders can create whole-group events');
   }
   return team;
 }
 
-/** Loads an event and checks the user may see it (and optionally manage it). */
+/**
+ * Loads an event and checks the user may see it, and optionally manage it:
+ * `manage: true` = edit or delete the event itself; `manage: 'tasks'` = add or change its tasks
+ * (team rules: the team's leaders and helpers, or group-wide leaders).
+ */
 export async function loadEvent(id, user, { manage = false } = {}) {
   if (!mongoose.isValidObjectId(id)) throw notFound('Event not found');
   const event = await Event.findById(id);
   if (!event) throw notFound('Event not found');
   if (!canSeeEvent(user, event)) throw notFound('Event not found');
-  if (manage && !canManageTeam(user, event.team)) {
-    throw forbidden(event.team ? 'You can only manage events of your own team' : 'Only group leaders can manage whole-group events');
+  if (manage === 'tasks' && !canManageTeam(user, event.team)) {
+    throw forbidden(event.team ? 'You can only manage tasks of your own team' : 'Only group leaders can manage tasks of whole-group events');
+  }
+  if (manage === true && !canManageEvent(user, event)) {
+    throw forbidden(
+      event.type === 'preparation_meeting'
+        ? 'Only the Scouts Leader, Scouts Leader Helpers and this team\'s Team Leader can change this Preparation Meeting'
+        : event.team
+          ? 'You can only manage events of your own team'
+          : 'Only group leaders can manage whole-group events'
+    );
   }
   return event;
 }
@@ -153,7 +169,7 @@ router.get(
       .populate('createdBy', 'name')
       .populate('materials.uploadedBy', 'name');
     res.json({
-      event: { ...eventForClient(event), canRecordAttendance: canRecordAttendance(req.user, event) },
+      event: { ...eventForClient(event), canRecordAttendance: canRecordAttendance(req.user, event), canManage: canManageEvent(req.user, event) },
       tasks,
     });
   })
@@ -186,7 +202,7 @@ router.put(
     Object.assign(event, fields);
     await event.save();
     if (teamChanged) await Task.updateMany({ event: event._id }, { team: event.team });
-    res.json({ event: { ...eventForClient(event), canRecordAttendance: canRecordAttendance(req.user, event) } });
+    res.json({ event: { ...eventForClient(event), canRecordAttendance: canRecordAttendance(req.user, event), canManage: canManageEvent(req.user, event) } });
   })
 );
 
@@ -204,8 +220,9 @@ router.delete(
 // ---------- Attendance ----------
 //
 // Only Database/Attendance members record attendance, each for their one assigned team.
-// A Team Session's sheet has one section (its team). A Preparation Meeting or Gawala
-// Session sheet has a section per team, and each section is filled by that team's member.
+// A Team Session or Preparation Meeting sheet has one section (its team), taken by that
+// team's member. A Gawala Session sheet has a section per team, all taken by the member
+// assigned to Gawala.
 
 const teamOrder = (team) => TEAMS.indexOf(team);
 
@@ -219,7 +236,7 @@ async function attendanceSheet(event, user) {
     { path: 'attendance.user', select: 'name username team' },
     { path: 'attendanceTeams.takenBy', select: 'name' },
   ]);
-  const myTeam = canRecordAttendance(user, event) ? attendanceTeamOf(user) : null;
+  const mine = recordableTeams(user, event, TEAMS);
 
   const sections = [];
   for (const team of expectedTeams(event)) {
@@ -238,12 +255,12 @@ async function attendanceSheet(event, user) {
       taken: Boolean(log),
       takenAt: log?.takenAt ?? null,
       takenBy: log?.takenBy?.name ? { name: log.takenBy.name } : null,
-      canRecord: team === myTeam,
+      canRecord: mine.includes(team),
       rows,
     });
   }
   sections.sort((a, b) => teamOrder(a.team) - teamOrder(b.team));
-  return { sections, myTeam };
+  return { sections };
 }
 
 router.get(
@@ -256,16 +273,20 @@ router.get(
 );
 
 // PUT /api/events/:id/attendance  { records: [{ user, status }] }
-// Saves the recorder's own team section. Members of that team left unmarked are saved as absent.
+// Saves the sections this user records. Members of those teams left unmarked are saved as absent.
 router.put(
   '/:id/attendance',
   asyncHandler(async (req, res) => {
     const event = await loadEvent(req.params.id, req.user);
     if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) throw badRequest('Attendance is not taken for this type of event');
-    if (!canRecordAttendance(req.user, event)) {
-      throw forbidden('Only the Database/Attendance member assigned to this team can take its attendance');
+    const teams = recordableTeams(req.user, event, TEAMS);
+    if (!teams.length) {
+      throw forbidden(
+        event.type === 'gawala_session'
+          ? 'Only the Database/Attendance member assigned to Gawala takes Gawala Session attendance'
+          : "Only the Database/Attendance member assigned to this team can take its attendance"
+      );
     }
-    const team = attendanceTeamOf(req.user);
 
     const records = Array.isArray(req.body.records) ? req.body.records : [];
     const statusByUser = new Map();
@@ -274,22 +295,24 @@ router.put(
       statusByUser.set(String(r.user), r.status);
     }
 
-    const log = event.attendanceTeams.find((t) => t.team === team);
-    if (!log) {
-      // First time for this team: its member list is fixed from team membership right now.
-      const members = await currentMembers(team);
-      for (const u of members) {
-        event.attendance.push({ user: u._id, team, status: statusByUser.get(u._id.toString()) || 'absent' });
+    for (const team of teams) {
+      const log = event.attendanceTeams.find((t) => t.team === team);
+      if (!log) {
+        // First time for this team: its member list is fixed from team membership right now.
+        const members = await currentMembers(team);
+        for (const u of members) {
+          event.attendance.push({ user: u._id, team, status: statusByUser.get(u._id.toString()) || 'absent' });
+        }
+        event.attendanceTeams.push({ team, takenAt: new Date(), takenBy: req.user._id });
+      } else {
+        for (const a of event.attendance) {
+          if (a.team !== team) continue;
+          const status = statusByUser.get(a.user.toString());
+          if (status) a.status = status;
+        }
+        log.takenAt = new Date();
+        log.takenBy = req.user._id;
       }
-      event.attendanceTeams.push({ team, takenAt: new Date(), takenBy: req.user._id });
-    } else {
-      for (const a of event.attendance) {
-        if (a.team !== team) continue; // other teams' sections belong to their own members
-        const status = statusByUser.get(a.user.toString());
-        if (status) a.status = status;
-      }
-      log.takenAt = new Date();
-      log.takenBy = req.user._id;
     }
     await event.save();
 

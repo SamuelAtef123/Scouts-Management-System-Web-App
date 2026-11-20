@@ -69,9 +69,10 @@ async function seedDemo(leader) {
     { type: 'team_session', team: 'Morshedat', title: 'Leadership workshop', start: 8, location: 'Room 3', tasks: ['Workshop slides'] },
     { type: 'team_session', team: 'Gawala', title: 'Gawala team session', start: 6, location: 'Room 1', tasks: [] },
     { type: 'gawala_session', team: null, title: 'Gawala monthly gathering', start: 3, location: 'Church yard', tasks: ['Agenda', 'Photos of last month'] },
-    { type: 'preparation_meeting', team: null, title: 'Preparation meeting for the camp', start: 1, location: 'Main hall', tasks: [] },
+    { type: 'preparation_meeting', team: 'Kashafeen', title: 'Preparation meeting for the camp', start: 1, location: 'Main hall', tasks: [] },
     { type: 'team_session', team: 'Ashbal', title: 'Bible competition', start: -10, location: 'Main hall', tasks: ['Questions sheet'], attendance: true },
-    { type: 'preparation_meeting', team: null, title: 'Preparation meeting for the Bible competition', start: -14, location: 'Main hall', tasks: [], attendance: true },
+    { type: 'preparation_meeting', team: 'Ashbal', title: 'Preparation meeting for the Bible competition', start: -14, location: 'Main hall', tasks: [], attendance: true },
+    { type: 'gawala_session', team: null, title: 'Gawala session: serving together', start: -7, location: 'Church yard', tasks: [], attendance: true },
   ];
 
   const statuses = ['present', 'present', 'present', 'absent', 'excused'];
@@ -88,12 +89,13 @@ async function seedDemo(leader) {
       createdBy: p.team ? users[`${owner}.leader`]._id : leader._id,
     });
     if (p.attendance) {
-      // Each team's section is taken by that team's Database/Attendance member.
+      // A team's attendance is taken by its Database/Attendance member; a Gawala Session's by the Gawala one.
       const dbByTeam = Object.fromEntries(Object.values(users).filter((u) => u.attendanceTeam).map((u) => [u.attendanceTeam, u]));
       for (const team of p.team ? [p.team] : TEAMS) {
         const sheet = await User.find({ isActive: true, team }).sort({ name: 1 });
         sheet.forEach((u, i) => event.attendance.push({ user: u._id, team, status: statuses[i % statuses.length] }));
-        event.attendanceTeams.push({ team, takenAt: daysFromNow(p.start, 19), takenBy: (dbByTeam[team] || leader)._id });
+        const recorder = dbByTeam[p.type === 'gawala_session' ? 'Gawala' : team] || leader;
+        event.attendanceTeams.push({ team, takenAt: daysFromNow(p.start, 19), takenBy: recorder._id });
       }
     }
     await event.save();

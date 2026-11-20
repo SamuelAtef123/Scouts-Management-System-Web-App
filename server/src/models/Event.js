@@ -25,7 +25,7 @@ const eventSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true, maxlength: 120 },
     description: { type: String, trim: true, maxlength: 2000, default: '' },
     type: { type: String, enum: EVENT_TYPES, default: 'other', index: true },
-    // The team the event belongs to; null = the whole group (Preparation Meeting, Gawala Session, or a group-wide "Others").
+    // The team the event belongs to; null = the whole group (a Gawala Session, or a group-wide "Others").
     team: { type: String, enum: [...TEAMS, null], default: null, index: true },
     startDate: { type: Date, required: true, index: true },
     endDate: { type: Date },
@@ -49,8 +49,8 @@ eventSchema.pre('validate', function checkEvent() {
     this.invalidate('endDate', 'End date must be after the start date');
   }
   if (GROUP_EVENT_TYPES.includes(this.type)) this.team = null;
-  if (this.type === 'team_session' && !this.team) {
-    this.invalidate('team', 'Choose the team this session is for');
+  if ((this.type === 'team_session' || this.type === 'preparation_meeting') && !this.team) {
+    this.invalidate('team', 'Choose the team this event is for');
   }
 });
 

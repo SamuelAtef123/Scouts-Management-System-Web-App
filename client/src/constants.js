@@ -35,9 +35,10 @@ export const VERSE = {
 export const ACCEPTED_FILES = '.pdf,.doc,.docx,image/*';
 
 // Event types. `group: true` = belongs to the whole group (members of ALL teams on the attendance sheet).
+// Preparation Meetings are created only by the Scouts Leader, Helpers, and a Team Leader for their own team.
 export const EVENT_TYPES = [
   { id: 'team_session', label: 'Team Session', hint: "Attendance of the team's members", attendance: true, group: false },
-  { id: 'preparation_meeting', label: 'Preparation Meeting', hint: 'Whole group · attendance of all teams', attendance: true, group: true },
+  { id: 'preparation_meeting', label: 'Preparation Meeting', hint: "Attendance of the team's members", attendance: true, group: false },
   { id: 'gawala_session', label: 'Gawala Session', hint: 'Whole group · attendance of all teams', attendance: true, group: true },
   { id: 'other', label: 'Others', hint: 'No attendance', attendance: false, group: false },
 ];

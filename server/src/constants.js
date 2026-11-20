@@ -29,7 +29,8 @@ export const ALLOWED_MATERIAL_TYPES = {
 
 // Event types. Attendance is taken for every type except "other".
 export const EVENT_TYPES = ['team_session', 'preparation_meeting', 'gawala_session', 'other'];
-// These two belong to the whole group (no single team) and list members of ALL teams on the attendance sheet.
-export const GROUP_EVENT_TYPES = ['preparation_meeting', 'gawala_session'];
+// A Gawala Session belongs to the whole group (no single team) and lists members of ALL teams on its sheet.
+// Every other type, including a Preparation Meeting, belongs to one team and lists only that team.
+export const GROUP_EVENT_TYPES = ['gawala_session'];
 export const ATTENDANCE_EVENT_TYPES = ['team_session', 'preparation_meeting', 'gawala_session'];
 export const ATTENDANCE_STATUSES = ['present', 'absent', 'excused'];

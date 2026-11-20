@@ -84,7 +84,7 @@ router.get(
 router.post(
   '/',
   asyncHandler(async (req, res) => {
-    const event = await loadEvent(req.body.event, req.user, { manage: true });
+    const event = await loadEvent(req.body.event, req.user, { manage: 'tasks' });
     const title = String(req.body.title || '').trim();
     if (!title) throw badRequest('Task title is required');
     const assignee = await checkAssignee(req.body.assignee, event, req.user);
@@ -125,7 +125,7 @@ router.put(
       if (req.body.description !== undefined) task.description = String(req.body.description || '').trim();
       if (req.body.dueDate !== undefined) task.dueDate = parseDueDate(req.body.dueDate);
       if (req.body.assignee !== undefined && String(req.body.assignee) !== task.assignee.toString()) {
-        const event = await loadEvent(task.event, req.user, { manage: true });
+        const event = await loadEvent(task.event, req.user, { manage: 'tasks' });
         task.assignee = (await checkAssignee(req.body.assignee, event, req.user))._id;
       }
     }

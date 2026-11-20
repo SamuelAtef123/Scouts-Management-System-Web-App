@@ -7,8 +7,9 @@ import { Avatar, ErrorBox, Modal, Spinner, TeamChip } from './ui.jsx';
 
 /**
  * The attendance sheet of an event, one section per team.
- * Only the Database/Attendance member assigned to a team can fill in that team's section;
- * everyone else sees it read-only.
+ * Team Session / Preparation Meeting: one section, filled by the Database/Attendance member
+ * assigned to that team. Gawala Session: a section per team, all filled by the member
+ * assigned to Gawala. Everyone else sees the sheet read-only.
  */
 export default function AttendanceSheet({ event, onClose, onSaved }) {
   const [sheet, setSheet] = useState(null);
@@ -21,25 +22,27 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
       .get(`/events/${event._id}/attendance`)
       .then((data) => {
         setSheet(data);
-        const mine = data.sections.find((s) => s.canRecord);
-        setMarks(Object.fromEntries((mine?.rows || []).filter((r) => r.status).map((r) => [r.user._id, r.status])));
+        const rows = data.sections.filter((s) => s.canRecord).flatMap((s) => s.rows);
+        setMarks(Object.fromEntries(rows.filter((r) => r.status).map((r) => [r.user._id, r.status])));
       })
       .catch((err) => setError(err.message));
   }, [event._id]);
 
-  const mySection = sheet?.sections.find((s) => s.canRecord);
+  const mySections = useMemo(() => (sheet ? sheet.sections.filter((s) => s.canRecord) : []), [sheet]);
+  const myRows = useMemo(() => mySections.flatMap((s) => s.rows), [mySections]);
+  const canRecord = mySections.length > 0;
 
   const counts = useMemo(() => {
     const c = { present: 0, absent: 0, excused: 0, unmarked: 0 };
-    for (const r of mySection?.rows || []) c[marks[r.user._id] || 'unmarked'] += 1;
+    for (const r of myRows) c[marks[r.user._id] || 'unmarked'] += 1;
     return c;
-  }, [mySection, marks]);
+  }, [myRows, marks]);
 
   const mark = (userId, status) => setMarks((m) => ({ ...m, [userId]: status }));
   const markRest = (status) =>
     setMarks((m) => {
       const next = { ...m };
-      for (const r of mySection.rows) if (!next[r.user._id]) next[r.user._id] = status;
+      for (const r of myRows) if (!next[r.user._id]) next[r.user._id] = status;
       return next;
     });
 
@@ -64,13 +67,13 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
       title="Attendance"
       onClose={onClose}
       footer={
-        mySection ? (
+        canRecord ? (
           <>
             <button type="button" className="btn btn-ghost" onClick={onClose}>
               Cancel
             </button>
-            <button type="button" className="btn btn-primary" onClick={save} disabled={busy || !mySection.rows.length}>
-              {busy ? 'Saving…' : `Save ${mySection.team} attendance`}
+            <button type="button" className="btn btn-primary" onClick={save} disabled={busy || !myRows.length}>
+              {busy ? 'Saving…' : mySections.length === 1 ? `Save ${mySections[0].team} attendance` : 'Save attendance'}
             </button>
           </>
         ) : (
@@ -87,54 +90,60 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
       {error && <ErrorBox message={error} />}
       {!sheet && !error && <Spinner />}
 
-      {sheet && !mySection && (
+      {sheet && !canRecord && (
         <p className="field-hint attend-note">
-          <Lock size={14} /> Each team's attendance is taken by its Database/Attendance member. You can view it here.
+          <Lock size={14} />
+          {event.type === 'gawala_session'
+            ? 'Gawala Session attendance is taken by the Database/Attendance member assigned to Gawala.'
+            : "This team's attendance is taken by its Database/Attendance member."}{' '}
+          You can view it here.
         </p>
       )}
 
+      {canRecord && (
+        <>
+          <div className="attend-counts">
+            <span className="ac ac-present">
+              <b>{counts.present}</b> Present
+            </span>
+            <span className="ac ac-absent">
+              <b>{counts.absent}</b> Absent
+            </span>
+            <span className="ac ac-excused">
+              <b>{counts.excused}</b> Excused
+            </span>
+            {counts.unmarked > 0 && (
+              <span className="ac">
+                <b>{counts.unmarked}</b> Not marked
+              </span>
+            )}
+          </div>
+          {counts.unmarked > 0 && (
+            <div className="attend-tools">
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => markRest('present')}>
+                <CheckCheck size={16} /> Mark the rest present
+              </button>
+              <span className="field-hint">Anyone not marked is saved as absent.</span>
+            </div>
+          )}
+          {mySections.some((s) => !s.taken) && (
+            <p className="field-hint">The list comes from current team membership and is fixed when you first save.</p>
+          )}
+        </>
+      )}
+
       {sections.map((section) => (
-        <section key={section.team} className={`attend-group ${section.canRecord ? 'is-mine' : ''}`}>
+        <section key={section.team} className={`attend-group ${section.canRecord && mySections.length === 1 ? 'is-mine' : ''}`}>
           <h3 className="attend-team">
             <TeamChip team={section.team} size="sm" />
             <span>
               {section.rows.length} {section.rows.length === 1 ? 'member' : 'members'}
-              {section.canRecord && ' · your team'}
+
             </span>
             <span className={`attend-state ${section.taken ? 'done' : ''}`}>
               {section.taken ? `Taken ${formatDay(section.takenAt)}, ${formatTime(section.takenAt)}${section.takenBy ? ` by ${section.takenBy.name}` : ''}` : 'Not taken yet'}
             </span>
           </h3>
-
-          {section.canRecord && (
-            <>
-              <div className="attend-counts">
-                <span className="ac ac-present">
-                  <b>{counts.present}</b> Present
-                </span>
-                <span className="ac ac-absent">
-                  <b>{counts.absent}</b> Absent
-                </span>
-                <span className="ac ac-excused">
-                  <b>{counts.excused}</b> Excused
-                </span>
-                {counts.unmarked > 0 && (
-                  <span className="ac">
-                    <b>{counts.unmarked}</b> Not marked
-                  </span>
-                )}
-              </div>
-              {counts.unmarked > 0 && (
-                <div className="attend-tools">
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => markRest('present')}>
-                    <CheckCheck size={16} /> Mark the rest present
-                  </button>
-                  <span className="field-hint">Anyone not marked is saved as absent.</span>
-                </div>
-              )}
-              {!section.taken && <p className="field-hint">The list comes from current team membership and is fixed when you first save.</p>}
-            </>
-          )}
 
           {section.rows.length === 0 ? (
             <p className="field-hint">No active members belong to this team.</p>

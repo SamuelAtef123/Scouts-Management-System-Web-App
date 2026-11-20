@@ -11,7 +11,7 @@ The app is designed for phones first and also works on a computer.
 - **Events**: create, edit and delete events, and see upcoming and past events (grouped by month, with a team filter).
 - **Tasks**: add tasks to an event, assign each one to a leader, and set a due date. The person assigned can move the task through *To do → In progress → Done*.
 - **Materials**: the person assigned uploads the task's material (a PDF, Word document or image). It goes to Google Drive, sorted into `Team / Date Event title` folders.
-- **Event types**: Team Session, Preparation Meeting, Gawala Session and Others. Preparation Meetings and Gawala Sessions belong to the whole group, so everyone sees them.
+- **Event types**: Team Session, Preparation Meeting, Gawala Session and Others. A Gawala Session belongs to the whole group, so everyone sees it; every other type belongs to one team.
 - **Attendance**: each event except "Others" has an attendance sheet. Mark each member Present, Absent or Excused; anyone left unmarked is saved as absent. Each member's attendance rate is shown on their Profile.
 - **Home**: a personal summary showing open, done and overdue tasks, your next tasks and upcoming events.
 - **Members**: group leaders add accounts, set roles and teams, reset passwords and deactivate members.
@@ -31,7 +31,8 @@ The app is designed for phones first and also works on a computer.
 - Only the person a task is assigned to can upload its material and change its status.
 - People with team-only access can assign tasks to members of that team. People with access to every team can assign tasks to anyone.
 - **Members** management (adding accounts and resetting passwords) is available to the roles that have access to every team.
-- Preparation Meetings and Gawala Sessions (whole-group events) are created and managed by the leaders who have access to every team.
+- **Preparation Meetings** belong to one team. Only the Scouts Leader, the Scouts Leader Helpers, and a Team Leader (for their own team) can create, edit or delete them. That team's leaders and helpers can still add tasks to them.
+- **Gawala Sessions** (whole-group events) are created and managed by the leaders who have access to every team.
 - The rules live in one place: `server/src/utils/access.js`.
 
 ## Attendance
@@ -39,15 +40,15 @@ The app is designed for phones first and also works on a computer.
 | Event type | Whose attendance is taken |
 | --- | --- |
 | Team Session | Members of that event's team only (the Gawala team can have Team Sessions too) |
-| Preparation Meeting | Members of all teams, grouped by team |
+| Preparation Meeting | Members of that event's team only |
 | Gawala Session | Members of all teams, grouped by team |
 | Others | No attendance |
 
 - Roles only decide permissions. Team membership decides who is on an attendance sheet, so every member belongs to a team. The Scouts Leader, Helpers and the Database team belong to the Gawala team; on its first start, the server moves anyone without a team into Gawala.
 - Before a team's section is first saved, it lists the team's current members. On that first save the list is fixed, so later team changes don't alter past sheets. After attendance is taken, the event's type and team can't be changed.
 - Who records attendance: **only the 5 Database / Attendance team members, each for one assigned team** (set on the Members page, one member per team). Nobody else can record it, including the Scouts Leader.
-  - A Team Session is recorded only by the member assigned to that team.
-  - On a Preparation Meeting or Gawala Session sheet, each assigned member fills in only their own team's section. The event page shows which teams are done.
+  - A Team Session or Preparation Meeting is recorded only by the member assigned to the event's team.
+  - A Gawala Session (all teams) is recorded only by the member assigned to Gawala. The event page shows which teams' sections are done.
   - A Database / Attendance member sees the Gawala team's events, their assigned team's events, and whole-group events. The 2 privileged members still see and manage every team, but take attendance only for their own team.
   - Anyone who can see an event can view its sheet.
 - Profile: attendance rate = present ÷ (present + absent). Excused sessions don't count against the member.

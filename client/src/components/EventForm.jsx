@@ -9,15 +9,21 @@ import { ErrorBox, Field, Modal } from './ui.jsx';
 export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
   const { user } = useAuth();
   const allTeams = user.permissions.allTeams;
-  const teams = allTeams ? TEAMS.map((t) => t.id) : [user.team];
-  // Whole-group types (Preparation Meeting, Gawala Session) are for group-wide leaders only.
-  const types = EVENT_TYPES.filter((t) => allTeams || !t.group);
+  // Preparation Meetings: Scouts Leader and Helpers for any team, a Team Leader for their own team.
+  const groupLeader = ['scout_leader', 'scout_leader_helper'].includes(user.role);
+  const canPrep = groupLeader || user.role === 'team_leader';
+  // Gawala Sessions (whole group) are for group-wide leaders only.
+  const types = EVENT_TYPES.filter((t) => (t.group ? allTeams : t.id !== 'preparation_meeting' || canPrep));
+  const teamsFor = (type) => {
+    if (type === 'preparation_meeting') return groupLeader ? TEAMS.map((t) => t.id) : [user.team];
+    return allTeams ? TEAMS.map((t) => t.id) : [user.team];
+  };
   const locked = Boolean(event?.attendanceSummary?.taken); // type and team are fixed once attendance is taken
 
   const [form, setForm] = useState({
     title: event?.title || '',
     type: event?.type || 'team_session',
-    team: event ? event.team || '' : defaultTeam && defaultTeam !== 'group' ? defaultTeam : teams[0],
+    team: event ? event.team || '' : defaultTeam && defaultTeam !== 'group' ? defaultTeam : teamsFor('team_session')[0],
     startDate: toLocalInput(event?.startDate),
     endDate: toLocalInput(event?.endDate),
     location: event?.location || '',
@@ -28,15 +34,17 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const typeInfo = EVENT_TYPES.find((t) => t.id === form.type);
+  const teams = teamsFor(form.type);
   // "Others" can belong to the whole group too, for group-wide leaders.
   const allowWholeGroup = allTeams && form.type === 'other';
 
   const pickType = (id) =>
     setForm((f) => {
       const next = EVENT_TYPES.find((t) => t.id === id);
+      const allowed = teamsFor(id);
       let team = f.team;
       if (next.group) team = '';
-      else if (!team) team = teams[0];
+      else if (!allowed.includes(team) && !(id === 'other' && allTeams && team === '')) team = allowed[0];
       return { ...f, type: id, team };
     });
 

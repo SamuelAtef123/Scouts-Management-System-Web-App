@@ -1,4 +1,4 @@
-import { ATTENDANCE_EVENT_TYPES, ROLES } from '../constants.js';
+import { ATTENDANCE_EVENT_TYPES, ROLES, TEAMS } from '../constants.js';
 
 /*
  * Roles decide what a person may do. Team membership decides which team's
@@ -45,23 +45,41 @@ export function canSeeEvent(user, event) {
   return canViewAllTeams(user) || user?.team === event.team || (user?.role === ROLES.DATABASE_TEAM && user.attendanceTeam === event.team);
 }
 
-/**
- * The team whose attendance this user takes, or null.
- * ONLY Database/Attendance members take attendance, each for their one assigned team.
- */
+/** The team whose attendance this user takes, or null. ONLY Database/Attendance members take attendance. */
 export function attendanceTeamOf(user) {
   return user?.role === ROLES.DATABASE_TEAM && user.attendanceTeam ? user.attendanceTeam : null;
 }
 
 /**
- * Can record attendance on this event: a Team Session of their assigned team, or their
- * team's section of a whole-group sheet (Preparation Meeting, Gawala Session).
+ * Teams on this event's sheet that this user may record:
+ * - a Team Session or Preparation Meeting: only the member assigned to the event's team;
+ * - a Gawala Session (members of all teams): only the member assigned to Gawala, for every team.
  */
-export function canRecordAttendance(user, event) {
-  if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) return false;
+export function recordableTeams(user, event, allTeams) {
+  if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) return [];
   const team = attendanceTeamOf(user);
-  if (!team) return false;
-  return event.team === null || event.team === undefined || event.team === team;
+  if (!team) return [];
+  if (event.type === 'gawala_session') return team === 'Gawala' ? allTeams : [];
+  return event.team === team ? [team] : [];
+}
+
+export function canRecordAttendance(user, event) {
+  return recordableTeams(user, event, TEAMS).length > 0;
+}
+
+/**
+ * Preparation Meetings are created, edited and deleted only by the Scouts Leader,
+ * the Scouts Leader Helpers, and a Team Leader for their own team.
+ */
+export function canManagePreparation(user, team) {
+  if (user?.role === ROLES.SCOUT_LEADER || user?.role === ROLES.SCOUT_LEADER_HELPER) return true;
+  return user?.role === ROLES.TEAM_LEADER && Boolean(team) && user.team === team;
+}
+
+/** Can create, edit or delete this event (an object with `type` and `team`). */
+export function canManageEvent(user, event) {
+  if (event.type === 'preparation_meeting') return canManagePreparation(user, event.team);
+  return canManageTeam(user, event.team);
 }
 
 /** Who can create, edit and deactivate user accounts. */

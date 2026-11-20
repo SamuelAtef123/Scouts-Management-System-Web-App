@@ -40,8 +40,11 @@ export default function EventDetail() {
   const type = eventType(event);
   const attendance = event.attendanceSummary;
   // Has the current user (a Database/Attendance member) already taken their team's part?
-  const myPartDone = Boolean(attendance?.teamsTaken?.includes(user.permissions.attendanceTeam));
-  const canManage = user.permissions.allTeams || (Boolean(event.team) && user.team === event.team);
+  const myPartDone = Boolean(event.canRecordAttendance && attendance?.taken);
+  // Edit/delete the event (server decides: Preparation Meetings have their own rule).
+  const canManage = Boolean(event.canManage);
+  // Add or change tasks: the team's leaders and helpers, or group-wide leaders.
+  const canManageTasks = user.permissions.allTeams || (Boolean(event.team) && user.team === event.team);
   const done = tasks.filter((t) => t.status === 'done').length;
   const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
 
@@ -151,7 +154,7 @@ export default function EventDetail() {
 
       <div className="section-head">
         <h2>Tasks</h2>
-        {canManage && (
+        {canManageTasks && (
           <button className="btn btn-primary btn-sm" onClick={() => setTaskForm({})}>
             <Plus size={16} /> Add task
           </button>
@@ -173,9 +176,9 @@ export default function EventDetail() {
         <EmptyState
           icon={ListChecks}
           title="No tasks yet"
-          text={canManage ? 'Split the work: add tasks and assign them to leaders.' : 'Tasks for this event will appear here.'}
+          text={canManageTasks ? 'Split the work: add tasks and assign them to leaders.' : 'Tasks for this event will appear here.'}
           action={
-            canManage && (
+            canManageTasks && (
               <button className="btn btn-primary" onClick={() => setTaskForm({})}>
                 <Plus size={18} /> Add the first task
               </button>
