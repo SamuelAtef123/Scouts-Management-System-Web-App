@@ -6,8 +6,6 @@ import { useApi } from '../hooks.js';
 import { ROLES, ROLE_LABEL, TEAMS } from '../constants.js';
 import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast } from '../components/ui.jsx';
 
-const GROUP_ROLES = ['scout_leader', 'scout_leader_helper'];
-
 function MemberForm({ member, onClose, onSaved }) {
   const { user } = useAuth();
   const isSelf = member?._id === user._id;
@@ -40,7 +38,6 @@ function MemberForm({ member, onClose, onSaved }) {
     }
   };
 
-  const teamOptional = GROUP_ROLES.includes(form.role) || (form.role === 'database_team' && form.isPrivileged);
 
   return (
     <Modal
@@ -71,7 +68,16 @@ function MemberForm({ member, onClose, onSaved }) {
         </div>
         <div className="form-row">
           <Field label="Role">
-            <select value={form.role} onChange={set('role')} disabled={isSelf}>
+            <select
+              value={form.role}
+              onChange={(e) => {
+                const role = e.target.value;
+                // Scouts Leader, Helpers and the Database team belong to the Gawala team.
+                const gawala = ['scout_leader', 'scout_leader_helper', 'database_team'].includes(role);
+                setForm((f) => ({ ...f, role, team: gawala && !f.team ? 'Gawala' : f.team }));
+              }}
+              disabled={isSelf}
+            >
               {ROLES.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.label}
@@ -79,9 +85,9 @@ function MemberForm({ member, onClose, onSaved }) {
               ))}
             </select>
           </Field>
-          <Field label={teamOptional ? 'Team (optional)' : 'Team'}>
-            <select value={form.team} onChange={set('team')} required={!teamOptional}>
-              <option value="">{teamOptional ? 'No team' : 'Choose a team'}</option>
+          <Field label="Team" hint="Decides whose attendance sheet they appear on">
+            <select value={form.team} onChange={set('team')} required>
+              <option value="">Choose a team</option>
               {TEAMS.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.id}

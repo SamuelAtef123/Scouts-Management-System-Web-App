@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { CircleAlert, CircleCheck, LoaderCircle, X } from 'lucide-react';
-import { TEAM_BY_ID, STATUS_LABEL, VERSE } from '../constants.js';
+import { TEAM_BY_ID, STATUS_LABEL, VERSE, eventType } from '../constants.js';
 import { initials } from '../format.js';
 
 export function Spinner({ label = 'Loading…' }) {
@@ -43,13 +43,25 @@ export function EmptyState({ icon: Icon, title, text, action }) {
 
 export function TeamChip({ team, size }) {
   const t = TEAM_BY_ID[team];
-  if (!t) return null;
+  if (!t) {
+    return (
+      <span className={`team-chip team-chip-group ${size === 'sm' ? 'team-chip-sm' : ''}`}>
+        <span className="team-dot group-dot" />
+        Whole group
+      </span>
+    );
+  }
   return (
     <span className={`team-chip ${size === 'sm' ? 'team-chip-sm' : ''}`} style={{ '--team': t.color, '--team-soft': t.soft }}>
       <span className="team-dot" />
       {t.id}
     </span>
   );
+}
+
+export function TypeBadge({ event }) {
+  const t = eventType(event);
+  return <span className={`type-badge type-${t.id}`}>{t.label}</span>;
 }
 
 export function StatusPill({ status }) {

@@ -16,6 +16,7 @@ import taskRoutes from './routes/tasks.js';
 import statsRoutes from './routes/stats.js';
 import { LOCAL_UPLOAD_DIR, isDriveEnabled } from './services/storage.js';
 import { TEAMS } from './constants.js';
+import { User } from './models/User.js';
 
 const app = express();
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -68,6 +69,11 @@ async function start() {
     console.error('Make sure MongoDB is installed and running, or set MONGO_URI in server/.env to your MongoDB Atlas connection string.\n');
     throw err;
   }
+
+  // Everyone belongs to a team now (it decides attendance sheets). Accounts created before
+  // that rule had no team only for group roles, which belong to the Gawala team.
+  const moved = await User.updateMany({ $or: [{ team: null }, { team: { $exists: false } }] }, { team: 'Gawala' });
+  if (moved.modifiedCount) console.log(`Moved ${moved.modifiedCount} member(s) without a team into the Gawala team`);
   app.listen(config.port, () => {
     console.log(`Server running on http://localhost:${config.port}`);
     console.log(isDriveEnabled() ? 'Uploads go to Google Drive' : `Google Drive not configured: uploads saved in ${LOCAL_UPLOAD_DIR}`);

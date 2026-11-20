@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight, MapPin } from 'lucide-react';
-import { TEAM_BY_ID } from '../constants.js';
+import { GROUP_STYLE, TEAM_BY_ID } from '../constants.js';
 import { daysUntil, formatTime, relativeDay, dateRange } from '../format.js';
-import { TeamChip } from './ui.jsx';
+import { TeamChip, TypeBadge } from './ui.jsx';
 
 export default function EventCard({ event }) {
-  const team = TEAM_BY_ID[event.team];
+  const team = TEAM_BY_ID[event.team] || GROUP_STYLE;
   const start = new Date(event.startDate);
   const soon = daysUntil(start) >= 0 && daysUntil(start) <= 2;
   const progress = event.taskCount ? Math.round((event.doneCount / event.taskCount) * 100) : 0;
@@ -19,6 +19,7 @@ export default function EventCard({ event }) {
       <div className="event-body">
         <div className="event-top">
           <TeamChip team={event.team} size="sm" />
+          <TypeBadge event={event} />
           {soon && <span className="soon">{relativeDay(start)}</span>}
         </div>
         <h3 className="event-title">{event.title}</h3>
@@ -32,6 +33,11 @@ export default function EventCard({ event }) {
             </span>
           )}
         </div>
+        {event.attendanceSummary?.taken && (
+          <span className="attend-line">
+            {event.attendanceSummary.present}/{event.attendanceSummary.total} attended
+          </span>
+        )}
         {event.taskCount > 0 && (
           <div className="mini-progress" title={`${event.doneCount} of ${event.taskCount} tasks done`}>
             <div className="bar">

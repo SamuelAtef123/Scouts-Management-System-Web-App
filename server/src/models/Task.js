@@ -20,8 +20,8 @@ const taskSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true, maxlength: 120 },
     description: { type: String, trim: true, maxlength: 2000, default: '' },
     event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', required: true, index: true },
-    // Copied from the event so team-scoped queries stay simple.
-    team: { type: String, required: true, index: true },
+    // Copied from the event so team-scoped queries stay simple (null = whole-group event).
+    team: { type: String, default: null, index: true },
     assignee: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     dueDate: { type: Date },

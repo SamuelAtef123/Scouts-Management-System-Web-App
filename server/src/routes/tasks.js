@@ -2,6 +2,7 @@ import { Router } from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
 import { Task } from '../models/Task.js';
+import { Event } from '../models/Event.js';
 import { User } from '../models/User.js';
 import { loadEvent } from './events.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
@@ -26,7 +27,7 @@ const populateTask = (query) =>
     .populate('assignee', 'name username team')
     .populate('createdBy', 'name')
     .populate('materials.uploadedBy', 'name')
-    .populate('event', 'title team startDate endDate location');
+    .populate('event', 'title type team startDate endDate location');
 
 async function loadTask(id) {
   if (!mongoose.isValidObjectId(id)) throw notFound('Task not found');
@@ -37,7 +38,8 @@ async function loadTask(id) {
 
 const isAssignee = (task, user) => task.assignee.equals(user._id);
 
-/** Checks the person a task is assigned to: active, and in the event's team unless the creator has group-wide access. */
+/** Checks the person a task is assigned to: active, and in the event's team unless the creator has group-wide access
+ * (only group leaders manage whole-group events, so they can assign those to anyone). */
 async function checkAssignee(assigneeId, event, user) {
   if (!mongoose.isValidObjectId(assigneeId)) throw badRequest('Choose who the task is assigned to');
   const assignee = await User.findOne({ _id: assigneeId, isActive: true });
@@ -153,7 +155,9 @@ router.post(
     if (!isAssignee(task, req.user)) throw forbidden('Only the person assigned to this task can upload its material');
     if (!req.file) throw badRequest('Choose a file to upload');
 
-    const event = await loadEvent(task.event, req.user);
+    // The assignee may be from another team than the event, so the event is loaded without the visibility check.
+    const event = await Event.findById(task.event);
+    if (!event) throw notFound('Event not found');
     const stored = await storeMaterial({ file: req.file, event, task, uploader: req.user });
     task.materials.push({
       fileName: req.file.originalname,

@@ -1941,3 +1941,358 @@ img {
   border-radius: 24px;
   box-shadow: var(--shadow-lg);
 }
+
+/* ---------- Event types & whole-group events ---------- */
+.group-dot {
+  background: var(--stripe) !important;
+}
+
+.team-chip-group {
+  background: #e7e8f8;
+  color: var(--navy);
+}
+
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  background: #f0eee8;
+  color: var(--ink-2);
+}
+
+.type-team_session {
+  background: #e3f6ea;
+  color: #157a39;
+}
+
+.type-preparation_meeting {
+  background: #fff4cc;
+  color: #8a6100;
+}
+
+.type-gawala_session {
+  background: #dff3f4;
+  color: #0b5f67;
+}
+
+.event-top {
+  flex-wrap: wrap;
+}
+
+.attend-line {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.type-picker {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.type-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  text-align: left;
+}
+
+.type-option strong {
+  font-size: 0.92rem;
+}
+
+.type-option small {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.type-option.active {
+  border-color: var(--navy);
+  background: #f1f2fc;
+  box-shadow: 0 0 0 3px var(--focus);
+}
+
+.type-option:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ---------- Attendance ---------- */
+.attend-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.attend-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.attend-card-head h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.attend-card-head .muted {
+  font-size: 0.85rem;
+}
+
+.attend-card-head .btn {
+  margin-left: auto;
+}
+
+.attend-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 12px;
+  background: #e3f6ea;
+  color: var(--green);
+}
+
+.attend-empty {
+  font-size: 0.9rem;
+}
+
+.attend-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.attend-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eceae3;
+  gap: 2px;
+}
+
+.seg-present {
+  background: var(--green);
+}
+
+.seg-excused {
+  background: var(--yellow);
+}
+
+.seg-absent {
+  background: var(--red);
+}
+
+.attend-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.attend-summary .attend-counts {
+  margin: 0;
+}
+
+.ac {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #f0eee8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.ac b {
+  font-size: 1rem;
+}
+
+.ac-present {
+  background: #e3f6ea;
+  color: #157a39;
+}
+
+.ac-absent {
+  background: #fde7e8;
+  color: #9d1c22;
+}
+
+.ac-excused {
+  background: #fff4cc;
+  color: #8a6100;
+}
+
+.attend-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 6px 0;
+}
+
+.attend-group {
+  margin-top: 14px;
+}
+
+.attend-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.attend-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.attend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s;
+}
+
+.attend-row:last-child {
+  border-bottom: none;
+}
+
+.attend-row.is-present {
+  background: #f3fbf6;
+}
+
+.attend-row.is-absent {
+  background: #fef6f6;
+}
+
+.attend-row.is-excused {
+  background: #fffbea;
+}
+
+.attend-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 700;
+  font-size: 0.92rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attend-marks {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+
+.mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.mark:disabled {
+  cursor: default;
+}
+
+.mark-present.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
+.mark-absent.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.mark-excused.active {
+  background: var(--yellow);
+  border-color: var(--gold);
+  color: var(--navy-deep);
+}
+
+.attend-rate {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.attend-rate .muted {
+  font-size: 0.85rem;
+}
+
+.rate-ring {
+  --p: 0;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  flex: none;
+  border-radius: 50%;
+  background: conic-gradient(var(--green) calc(var(--p) * 1%), #eceae3 0);
+}
+
+.rate-ring span {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--surface);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.attend-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.attend-type {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.attend-type b {
+  color: var(--ink);
+}

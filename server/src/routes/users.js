@@ -8,8 +8,6 @@ import { ROLES, ROLE_VALUES, TEAMS } from '../constants.js';
 
 const router = Router();
 
-const GROUP_ROLES = [ROLES.SCOUT_LEADER, ROLES.SCOUT_LEADER_HELPER];
-
 /** Validates and normalises the editable fields of a user. */
 function readUserFields(body, { partial }) {
   const out = {};
@@ -32,9 +30,9 @@ function readUserFields(body, { partial }) {
 
 function checkRoleTeam(user) {
   if (user.role !== ROLES.DATABASE_TEAM) user.isPrivileged = false;
-  if (GROUP_ROLES.includes(user.role)) return;
-  // Everyone without group-wide access must belong to a team, or they could not see anything.
-  if (!hasGlobalAccess(user) && !user.team) throw badRequest('Choose the team this member serves in');
+  // Everyone belongs to a team: it decides whose attendance sheet they appear on.
+  // Scouts Leader, Helpers and the Database team are normally in the Gawala team.
+  if (!user.team) throw badRequest('Choose the team this member belongs to');
 }
 
 /**

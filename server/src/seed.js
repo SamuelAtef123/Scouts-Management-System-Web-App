@@ -33,8 +33,9 @@ function daysFromNow(days, hour = 17) {
 }
 
 async function seedDemo(leader) {
+  // Scouts Leader, Helpers and the Database team belong to the Gawala team.
   const members = [
-    { name: 'Mina Leader Helper', username: 'mina', role: ROLES.SCOUT_LEADER_HELPER },
+    { name: 'Mina Leader Helper', username: 'mina', role: ROLES.SCOUT_LEADER_HELPER, team: 'Gawala' },
     { name: 'Marina Database', username: 'marina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala' },
     { name: 'Kirollos Database', username: 'kirollos', role: ROLES.DATABASE_TEAM, team: 'Gawala' },
   ];
@@ -56,44 +57,58 @@ async function seedDemo(leader) {
     return;
   }
 
+  // team null = a whole-group event (Preparation Meeting, Gawala Session).
   const plan = [
-    { team: 'Ashbal', title: 'Weekly meeting: knots & first aid', start: 2, location: 'Church yard', tasks: ['Prepare knots worksheet', 'First aid kit check'] },
-    { team: 'Zahrat', title: 'Saint Mary celebration rehearsal', start: 5, location: 'Main hall', tasks: ['Hymns booklet', 'Costumes list'] },
-    { team: 'Kashafeen', title: 'Camping trip', start: 12, end: 14, location: 'Wadi Degla', tasks: ['Camp schedule', 'Equipment list', 'Permission forms'] },
-    { team: 'Morshedat', title: 'Leadership workshop', start: 8, location: 'Room 3', tasks: ['Workshop slides'] },
-    { team: 'Gawala', title: 'Gawala monthly gathering', start: 3, location: 'Church yard', tasks: ['Agenda', 'Photos of last month'] },
-    { team: 'Ashbal', title: 'Bible competition', start: -10, location: 'Main hall', tasks: ['Questions sheet'] },
+    { type: 'team_session', team: 'Ashbal', title: 'Weekly meeting: knots & first aid', start: 2, location: 'Church yard', tasks: ['Prepare knots worksheet', 'First aid kit check'] },
+    { type: 'team_session', team: 'Zahrat', title: 'Saint Mary celebration rehearsal', start: 5, location: 'Main hall', tasks: ['Hymns booklet', 'Costumes list'] },
+    { type: 'other', team: 'Kashafeen', title: 'Camping trip', start: 12, end: 14, location: 'Wadi Degla', tasks: ['Camp schedule', 'Equipment list', 'Permission forms'] },
+    { type: 'team_session', team: 'Morshedat', title: 'Leadership workshop', start: 8, location: 'Room 3', tasks: ['Workshop slides'] },
+    { type: 'team_session', team: 'Gawala', title: 'Gawala team session', start: 6, location: 'Room 1', tasks: [] },
+    { type: 'gawala_session', team: null, title: 'Gawala monthly gathering', start: 3, location: 'Church yard', tasks: ['Agenda', 'Photos of last month'] },
+    { type: 'preparation_meeting', team: null, title: 'Preparation meeting for the camp', start: 1, location: 'Main hall', tasks: [] },
+    { type: 'team_session', team: 'Ashbal', title: 'Bible competition', start: -10, location: 'Main hall', tasks: ['Questions sheet'], attendance: true },
+    { type: 'preparation_meeting', team: null, title: 'Preparation meeting for the Bible competition', start: -14, location: 'Main hall', tasks: [], attendance: true },
   ];
 
+  const statuses = ['present', 'present', 'present', 'absent', 'excused'];
   for (const p of plan) {
-    const t = p.team.toLowerCase();
-    const event = await Event.create({
+    const owner = p.team ? p.team.toLowerCase() : 'gawala';
+    const event = new Event({
+      type: p.type,
       title: p.title,
       team: p.team,
-      description: `Demo event for the ${p.team} team.`,
+      description: p.team ? `Demo event for the ${p.team} team.` : 'Demo event for the whole group.',
       location: p.location,
       startDate: daysFromNow(p.start),
       endDate: p.end ? daysFromNow(p.end) : undefined,
-      createdBy: users[`${t}.leader`]._id,
+      createdBy: p.team ? users[`${owner}.leader`]._id : leader._id,
     });
+    if (p.attendance) {
+      const sheet = await User.find({ isActive: true, team: p.team ? p.team : { $in: TEAMS } }).sort({ name: 1 });
+      event.attendance = sheet.map((u, i) => ({ user: u._id, team: u.team, status: statuses[i % statuses.length] }));
+      event.attendanceTakenAt = daysFromNow(p.start, 19);
+      event.attendanceTakenBy = users.kirollos._id;
+    }
+    await event.save();
+
     for (const [i, title] of p.tasks.entries()) {
       await Task.create({
         title,
         event: event._id,
-        team: p.team,
-        assignee: users[i % 2 === 0 ? `${t}.helper1` : `${t}.helper2`]._id,
-        createdBy: users[`${t}.leader`]._id,
+        team: event.team,
+        assignee: users[i % 2 === 0 ? `${owner}.helper1` : `${owner}.helper2`]._id,
+        createdBy: event.createdBy,
         dueDate: daysFromNow(p.start - 1),
         status: p.start < 0 ? 'done' : 'todo',
       });
     }
   }
   // Give the Scouts Leader one task too, so their home screen is not empty.
-  const gathering = await Event.findOne({ team: 'Gawala' });
+  const gathering = await Event.findOne({ type: 'gawala_session' });
   await Task.create({
     title: 'Opening word for the gathering',
     event: gathering._id,
-    team: 'Gawala',
+    team: null,
     assignee: leader._id,
     createdBy: users.marina._id,
     dueDate: daysFromNow(2),
@@ -116,6 +131,7 @@ async function main() {
     username,
     password,
     role: ROLES.SCOUT_LEADER,
+    team: 'Gawala',
   });
   console.log(created ? `Created the Scouts Leader account "${username}".` : `Account "${username}" already exists, left unchanged.`);
 

@@ -14,7 +14,8 @@ function dueLabel(date) {
 }
 
 function canManage(user, team) {
-  return user.permissions.allTeams || user.team === team;
+  // team null = a whole-group event, managed by group-wide leaders only.
+  return user.permissions.allTeams || (Boolean(team) && user.team === team);
 }
 
 /**

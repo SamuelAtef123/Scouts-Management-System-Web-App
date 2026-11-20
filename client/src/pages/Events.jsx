@@ -44,7 +44,7 @@ export default function Events() {
       <header className="page-head">
         <div>
           <h1>Events</h1>
-          <p className="muted">{user.permissions.allTeams ? 'All teams of the group' : `${user.team} team`}</p>
+          <p className="muted">{user.permissions.allTeams ? 'All teams of the group' : `${user.team} team and whole-group events`}</p>
         </div>
         <button className="btn btn-primary desktop-only" onClick={() => setCreating(true)}>
           <Plus size={18} /> New event
@@ -63,6 +63,14 @@ export default function Events() {
         <div className="chips" role="group" aria-label="Filter by team">
           <button className={`chip ${!team ? 'active' : ''}`} onClick={() => setParam('team', '')}>
             All teams
+          </button>
+          <button
+            className={`chip ${team === 'group' ? 'active' : ''}`}
+            style={{ '--team': '#23277d', '--team-soft': '#e7e8f8' }}
+            onClick={() => setParam('team', 'group')}
+          >
+            <span className="team-dot group-dot" />
+            Whole group
           </button>
           {TEAMS.map((t) => (
             <button

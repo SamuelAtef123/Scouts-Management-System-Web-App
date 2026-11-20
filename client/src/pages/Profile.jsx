@@ -1,9 +1,58 @@
 import { useState } from 'react';
-import { KeyRound, LogOut } from 'lucide-react';
+import { ClipboardCheck, KeyRound, LogOut } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
-import { ROLE_LABEL } from '../constants.js';
-import { Avatar, ErrorBox, Field, TeamChip, VerseCard, useToast } from '../components/ui.jsx';
+import { EVENT_TYPES, ROLE_LABEL } from '../constants.js';
+import { useApi } from '../hooks.js';
+import { Avatar, ErrorBox, Field, Spinner, TeamChip, VerseCard, useToast } from '../components/ui.jsx';
+
+function AttendanceCard() {
+  const { data, error, loading } = useApi('/stats/me');
+  const a = data?.attendance;
+  return (
+    <section className="card">
+      <h2 className="card-title">
+        <ClipboardCheck size={18} /> My attendance
+      </h2>
+      {loading && !data ? (
+        <Spinner />
+      ) : error ? (
+        <ErrorBox message={error} />
+      ) : !a.sessions ? (
+        <p className="muted">No attendance recorded for you yet.</p>
+      ) : (
+        <>
+          <div className="attend-rate">
+            <div className="rate-ring" style={{ '--p': a.rate ?? 0 }}>
+              <span>{a.rate === null ? '–' : `${a.rate}%`}</span>
+            </div>
+            <div>
+              <strong>
+                {a.present} of {a.present + a.absent} sessions attended
+              </strong>
+              <p className="muted">
+                {a.absent} absent · {a.excused} excused (excused sessions don't count against you)
+              </p>
+            </div>
+          </div>
+          <div className="attend-types">
+            {EVENT_TYPES.filter((t) => t.attendance && a.byType[t.id]).map((t) => {
+              const c = a.byType[t.id];
+              return (
+                <div key={t.id} className="attend-type">
+                  <span>{t.label}</span>
+                  <b>
+                    {c.present}/{c.present + c.absent}
+                  </b>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
 
 export default function Profile() {
   const { user, logout } = useAuth();
@@ -39,9 +88,13 @@ export default function Profile() {
           {user.team && <TeamChip team={user.team} />}
         </div>
         <p className="profile-access">
-          {user.permissions.allTeams ? 'You can manage events and tasks of every team.' : `You can manage events and tasks of the ${user.team} team.`}
+          {user.permissions.allTeams
+            ? 'You can manage events and tasks of every team and of the whole group.'
+            : `You can manage events and tasks of the ${user.team} team.`}
         </p>
       </section>
+
+      <AttendanceCard />
 
       <section className="card">
         <h2 className="card-title">

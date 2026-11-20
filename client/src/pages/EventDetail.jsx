@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, Clock, ListChecks, MapPin, Pencil, Plus, Trash2, UserRound } from 'lucide-react';
+import { ChevronLeft, ClipboardCheck, Clock, ListChecks, MapPin, Pencil, Plus, Trash2, UserRound } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
-import { TEAM_BY_ID } from '../constants.js';
+import { GROUP_STYLE, TEAM_BY_ID, eventType } from '../constants.js';
 import { formatFullDate, formatTime, relativeDay } from '../format.js';
 import EventForm from '../components/EventForm.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import TaskCard from '../components/TaskCard.jsx';
-import { ConfirmDialog, EmptyState, ErrorBox, Spinner, TeamChip, useToast } from '../components/ui.jsx';
+import AttendanceSheet from '../components/AttendanceSheet.jsx';
+import { ConfirmDialog, EmptyState, ErrorBox, Spinner, TeamChip, TypeBadge, useToast } from '../components/ui.jsx';
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -20,6 +21,7 @@ export default function EventDetail() {
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [taskForm, setTaskForm] = useState(null); // {} for new, task for edit
+  const [attendanceOpen, setAttendanceOpen] = useState(false);
 
   if (loading && !data) return <div className="page"><Spinner /></div>;
   if (error) {
@@ -34,8 +36,10 @@ export default function EventDetail() {
   }
 
   const { event, tasks } = data;
-  const team = TEAM_BY_ID[event.team];
-  const canManage = user.permissions.allTeams || user.team === event.team;
+  const team = TEAM_BY_ID[event.team] || GROUP_STYLE;
+  const type = eventType(event);
+  const attendance = event.attendanceSummary;
+  const canManage = user.permissions.allTeams || (Boolean(event.team) && user.team === event.team);
   const done = tasks.filter((t) => t.status === 'done').length;
   const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
 
@@ -55,6 +59,7 @@ export default function EventDetail() {
       <section className="event-hero" style={{ '--team': team.color, '--team-soft': team.soft }}>
         <div className="event-hero-top">
           <TeamChip team={event.team} />
+          <TypeBadge event={event} />
           <span className="soon">{relativeDay(event.startDate)}</span>
         </div>
         <h1>{event.title}</h1>
@@ -94,6 +99,43 @@ export default function EventDetail() {
           </div>
         )}
       </section>
+
+      {type.attendance && (
+        <section className="card attend-card">
+          <div className="attend-card-head">
+            <span className="attend-icon">
+              <ClipboardCheck size={20} />
+            </span>
+            <div>
+              <h2>Attendance</h2>
+              <p className="muted">
+                {type.group ? 'Members of all teams' : `Members of the ${event.team} team`}
+              </p>
+            </div>
+            {(event.canRecordAttendance || attendance?.taken) && (
+              <button className={`btn btn-sm ${attendance?.taken ? 'btn-ghost' : 'btn-primary'}`} onClick={() => setAttendanceOpen(true)}>
+                {event.canRecordAttendance ? (attendance?.taken ? 'Edit' : 'Take attendance') : 'View'}
+              </button>
+            )}
+          </div>
+          {attendance?.taken ? (
+            <div className="attend-summary">
+              <div className="attend-bar" aria-hidden="true">
+                <span className="seg-present" style={{ flex: attendance.present }} />
+                <span className="seg-excused" style={{ flex: attendance.excused }} />
+                <span className="seg-absent" style={{ flex: attendance.absent }} />
+              </div>
+              <div className="attend-counts">
+                <span className="ac ac-present"><b>{attendance.present}</b> Present</span>
+                <span className="ac ac-absent"><b>{attendance.absent}</b> Absent</span>
+                <span className="ac ac-excused"><b>{attendance.excused}</b> Excused</span>
+              </div>
+            </div>
+          ) : (
+            <p className="muted attend-empty">Not taken yet.</p>
+          )}
+        </section>
+      )}
 
       <div className="section-head">
         <h2>Tasks</h2>
@@ -157,6 +199,17 @@ export default function EventDetail() {
             navigate('/events', { replace: true });
           }}
           onClose={() => setDeleting(false)}
+        />
+      )}
+      {attendanceOpen && (
+        <AttendanceSheet
+          event={event}
+          onClose={() => setAttendanceOpen(false)}
+          onSaved={(summary) => {
+            setData((d) => ({ ...d, event: { ...d.event, attendanceSummary: summary } }));
+            setAttendanceOpen(false);
+            toast('Attendance saved');
+          }}
         />
       )}
       {taskForm && (

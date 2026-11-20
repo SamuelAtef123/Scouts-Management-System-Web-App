@@ -26,3 +26,10 @@ export const ALLOWED_MATERIAL_TYPES = {
   'image/heic': 'Image',
   'image/heif': 'Image',
 };
+
+// Event types. Attendance is taken for every type except "other".
+export const EVENT_TYPES = ['team_session', 'preparation_meeting', 'gawala_session', 'other'];
+// These two belong to the whole group (no single team) and list members of ALL teams on the attendance sheet.
+export const GROUP_EVENT_TYPES = ['preparation_meeting', 'gawala_session'];
+export const ATTENDANCE_EVENT_TYPES = ['team_session', 'preparation_meeting', 'gawala_session'];
+export const ATTENDANCE_STATUSES = ['present', 'absent', 'excused'];

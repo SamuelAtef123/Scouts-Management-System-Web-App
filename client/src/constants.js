@@ -33,3 +33,24 @@ export const VERSE = {
 };
 
 export const ACCEPTED_FILES = '.pdf,.doc,.docx,image/*';
+
+// Event types. `group: true` = belongs to the whole group (members of ALL teams on the attendance sheet).
+export const EVENT_TYPES = [
+  { id: 'team_session', label: 'Team Session', hint: "Attendance of the team's members", attendance: true, group: false },
+  { id: 'preparation_meeting', label: 'Preparation Meeting', hint: 'Whole group · attendance of all teams', attendance: true, group: true },
+  { id: 'gawala_session', label: 'Gawala Session', hint: 'Whole group · attendance of all teams', attendance: true, group: true },
+  { id: 'other', label: 'Others', hint: 'No attendance', attendance: false, group: false },
+];
+
+export const EVENT_TYPE_BY_ID = Object.fromEntries(EVENT_TYPES.map((t) => [t.id, t]));
+// Events created before types existed count as "Others".
+export const eventType = (event) => EVENT_TYPE_BY_ID[event?.type] || EVENT_TYPE_BY_ID.other;
+
+export const ATTENDANCE_STATUSES = [
+  { id: 'present', label: 'Present', short: 'P' },
+  { id: 'absent', label: 'Absent', short: 'A' },
+  { id: 'excused', label: 'Excused', short: 'E' },
+];
+
+// Colours for whole-group events (no single team).
+export const GROUP_STYLE = { color: '#23277d', soft: '#e7e8f8' };

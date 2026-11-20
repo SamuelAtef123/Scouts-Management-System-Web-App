@@ -22,6 +22,7 @@ export default function TaskForm({ event, task, onClose, onSaved }) {
     const users = data?.users || [];
     const team = users.filter((u) => u.team === event.team);
     const others = users.filter((u) => u.team !== event.team);
+    if (!event.team) return [{ label: 'All members', users }];
     return [
       { label: `${event.team} team`, users: team },
       { label: 'Other members', users: others },

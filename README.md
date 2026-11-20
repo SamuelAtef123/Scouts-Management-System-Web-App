@@ -11,6 +11,8 @@ The app is designed for phones first and also works on a computer.
 - **Events**: create, edit and delete events, and see upcoming and past events (grouped by month, with a team filter).
 - **Tasks**: add tasks to an event, assign each one to a leader, and set a due date. The person assigned can move the task through *To do → In progress → Done*.
 - **Materials**: the person assigned uploads the task's material (a PDF, Word document or image). It goes to Google Drive, sorted into `Team / Date Event title` folders.
+- **Event types**: Team Session, Preparation Meeting, Gawala Session and Others. Preparation Meetings and Gawala Sessions belong to the whole group, so everyone sees them.
+- **Attendance**: each event except "Others" has an attendance sheet. Mark each member Present, Absent or Excused; anyone left unmarked is saved as absent. Each member's attendance rate is shown on their Profile.
 - **Home**: a personal summary showing open, done and overdue tasks, your next tasks and upcoming events.
 - **Members**: group leaders add accounts, set roles and teams, reset passwords and deactivate members.
 - **Profile**: change your own password.
@@ -29,7 +31,22 @@ The app is designed for phones first and also works on a computer.
 - Only the person a task is assigned to can upload its material and change its status.
 - People with team-only access can assign tasks to members of that team. People with access to every team can assign tasks to anyone.
 - **Members** management (adding accounts and resetting passwords) is available to the roles that have access to every team.
+- Preparation Meetings and Gawala Sessions (whole-group events) are created and managed by the leaders who have access to every team.
 - The rules live in one place: `server/src/utils/access.js`.
+
+## Attendance
+
+| Event type | Whose attendance is taken |
+| --- | --- |
+| Team Session | Members of that event's team only (the Gawala team can have Team Sessions too) |
+| Preparation Meeting | Members of all teams, grouped by team |
+| Gawala Session | Members of all teams, grouped by team |
+| Others | No attendance |
+
+- Roles only decide permissions. Team membership decides who is on an attendance sheet, so every member belongs to a team. The Scouts Leader, Helpers and the Database team belong to the Gawala team; on its first start, the server moves anyone without a team into Gawala.
+- Before the first save, the sheet lists the current members. When it is first saved, the list is fixed and each member's team at that moment is stored, so later team changes don't alter past sheets. After attendance is taken, the event's type and team can't be changed.
+- Who records attendance: anyone who can manage the event, plus every Database / Attendance team member. Anyone who can see the event can view its sheet.
+- Profile: attendance rate = present ÷ (present + absent). Excused sessions don't count against the member.
 
 Teams: Ashbal (أشبال), Zahrat (زهرات), Kashafeen (كشافين), Morshedat (مرشدات), Gawala (جوالة). Each team has a colour taken from the logo.
 
@@ -128,15 +145,16 @@ All routes except login need an `Authorization: Bearer <token>` header.
 | POST | `/api/auth/login` | Sign in with username and password |
 | GET | `/api/auth/me` | The signed-in user and their permissions |
 | PUT | `/api/auth/me/password` | Change your own password |
-| GET | `/api/events?when=upcoming\|past\|all&team=` | List events you can see |
+| GET | `/api/events?when=upcoming\|past\|all&team=` | List events you can see (`team=group` for whole-group events) |
 | POST/PUT/DELETE | `/api/events[/:id]` | Manage events |
 | GET | `/api/events/:id` | An event with its tasks |
+| GET/PUT | `/api/events/:id/attendance` | The attendance sheet, and saving it (`{ records: [{ user, status }] }`) |
 | GET | `/api/tasks/mine?status=open\|done\|all` | Tasks assigned to you |
 | POST/PUT/DELETE | `/api/tasks[/:id]` | Manage tasks (the assignee can only change the status) |
 | POST | `/api/tasks/:id/materials` | Upload material (`multipart/form-data`, field `file`) |
 | DELETE | `/api/tasks/:id/materials/:materialId` | Remove an uploaded file |
 | GET/POST/PUT | `/api/users[/:id]` | List members, and add or edit them (group leaders) |
-| GET | `/api/stats/me` | The home screen summary |
+| GET | `/api/stats/me` | The home screen summary and your attendance |
 
 ## Coming later
 
