@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 import { User } from '../models/User.js';
 import { requireMemberViewer, requireUserAdmin } from '../middleware/auth.js';
 import { attendanceRates, attendanceStats } from './stats.js';
-import { asyncHandler, badRequest, notFound } from '../utils/httpError.js';
-import { canViewMembers, hasGlobalAccess } from '../utils/access.js';
+import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
+import { canViewMembers, hasGlobalAccess, memberTeams } from '../utils/access.js';
 import { ROLES, ROLE_VALUES, TEAMS } from '../constants.js';
 import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 
@@ -45,11 +45,19 @@ router.get(
   '/',
   asyncHandler(async (req, res) => {
     const filter = {};
-    const showInactive = req.query.includeInactive === 'true' && canViewMembers(req.user);
+    // scope=members: the Members page (only teams this user may view there).
+    const membersPage = req.query.scope === 'members';
+    if (membersPage && !canViewMembers(req.user)) throw forbidden('You cannot view members');
+    const showInactive = membersPage && req.query.includeInactive === 'true';
     if (!showInactive) filter.isActive = true;
 
     if (req.query.team) filter.team = String(req.query.team);
-    if (!hasGlobalAccess(req.user)) filter.team = req.user.team;
+    if (membersPage) {
+      if (!hasGlobalAccess(req.user)) filter.team = { $in: memberTeams(req.user) };
+    } else if (!hasGlobalAccess(req.user)) {
+      // For assigning tasks: team-only leaders see their own team.
+      filter.team = req.user.team;
+    }
 
     const users = await User.find(filter).sort({ name: 1 });
     res.json({ users });
@@ -60,8 +68,13 @@ router.get(
 router.get(
   '/attendance',
   requireMemberViewer,
-  asyncHandler(async (_req, res) => {
-    res.json({ rates: await attendanceRates() });
+  asyncHandler(async (req, res) => {
+    const rates = await attendanceRates();
+    if (hasGlobalAccess(req.user)) return res.json({ rates });
+    // Limited viewers only get the rates of members of the teams they may view.
+    const ids = await User.find({ team: { $in: memberTeams(req.user) } }).distinct('_id');
+    const allowed = new Set(ids.map(String));
+    res.json({ rates: Object.fromEntries(Object.entries(rates).filter(([id]) => allowed.has(id))) });
   })
 );
 
@@ -72,7 +85,7 @@ router.get(
   asyncHandler(async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) throw notFound('Member not found');
     const user = await User.findById(req.params.id);
-    if (!user) throw notFound('Member not found');
+    if (!user || !memberTeams(req.user).includes(user.team)) throw notFound('Member not found');
     res.json({ user, attendance: await attendanceStats(user._id) });
   })
 );

@@ -95,7 +95,19 @@ export function canManageUsers(user) {
   return user?.role === ROLES.DATABASE_TEAM && user.isPrivileged === true;
 }
 
-/** Who can open the Members page: view every member's details and attendance percentage. */
+/**
+ * Teams whose members this user can view on the Members page (details and attendance %):
+ * - Scouts Leader, Helpers and the 2 privileged Database members: every team;
+ * - the other 3 Database/Attendance members: only the team they take attendance for;
+ * - everyone else: none (no Members page).
+ */
+export function memberTeams(user) {
+  if (hasGlobalAccess(user)) return TEAMS;
+  const team = attendanceTeamOf(user);
+  return team ? [team] : [];
+}
+
+/** Who can open the Members page. */
 export function canViewMembers(user) {
-  return hasGlobalAccess(user);
+  return memberTeams(user).length > 0;
 }

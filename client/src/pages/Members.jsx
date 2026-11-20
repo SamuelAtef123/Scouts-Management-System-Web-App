@@ -244,7 +244,10 @@ export default function Members() {
   const toast = useToast();
   const { user } = useAuth();
   const canEdit = user.permissions.manageUsers; // only the privileged Database/Attendance members
-  const { data, error, loading, reload, setData } = useApi('/users?includeInactive=true');
+  // Teams whose members this user can view (one team for the non-privileged Database members).
+  const myTeams = user.permissions.memberTeams || [];
+  const filterTeams = TEAMS.filter((t) => myTeams.includes(t.id));
+  const { data, error, loading, reload, setData } = useApi('/users?scope=members&includeInactive=true');
   const rates = useApi('/users/attendance');
   const [query, setQuery] = useState('');
   const [team, setTeam] = useState('');
@@ -264,7 +267,8 @@ export default function Members() {
         <div>
           <h1>Members</h1>
           <p className="muted">
-            {data ? `${data.users.filter((u) => u.isActive).length} active members` : 'Gawala team accounts'}
+            {filterTeams.length === 1 && `${filterTeams[0].id} team · `}
+            {data ? `${data.users.filter((u) => u.isActive).length} active members` : 'Loading…'}
             {!canEdit && ' · view only'}
           </p>
         </div>
@@ -280,17 +284,19 @@ export default function Members() {
         <Search size={18} />
         <input placeholder="Search by name or username" value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
+      {filterTeams.length > 1 && (
       <div className="chips">
         <button className={`chip ${!team ? 'active' : ''}`} onClick={() => setTeam('')}>
           Everyone
         </button>
-        {TEAMS.map((t) => (
+        {filterTeams.map((t) => (
           <button key={t.id} className={`chip ${team === t.id ? 'active' : ''}`} style={{ '--team': t.color, '--team-soft': t.soft }} onClick={() => setTeam(t.id)}>
             <span className="team-dot" />
             {t.id}
           </button>
         ))}
       </div>
+      )}
 
       {loading && !data ? (
         <Spinner />
