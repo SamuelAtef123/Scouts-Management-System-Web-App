@@ -104,11 +104,7 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
           </div>
         </div>
 
-        {typeInfo.group ? (
-          <p className="form-context">
-            This is a <strong>whole-group</strong> event: everyone can see it, and the attendance sheet lists the members of all teams.
-          </p>
-        ) : (
+        {typeInfo.group ? null : (
           <div className="field">
             <span className="field-label">Team</span>
             <div className="team-picker">
