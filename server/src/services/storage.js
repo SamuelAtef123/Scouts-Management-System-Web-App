@@ -5,6 +5,7 @@ import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { google } from 'googleapis';
 import { config } from '../config.js';
+import { HttpError } from '../utils/httpError.js';
 
 /*
  * Task materials go to Google Drive, organised as:
@@ -37,6 +38,23 @@ function getDrive() {
 
   driveClient = auth && d.rootFolderId ? google.drive({ version: 'v3', auth }) : null;
   return driveClient;
+}
+
+/** Logs a Google Drive failure with a hint for whoever runs the server; users only see a plain message. */
+function logDriveError(err) {
+  const code = err?.response?.data?.error || err?.code || '';
+  const hints = {
+    unauthorized_client:
+      'The refresh token was made for a different OAuth client. Make GOOGLE_OAUTH_CLIENT_ID/SECRET match the client used in the OAuth Playground ("Use your own OAuth credentials"), get a new refresh token, and restart.',
+    invalid_grant:
+      'The refresh token expired or was revoked (app still in "Testing", access removed, or unused for 6 months). Get a new refresh token and restart.',
+    invalid_client: 'GOOGLE_OAUTH_CLIENT_ID or GOOGLE_OAUTH_CLIENT_SECRET is wrong.',
+    404: 'GOOGLE_DRIVE_FOLDER_ID was not found, or the signed-in Google account cannot access it.',
+    403: 'The Google account has no permission to write to the folder, or the Drive API is not enabled.',
+  };
+  console.error(`Google Drive upload failed (${code || 'unknown error'}): ${err?.message}`);
+  const hint = hints[code];
+  if (hint) console.error(`  -> ${hint}`);
 }
 
 export function isDriveEnabled() {
@@ -99,17 +117,22 @@ export async function storeMaterial({ file, event, task, uploader }) {
   const name = safeFileName(file.originalname);
 
   if (drive) {
-    const folderId = await ensureEventFolder(drive, event);
-    const { data } = await drive.files.create({
-      requestBody: {
-        name: `${task.title.slice(0, 60)} - ${uploader.name} - ${name}`,
-        parents: [folderId],
-      },
-      media: { mimeType: file.mimetype, body: Readable.from(file.buffer) },
-      fields: 'id, webViewLink',
-      ...ALL_DRIVES,
-    });
-    return { storage: 'drive', fileId: data.id, url: data.webViewLink };
+    try {
+      const folderId = await ensureEventFolder(drive, event);
+      const { data } = await drive.files.create({
+        requestBody: {
+          name: `${task.title.slice(0, 60)} - ${uploader.name} - ${name}`,
+          parents: [folderId],
+        },
+        media: { mimeType: file.mimetype, body: Readable.from(file.buffer) },
+        fields: 'id, webViewLink',
+        ...ALL_DRIVES,
+      });
+      return { storage: 'drive', fileId: data.id, url: data.webViewLink };
+    } catch (err) {
+      logDriveError(err);
+      throw new HttpError(502, 'The file could not be saved to Google Drive. Please tell the Database team.');
+    }
   }
 
   await fs.mkdir(LOCAL_UPLOAD_DIR, { recursive: true });
