@@ -17,6 +17,7 @@ import statsRoutes from './routes/stats.js';
 import { LOCAL_UPLOAD_DIR, isDriveEnabled } from './services/storage.js';
 import { TEAMS } from './constants.js';
 import { User } from './models/User.js';
+import { ATTENDANCE_ASSIGNMENTS } from './attendanceAssignments.js';
 
 const app = express();
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -61,6 +62,26 @@ app.use((err, _req, res, _next) => {
   res.status(status).json({ message: status >= 500 ? 'Something went wrong, please try again' : err.message });
 });
 
+/** The fixed attendance assignments must name 5 different teams and real Database/Attendance accounts. */
+async function checkAttendanceAssignments() {
+  const entries = Object.entries(ATTENDANCE_ASSIGNMENTS);
+  const teams = entries.map(([, team]) => team);
+  const bad = teams.filter((t) => !TEAMS.includes(t));
+  if (bad.length) throw new Error(`attendanceAssignments.js: unknown team(s) ${bad.join(', ')}`);
+  const dupes = teams.filter((t, i) => teams.indexOf(t) !== i);
+  if (dupes.length) throw new Error(`attendanceAssignments.js: ${dupes.join(', ')} assigned to more than one member`);
+  const missingTeams = TEAMS.filter((t) => !teams.includes(t));
+  if (missingTeams.length) console.warn(`Warning: nobody takes attendance for ${missingTeams.join(', ')} (see attendanceAssignments.js)`);
+
+  const found = await User.find({ username: { $in: entries.map(([u]) => u) } }).select('username role isActive').lean();
+  for (const [username, team] of entries) {
+    const u = found.find((x) => x.username === username);
+    if (!u) console.warn(`Warning: attendanceAssignments.js names "${username}" (${team}), but no such account exists`);
+    else if (u.role !== 'database_team') console.warn(`Warning: "${username}" (${team}) is not in the Database/Attendance team, so cannot take attendance`);
+    else if (!u.isActive) console.warn(`Warning: "${username}" (${team}) is deactivated, so ${team} attendance cannot be taken`);
+  }
+}
+
 async function start() {
   try {
     await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 8000 });
@@ -74,6 +95,7 @@ async function start() {
   // that rule had no team only for group roles, which belong to the Gawala team.
   const moved = await User.updateMany({ $or: [{ team: null }, { team: { $exists: false } }] }, { team: 'Gawala' });
   if (moved.modifiedCount) console.log(`Moved ${moved.modifiedCount} member(s) without a team into the Gawala team`);
+  await checkAttendanceAssignments();
   app.listen(config.port, () => {
     console.log(`Server running on http://localhost:${config.port}`);
     console.log(isDriveEnabled() ? 'Uploads go to Google Drive' : `Google Drive not configured: uploads saved in ${LOCAL_UPLOAD_DIR}`);

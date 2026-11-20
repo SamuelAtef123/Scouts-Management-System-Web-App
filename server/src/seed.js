@@ -13,6 +13,7 @@ import { User } from './models/User.js';
 import { Event } from './models/Event.js';
 import { Task } from './models/Task.js';
 import { ROLES, TEAMS } from './constants.js';
+import { ATTENDANCE_ASSIGNMENTS } from './attendanceAssignments.js';
 
 const DEMO_PASSWORD = 'scouts123';
 
@@ -36,12 +37,12 @@ async function seedDemo(leader) {
   // Scouts Leader, Helpers and the Database team belong to the Gawala team.
   const members = [
     { name: 'Mina Leader Helper', username: 'mina', role: ROLES.SCOUT_LEADER_HELPER, team: 'Gawala' },
-    // The 5 Database/Attendance members: each takes attendance for one team (2 are privileged).
-    { name: 'Marina Database', username: 'marina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala', attendanceTeam: 'Gawala' },
-    { name: 'Kirollos Database', username: 'kirollos', role: ROLES.DATABASE_TEAM, team: 'Gawala', attendanceTeam: 'Ashbal' },
-    { name: 'Verina Database', username: 'verina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala', attendanceTeam: 'Zahrat' },
-    { name: 'Bishoy Database', username: 'bishoy', role: ROLES.DATABASE_TEAM, team: 'Gawala', attendanceTeam: 'Kashafeen' },
-    { name: 'Mariam Database', username: 'mariam', role: ROLES.DATABASE_TEAM, team: 'Gawala', attendanceTeam: 'Morshedat' },
+    // The 5 Database/Attendance members (2 privileged). Whose attendance each takes is fixed in attendanceAssignments.js.
+    { name: 'Marina Database', username: 'marina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala' },
+    { name: 'Kirollos Database', username: 'kirollos', role: ROLES.DATABASE_TEAM, team: 'Gawala' },
+    { name: 'Verina Database', username: 'verina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala' },
+    { name: 'Bishoy Database', username: 'bishoy', role: ROLES.DATABASE_TEAM, team: 'Gawala' },
+    { name: 'Mariam Database', username: 'mariam', role: ROLES.DATABASE_TEAM, team: 'Gawala' },
   ];
   TEAMS.forEach((team) => {
     const t = team.toLowerCase();
@@ -90,7 +91,9 @@ async function seedDemo(leader) {
     });
     if (p.attendance) {
       // A team's attendance is taken by its Database/Attendance member; a Gawala Session's by the Gawala one.
-      const dbByTeam = Object.fromEntries(Object.values(users).filter((u) => u.attendanceTeam).map((u) => [u.attendanceTeam, u]));
+      const dbByTeam = Object.fromEntries(
+        Object.entries(ATTENDANCE_ASSIGNMENTS).filter(([username]) => users[username]).map(([username, team]) => [team, users[username]])
+      );
       for (const team of p.team ? [p.team] : TEAMS) {
         const sheet = await User.find({ isActive: true, team }).sort({ name: 1 });
         sheet.forEach((u, i) => event.attendance.push({ user: u._id, team, status: statuses[i % statuses.length] }));

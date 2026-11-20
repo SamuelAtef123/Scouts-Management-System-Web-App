@@ -16,7 +16,6 @@ function MemberForm({ member, onClose, onSaved }) {
     role: member?.role || 'team_leader_helper',
     team: member?.team || '',
     isPrivileged: member?.isPrivileged || false,
-    attendanceTeam: member?.attendanceTeam || '',
     isActive: member?.isActive ?? true,
     password: '',
   });
@@ -28,7 +27,7 @@ function MemberForm({ member, onClose, onSaved }) {
     e.preventDefault();
     setBusy(true);
     setError('');
-    const body = { ...form, team: form.team || null, attendanceTeam: form.attendanceTeam || null };
+    const body = { ...form, team: form.team || null };
     if (member && !body.password) delete body.password;
     try {
       const res = member ? await api.put(`/users/${member._id}`, body) : await api.post('/users', body);
@@ -98,16 +97,16 @@ function MemberForm({ member, onClose, onSaved }) {
           </Field>
         </div>
         {form.role === 'database_team' && (
-          <Field label="Takes attendance for" hint="Only this member takes this team's attendance, and they also see its events">
-            <select value={form.attendanceTeam} onChange={set('attendanceTeam')} required={form.isActive}>
-              <option value="">Choose a team</option>
-              {TEAMS.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.id}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <p className="form-context">
+            {member?.attendanceTeam ? (
+              <>
+                Takes attendance for the <strong>{member.attendanceTeam}</strong> team.
+              </>
+            ) : (
+              'Not assigned to take any team\'s attendance.'
+            )}{' '}
+            This is fixed by the system and can't be changed here.
+          </p>
         )}
         {form.role === 'database_team' && (
           <label className="check">

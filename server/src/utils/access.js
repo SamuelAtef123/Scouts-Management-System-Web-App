@@ -1,4 +1,5 @@
 import { ATTENDANCE_EVENT_TYPES, ROLES, TEAMS } from '../constants.js';
+import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 
 /*
  * Roles decide what a person may do. Team membership decides which team's
@@ -36,18 +37,22 @@ export function canViewAllTeams(user) {
  */
 export function visibleTeams(user, allTeams) {
   if (canViewAllTeams(user)) return allTeams;
-  const teams = [user?.team, user?.role === ROLES.DATABASE_TEAM ? user.attendanceTeam : null].filter(Boolean);
+  const teams = [user?.team, attendanceTeamOf(user)].filter(Boolean);
   return allTeams.filter((t) => teams.includes(t));
 }
 
 export function canSeeEvent(user, event) {
   if (event.team === null || event.team === undefined) return true;
-  return canViewAllTeams(user) || user?.team === event.team || (user?.role === ROLES.DATABASE_TEAM && user.attendanceTeam === event.team);
+  return canViewAllTeams(user) || user?.team === event.team || attendanceTeamOf(user) === event.team;
 }
 
-/** The team whose attendance this user takes, or null. ONLY Database/Attendance members take attendance. */
+/**
+ * The team whose attendance this user takes, or null. ONLY Database/Attendance members take
+ * attendance; their teams are fixed in `attendanceAssignments.js`, not set from the app.
+ */
 export function attendanceTeamOf(user) {
-  return user?.role === ROLES.DATABASE_TEAM && user.attendanceTeam ? user.attendanceTeam : null;
+  if (user?.role !== ROLES.DATABASE_TEAM || !user.isActive) return null;
+  return ATTENDANCE_ASSIGNMENTS[user.username] ?? null;
 }
 
 /**

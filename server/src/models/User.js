@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { ROLE_VALUES, TEAMS } from '../constants.js';
+import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 
 const userSchema = new mongoose.Schema(
   {
@@ -20,9 +21,6 @@ const userSchema = new mongoose.Schema(
     team: { type: String, enum: [...TEAMS, null], default: null },
     // Only meaningful for the Database/Attendance team: the 2 members with extra privileges.
     isPrivileged: { type: Boolean, default: false },
-    // Database/Attendance team only: the one team this member takes attendance for.
-    // Each team has exactly one such member (checked when saving a member).
-    attendanceTeam: { type: String, enum: [...TEAMS, null], default: null },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
@@ -38,6 +36,8 @@ userSchema.methods.checkPassword = function checkPassword(plain) {
 
 userSchema.set('toJSON', {
   transform: (_doc, ret) => {
+    // Read-only: which team's attendance this member takes (fixed in attendanceAssignments.js).
+    ret.attendanceTeam = ret.role === 'database_team' ? (ATTENDANCE_ASSIGNMENTS[ret.username] ?? null) : null;
     delete ret.passwordHash;
     delete ret.__v;
     return ret;

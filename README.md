@@ -46,7 +46,9 @@ The app is designed for phones first and also works on a computer.
 
 - Roles only decide permissions. Team membership decides who is on an attendance sheet, so every member belongs to a team. The Scouts Leader, Helpers and the Database team belong to the Gawala team; on its first start, the server moves anyone without a team into Gawala.
 - Before a team's section is first saved, it lists the team's current members. On that first save the list is fixed, so later team changes don't alter past sheets. After attendance is taken, the event's type and team can't be changed.
-- Who records attendance: **only the 5 Database / Attendance team members, each for one assigned team** (set on the Members page, one member per team). Nobody else can record it, including the Scouts Leader.
+- Who records attendance: **only the 5 Database / Attendance team members, each for one assigned team**. Nobody else can record it, including the Scouts Leader.
+  - The assignments are **fixed in the code** in `server/src/attendanceAssignments.js` (username → team), not set from the app. To change them, edit that file and redeploy. **Replace the demo usernames there with the real ones before going live.**
+  - On start, the server checks that list and warns about a missing team, an unknown username, or an account that isn't in the Database/Attendance team. The username of an assigned member can't be changed from the Members page.
   - A Team Session or Preparation Meeting is recorded only by the member assigned to the event's team.
   - A Gawala Session (all teams) is recorded only by the member assigned to Gawala. The event page shows which teams' sections are done.
   - A Database / Attendance member sees the Gawala team's events, their assigned team's events, and whole-group events. The 2 privileged members still see and manage every team, but take attendance only for their own team.
