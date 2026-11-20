@@ -24,12 +24,29 @@ function readUserFields(body, { partial }) {
   if (body.team !== undefined) out.team = body.team || null;
   if (out.team && !TEAMS.includes(out.team)) throw badRequest('Choose a valid team');
   if (body.isPrivileged !== undefined) out.isPrivileged = Boolean(body.isPrivileged);
+  if (body.attendanceTeam !== undefined) {
+    out.attendanceTeam = body.attendanceTeam || null;
+    if (out.attendanceTeam && !TEAMS.includes(out.attendanceTeam)) throw badRequest('Choose a valid team for attendance');
+  }
   if (body.isActive !== undefined) out.isActive = Boolean(body.isActive);
   return out;
 }
 
-function checkRoleTeam(user) {
-  if (user.role !== ROLES.DATABASE_TEAM) user.isPrivileged = false;
+async function checkRoleTeam(user) {
+  if (user.role !== ROLES.DATABASE_TEAM) {
+    user.isPrivileged = false;
+    user.attendanceTeam = null;
+  } else if (user.isActive) {
+    // Each Database/Attendance member takes attendance for exactly one team, and each team has one such member.
+    if (!user.attendanceTeam) throw badRequest('Choose the team this member takes attendance for');
+    const other = await User.findOne({
+      _id: { $ne: user._id },
+      role: ROLES.DATABASE_TEAM,
+      isActive: true,
+      attendanceTeam: user.attendanceTeam,
+    }).select('name');
+    if (other) throw badRequest(`${other.name} already takes attendance for the ${user.attendanceTeam} team`);
+  }
   // Everyone belongs to a team: it decides whose attendance sheet they appear on.
   // Scouts Leader, Helpers and the Database team are normally in the Gawala team.
   if (!user.team) throw badRequest('Choose the team this member belongs to');
@@ -64,7 +81,7 @@ router.post(
     if (await User.exists({ username: fields.username })) throw badRequest('This username is already taken');
 
     const user = new User(fields);
-    checkRoleTeam(user);
+    await checkRoleTeam(user);
     await user.setPassword(password);
     await user.save();
     res.status(201).json({ user });
@@ -88,7 +105,7 @@ router.put(
     }
 
     Object.assign(user, fields);
-    checkRoleTeam(user);
+    await checkRoleTeam(user);
     if (req.body.password) {
       if (String(req.body.password).length < 6) throw badRequest('The password must be at least 6 characters');
       await user.setPassword(String(req.body.password));

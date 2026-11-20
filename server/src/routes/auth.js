@@ -3,7 +3,8 @@ import rateLimit from 'express-rate-limit';
 import { User } from '../models/User.js';
 import { requireAuth, signToken } from '../middleware/auth.js';
 import { asyncHandler, badRequest, HttpError } from '../utils/httpError.js';
-import { hasGlobalAccess, canManageUsers, canViewAllTeams } from '../utils/access.js';
+import { hasGlobalAccess, canManageUsers, canViewAllTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
+import { TEAMS } from '../constants.js';
 
 const router = Router();
 
@@ -22,7 +23,8 @@ export function publicUser(user) {
     permissions: {
       allTeams: hasGlobalAccess(user), // manage events and tasks of every team
       viewAllTeams: canViewAllTeams(user), // see every team's events
-      takeAttendance: user.role === 'database_team',
+      teams: visibleTeams(user, TEAMS), // teams whose events they see (plus whole-group events)
+      attendanceTeam: attendanceTeamOf(user), // the team they take attendance for, if any
       manageUsers: canManageUsers(user),
     },
   };

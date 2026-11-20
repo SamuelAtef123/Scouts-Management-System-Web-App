@@ -28,7 +28,8 @@ export default function Home() {
 
   const s = stats.data;
   const openTasks = tasks.data?.tasks || [];
-  const scope = user.permissions.viewAllTeams ? 'All teams' : `${user.team} team`;
+  const myTeams = user.permissions.teams || [user.team];
+  const scope = user.permissions.viewAllTeams ? 'All teams' : myTeams.join(' · ');
 
   const updateTask = (t) =>
     tasks.setData((d) => ({ tasks: t.status === 'done' ? d.tasks.filter((x) => x._id !== t._id) : d.tasks.map((x) => (x._id === t._id ? t : x)) }));
@@ -86,7 +87,7 @@ export default function Home() {
           <div className="section-head">
             <h2>Upcoming events</h2>
             <span className="section-scope">
-              {user.permissions.viewAllTeams ? scope : <TeamChip team={user.team} size="sm" />}
+              {myTeams.length > 1 ? scope : <TeamChip team={user.team} size="sm" />}
             </span>
           </div>
           {events.loading && !events.data ? (

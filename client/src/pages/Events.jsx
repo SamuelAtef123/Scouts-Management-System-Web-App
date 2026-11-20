@@ -17,6 +17,9 @@ export default function Events() {
   const when = params.get('when') === 'past' ? 'past' : 'upcoming';
   const team = params.get('team') || '';
   const [creating, setCreating] = useState(false);
+  // Teams whose events this user sees (a Database/Attendance member also sees the team they take attendance for).
+  const myTeams = user.permissions.teams || [user.team];
+  const filterTeams = TEAMS.filter((t) => myTeams.includes(t.id));
 
   const query = `/events?when=${when}${team ? `&team=${team}` : ''}`;
   const { data, error, loading, reload } = useApi(query);
@@ -44,7 +47,7 @@ export default function Events() {
       <header className="page-head">
         <div>
           <h1>Events</h1>
-          <p className="muted">{user.permissions.viewAllTeams ? 'All teams of the group' : `${user.team} team and whole-group events`}</p>
+          <p className="muted">{user.permissions.viewAllTeams ? 'All teams of the group' : `${myTeams.join(' and ')} ${myTeams.length > 1 ? 'teams' : 'team'}, and whole-group events`}</p>
         </div>
         <button className="btn btn-primary desktop-only" onClick={() => setCreating(true)}>
           <Plus size={18} /> New event
@@ -59,10 +62,10 @@ export default function Events() {
         ))}
       </div>
 
-      {user.permissions.viewAllTeams && (
+      {filterTeams.length > 1 && (
         <div className="chips" role="group" aria-label="Filter by team">
           <button className={`chip ${!team ? 'active' : ''}`} onClick={() => setParam('team', '')}>
-            All teams
+            {user.permissions.viewAllTeams ? 'All teams' : 'All'}
           </button>
           <button
             className={`chip ${team === 'group' ? 'active' : ''}`}
@@ -72,7 +75,7 @@ export default function Events() {
             <span className="team-dot group-dot" />
             Whole group
           </button>
-          {TEAMS.map((t) => (
+          {filterTeams.map((t) => (
             <button
               key={t.id}
               className={`chip ${team === t.id ? 'active' : ''}`}

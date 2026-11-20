@@ -640,6 +640,7 @@ img {
 }
 
 .soon {
+  white-space: nowrap;
   font-size: 0.75rem;
   font-weight: 700;
   color: var(--red);
@@ -2295,4 +2296,65 @@ img {
 
 .attend-type b {
   color: var(--ink);
+}
+
+/* Per-team attendance sections */
+.teams-taken {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.team-taken {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f0eee8;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.team-taken.done {
+  background: #e3f6ea;
+  color: #157a39;
+}
+
+.pending-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+}
+
+.attend-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.attend-team {
+  flex-wrap: wrap;
+}
+
+.attend-state {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.attend-state.done {
+  color: #157a39;
+}
+
+.attend-group.is-mine {
+  padding: 12px;
+  margin-left: -12px;
+  margin-right: -12px;
+  border-radius: 16px;
+  background: #f4f4fc;
+  border: 1px solid #dcdcf3;
 }

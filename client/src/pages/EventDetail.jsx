@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ClipboardCheck, Clock, ListChecks, MapPin, Pencil, Plus, Trash2, UserRound } from 'lucide-react';
+import { Check, ChevronLeft, ClipboardCheck, Clock, ListChecks, MapPin, Pencil, Plus, Trash2, UserRound } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
@@ -39,6 +39,8 @@ export default function EventDetail() {
   const team = TEAM_BY_ID[event.team] || GROUP_STYLE;
   const type = eventType(event);
   const attendance = event.attendanceSummary;
+  // Has the current user (a Database/Attendance member) already taken their team's part?
+  const myPartDone = Boolean(attendance?.teamsTaken?.includes(user.permissions.attendanceTeam));
   const canManage = user.permissions.allTeams || (Boolean(event.team) && user.team === event.team);
   const done = tasks.filter((t) => t.status === 'done').length;
   const progress = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
@@ -113,11 +115,21 @@ export default function EventDetail() {
               </p>
             </div>
             {(event.canRecordAttendance || attendance?.taken) && (
-              <button className={`btn btn-sm ${attendance?.taken ? 'btn-ghost' : 'btn-primary'}`} onClick={() => setAttendanceOpen(true)}>
-                {event.canRecordAttendance ? (attendance?.taken ? 'Edit' : 'Take attendance') : 'View'}
+              <button className={`btn btn-sm ${myPartDone || !event.canRecordAttendance ? 'btn-ghost' : 'btn-primary'}`} onClick={() => setAttendanceOpen(true)}>
+                {event.canRecordAttendance ? (myPartDone ? 'Edit' : 'Take attendance') : 'View'}
               </button>
             )}
           </div>
+          {type.group && attendance && (
+            <div className="teams-taken">
+              {attendance.teamsExpected.map((t) => (
+                <span key={t} className={`team-taken ${attendance.teamsTaken.includes(t) ? 'done' : ''}`}>
+                  {attendance.teamsTaken.includes(t) ? <Check size={13} /> : <span className="pending-dot" />}
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
           {attendance?.taken ? (
             <div className="attend-summary">
               <div className="attend-bar" aria-hidden="true">

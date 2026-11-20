@@ -25,32 +25,43 @@ export function canManageTeam(user, team) {
   return Boolean(team) && Boolean(user?.team) && user.team === team;
 }
 
-/**
- * Can view the events of every team. Group-wide leaders, plus all 5 Database/Attendance
- * members, who take attendance for every team's sessions (viewing is not managing).
- */
+/** Can view the events of every team: only group-wide leaders. */
 export function canViewAllTeams(user) {
-  return hasGlobalAccess(user) || user?.role === ROLES.DATABASE_TEAM;
+  return hasGlobalAccess(user);
 }
 
-/** Teams whose events this user can see (whole-group events are visible to everyone). */
+/**
+ * Teams whose events this user can see (whole-group events are visible to everyone).
+ * A Database/Attendance member also sees the team they take attendance for.
+ */
 export function visibleTeams(user, allTeams) {
   if (canViewAllTeams(user)) return allTeams;
-  return user?.team ? [user.team] : [];
+  const teams = [user?.team, user?.role === ROLES.DATABASE_TEAM ? user.attendanceTeam : null].filter(Boolean);
+  return allTeams.filter((t) => teams.includes(t));
 }
 
 export function canSeeEvent(user, event) {
   if (event.team === null || event.team === undefined) return true;
-  return canViewAllTeams(user) || user?.team === event.team;
+  return canViewAllTeams(user) || user?.team === event.team || (user?.role === ROLES.DATABASE_TEAM && user.attendanceTeam === event.team);
 }
 
 /**
- * Who records attendance: ONLY the 5 members of the Database/Attendance team
- * (privileged or not), for any event that takes attendance. No other role can.
+ * The team whose attendance this user takes, or null.
+ * ONLY Database/Attendance members take attendance, each for their one assigned team.
+ */
+export function attendanceTeamOf(user) {
+  return user?.role === ROLES.DATABASE_TEAM && user.attendanceTeam ? user.attendanceTeam : null;
+}
+
+/**
+ * Can record attendance on this event: a Team Session of their assigned team, or their
+ * team's section of a whole-group sheet (Preparation Meeting, Gawala Session).
  */
 export function canRecordAttendance(user, event) {
   if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) return false;
-  return user?.role === ROLES.DATABASE_TEAM;
+  const team = attendanceTeamOf(user);
+  if (!team) return false;
+  return event.team === null || event.team === undefined || event.team === team;
 }
 
 /** Who can create, edit and deactivate user accounts. */

@@ -44,8 +44,12 @@ The app is designed for phones first and also works on a computer.
 | Others | No attendance |
 
 - Roles only decide permissions. Team membership decides who is on an attendance sheet, so every member belongs to a team. The Scouts Leader, Helpers and the Database team belong to the Gawala team; on its first start, the server moves anyone without a team into Gawala.
-- Before the first save, the sheet lists the current members. When it is first saved, the list is fixed and each member's team at that moment is stored, so later team changes don't alter past sheets. After attendance is taken, the event's type and team can't be changed.
-- Who records attendance: **only the 5 Database / Attendance team members**, for any event. Everyone else, including the Scouts Leader, can only view the sheet of an event they can see.
+- Before a team's section is first saved, it lists the team's current members. On that first save the list is fixed, so later team changes don't alter past sheets. After attendance is taken, the event's type and team can't be changed.
+- Who records attendance: **only the 5 Database / Attendance team members, each for one assigned team** (set on the Members page, one member per team). Nobody else can record it, including the Scouts Leader.
+  - A Team Session is recorded only by the member assigned to that team.
+  - On a Preparation Meeting or Gawala Session sheet, each assigned member fills in only their own team's section. The event page shows which teams are done.
+  - A Database / Attendance member sees the Gawala team's events, their assigned team's events, and whole-group events. The 2 privileged members still see and manage every team, but take attendance only for their own team.
+  - Anyone who can see an event can view its sheet.
 - Profile: attendance rate = present ÷ (present + absent). Excused sessions don't count against the member.
 
 Teams: Ashbal (أشبال), Zahrat (زهرات), Kashafeen (كشافين), Morshedat (مرشدات), Gawala (جوالة). Each team has a colour taken from the logo.

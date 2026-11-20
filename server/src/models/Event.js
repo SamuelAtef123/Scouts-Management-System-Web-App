@@ -11,6 +11,15 @@ const attendanceSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const attendanceTeamSchema = new mongoose.Schema(
+  {
+    team: { type: String, enum: TEAMS, required: true },
+    takenAt: { type: Date, required: true },
+    takenBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  },
+  { _id: false }
+);
+
 const eventSchema = new mongoose.Schema(
   {
     title: { type: String, required: true, trim: true, maxlength: 120 },
@@ -24,10 +33,11 @@ const eventSchema = new mongoose.Schema(
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     // Google Drive folder holding this event's task materials (created on first upload).
     driveFolderId: { type: String, default: '' },
-    // Attendance sheet. Empty until attendance is first recorded; the member list is fixed at that moment.
+    // Attendance sheet rows, added team by team. A team's rows are fixed from its membership
+    // the first time that team's attendance is saved.
     attendance: { type: [attendanceSchema], default: [] },
-    attendanceTakenAt: { type: Date, default: null },
-    attendanceTakenBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    // Which teams' attendance has been taken, when, and by whom (one entry per team).
+    attendanceTeams: { type: [attendanceTeamSchema], default: [] },
   },
   { timestamps: true }
 );

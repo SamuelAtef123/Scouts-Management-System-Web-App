@@ -16,10 +16,13 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, trim: true, maxlength: 20 },
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ROLE_VALUES, required: true },
-    // The team this person serves in. Optional for group-wide roles.
+    // The team this person belongs to; it decides whose attendance sheet they appear on.
     team: { type: String, enum: [...TEAMS, null], default: null },
     // Only meaningful for the Database/Attendance team: the 2 members with extra privileges.
     isPrivileged: { type: Boolean, default: false },
+    // Database/Attendance team only: the one team this member takes attendance for.
+    // Each team has exactly one such member (checked when saving a member).
+    attendanceTeam: { type: String, enum: [...TEAMS, null], default: null },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

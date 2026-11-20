@@ -36,8 +36,12 @@ async function seedDemo(leader) {
   // Scouts Leader, Helpers and the Database team belong to the Gawala team.
   const members = [
     { name: 'Mina Leader Helper', username: 'mina', role: ROLES.SCOUT_LEADER_HELPER, team: 'Gawala' },
-    { name: 'Marina Database', username: 'marina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala' },
-    { name: 'Kirollos Database', username: 'kirollos', role: ROLES.DATABASE_TEAM, team: 'Gawala' },
+    // The 5 Database/Attendance members: each takes attendance for one team (2 are privileged).
+    { name: 'Marina Database', username: 'marina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala', attendanceTeam: 'Gawala' },
+    { name: 'Kirollos Database', username: 'kirollos', role: ROLES.DATABASE_TEAM, team: 'Gawala', attendanceTeam: 'Ashbal' },
+    { name: 'Verina Database', username: 'verina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala', attendanceTeam: 'Zahrat' },
+    { name: 'Bishoy Database', username: 'bishoy', role: ROLES.DATABASE_TEAM, team: 'Gawala', attendanceTeam: 'Kashafeen' },
+    { name: 'Mariam Database', username: 'mariam', role: ROLES.DATABASE_TEAM, team: 'Gawala', attendanceTeam: 'Morshedat' },
   ];
   TEAMS.forEach((team) => {
     const t = team.toLowerCase();
@@ -84,10 +88,13 @@ async function seedDemo(leader) {
       createdBy: p.team ? users[`${owner}.leader`]._id : leader._id,
     });
     if (p.attendance) {
-      const sheet = await User.find({ isActive: true, team: p.team ? p.team : { $in: TEAMS } }).sort({ name: 1 });
-      event.attendance = sheet.map((u, i) => ({ user: u._id, team: u.team, status: statuses[i % statuses.length] }));
-      event.attendanceTakenAt = daysFromNow(p.start, 19);
-      event.attendanceTakenBy = users.kirollos._id;
+      // Each team's section is taken by that team's Database/Attendance member.
+      const dbByTeam = Object.fromEntries(Object.values(users).filter((u) => u.attendanceTeam).map((u) => [u.attendanceTeam, u]));
+      for (const team of p.team ? [p.team] : TEAMS) {
+        const sheet = await User.find({ isActive: true, team }).sort({ name: 1 });
+        sheet.forEach((u, i) => event.attendance.push({ user: u._id, team, status: statuses[i % statuses.length] }));
+        event.attendanceTeams.push({ team, takenAt: daysFromNow(p.start, 19), takenBy: (dbByTeam[team] || leader)._id });
+      }
     }
     await event.save();
 

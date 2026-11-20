@@ -16,6 +16,7 @@ function MemberForm({ member, onClose, onSaved }) {
     role: member?.role || 'team_leader_helper',
     team: member?.team || '',
     isPrivileged: member?.isPrivileged || false,
+    attendanceTeam: member?.attendanceTeam || '',
     isActive: member?.isActive ?? true,
     password: '',
   });
@@ -27,7 +28,7 @@ function MemberForm({ member, onClose, onSaved }) {
     e.preventDefault();
     setBusy(true);
     setError('');
-    const body = { ...form, team: form.team || null };
+    const body = { ...form, team: form.team || null, attendanceTeam: form.attendanceTeam || null };
     if (member && !body.password) delete body.password;
     try {
       const res = member ? await api.put(`/users/${member._id}`, body) : await api.post('/users', body);
@@ -96,6 +97,18 @@ function MemberForm({ member, onClose, onSaved }) {
             </select>
           </Field>
         </div>
+        {form.role === 'database_team' && (
+          <Field label="Takes attendance for" hint="Only this member takes this team's attendance, and they also see its events">
+            <select value={form.attendanceTeam} onChange={set('attendanceTeam')} required={form.isActive}>
+              <option value="">Choose a team</option>
+              {TEAMS.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.id}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
         {form.role === 'database_team' && (
           <label className="check">
             <input type="checkbox" checked={form.isPrivileged} onChange={set('isPrivileged')} />
@@ -183,7 +196,8 @@ export default function Members() {
                   {u.isPrivileged && <Shield size={14} className="privileged" aria-label="Privileged" />}
                 </strong>
                 <span>
-                  {ROLE_LABEL[u.role]} · @{u.username}
+                  {ROLE_LABEL[u.role]}
+                  {u.attendanceTeam && ` · attendance: ${u.attendanceTeam}`} · @{u.username}
                   {!u.isActive && ' · Inactive'}
                 </span>
               </span>

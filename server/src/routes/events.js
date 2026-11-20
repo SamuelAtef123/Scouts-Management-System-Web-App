@@ -4,7 +4,7 @@ import { Event } from '../models/Event.js';
 import { Task } from '../models/Task.js';
 import { User } from '../models/User.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
-import { canManageTeam, canRecordAttendance, canSeeEvent, canViewAllTeams, hasGlobalAccess, visibleTeams } from '../utils/access.js';
+import { attendanceTeamOf, canManageTeam, canRecordAttendance, canSeeEvent, canViewAllTeams, hasGlobalAccess, visibleTeams } from '../utils/access.js';
 import { ATTENDANCE_EVENT_TYPES, ATTENDANCE_STATUSES, EVENT_TYPES, GROUP_EVENT_TYPES, TEAMS } from '../constants.js';
 
 const router = Router();
@@ -65,11 +65,24 @@ export async function loadEvent(id, user, { manage = false } = {}) {
   return event;
 }
 
+/** Teams whose attendance an event takes: its own team, or all teams for whole-group sessions. */
+function expectedTeams(event) {
+  if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) return [];
+  return event.team ? [event.team] : TEAMS;
+}
+
 function attendanceSummary(event) {
   if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) return null;
   const counts = { present: 0, absent: 0, excused: 0 };
   for (const a of event.attendance || []) counts[a.status] += 1;
-  return { taken: Boolean(event.attendanceTakenAt), total: event.attendance?.length || 0, ...counts };
+  const teamsTaken = (event.attendanceTeams || []).map((t) => t.team);
+  return {
+    taken: teamsTaken.length > 0,
+    teamsTaken,
+    teamsExpected: expectedTeams(event),
+    total: event.attendance?.length || 0,
+    ...counts,
+  };
 }
 
 /** Lean event as the client sees it: no raw attendance list, just its summary. */
@@ -77,6 +90,7 @@ function eventForClient(event) {
   const e = typeof event.toObject === 'function' ? event.toObject() : { ...event };
   e.attendanceSummary = attendanceSummary(e);
   delete e.attendance;
+  delete e.attendanceTeams;
   return e;
 }
 
@@ -163,7 +177,7 @@ router.put(
     const type = fields.type ?? event.type;
     const team = fields.team !== undefined ? fields.team : event.team;
 
-    if (event.attendanceTakenAt && (type !== event.type || (team || null) !== (event.team || null))) {
+    if (event.attendanceTeams.length && (type !== event.type || (team || null) !== (event.team || null))) {
       throw badRequest('Attendance was already taken for this event, so its type and team cannot change');
     }
     fields.team = checkTypeAndTeam(req.user, type, team);
@@ -188,37 +202,48 @@ router.delete(
 );
 
 // ---------- Attendance ----------
-
-/**
- * Who is on the sheet before attendance is first recorded:
- * a Team Session lists its team's members; Preparation Meetings and
- * Gawala Sessions list members of ALL teams. Inactive members are left out.
- */
-async function currentMembers(event) {
-  const filter = { isActive: true, team: event.type === 'team_session' ? event.team : { $in: TEAMS } };
-  return User.find(filter).select('name username team role').sort({ name: 1 }).lean();
-}
+//
+// Only Database/Attendance members record attendance, each for their one assigned team.
+// A Team Session's sheet has one section (its team). A Preparation Meeting or Gawala
+// Session sheet has a section per team, and each section is filled by that team's member.
 
 const teamOrder = (team) => TEAMS.indexOf(team);
 
-async function attendanceSheet(event) {
-  let rows;
-  if (event.attendanceTakenAt) {
-    await event.populate('attendance.user', 'name username team role');
-    rows = event.attendance
-      .filter((a) => a.user) // a member whose account was removed from the database
-      .map((a) => ({ user: a.user.toJSON(), team: a.team, status: a.status }));
-    await event.populate('attendanceTakenBy', 'name');
-  } else {
-    rows = (await currentMembers(event)).map((u) => ({ user: u, team: u.team, status: null }));
+/** Current active members of a team, for a section that has not been taken yet. */
+function currentMembers(team) {
+  return User.find({ isActive: true, team }).select('name username team').sort({ name: 1 }).lean();
+}
+
+async function attendanceSheet(event, user) {
+  await event.populate([
+    { path: 'attendance.user', select: 'name username team' },
+    { path: 'attendanceTeams.takenBy', select: 'name' },
+  ]);
+  const myTeam = canRecordAttendance(user, event) ? attendanceTeamOf(user) : null;
+
+  const sections = [];
+  for (const team of expectedTeams(event)) {
+    const log = event.attendanceTeams.find((t) => t.team === team);
+    let rows;
+    if (log) {
+      rows = event.attendance
+        .filter((a) => a.team === team && a.user) // a.user is null if the account was deleted
+        .map((a) => ({ user: a.user.toJSON(), team, status: a.status }));
+    } else {
+      rows = (await currentMembers(team)).map((u) => ({ user: u, team, status: null }));
+    }
+    rows.sort((a, b) => a.user.name.localeCompare(b.user.name));
+    sections.push({
+      team,
+      taken: Boolean(log),
+      takenAt: log?.takenAt ?? null,
+      takenBy: log?.takenBy?.name ? { name: log.takenBy.name } : null,
+      canRecord: team === myTeam,
+      rows,
+    });
   }
-  rows.sort((a, b) => teamOrder(a.team) - teamOrder(b.team) || a.user.name.localeCompare(b.user.name));
-  return {
-    taken: Boolean(event.attendanceTakenAt),
-    takenAt: event.attendanceTakenAt,
-    takenBy: event.attendanceTakenBy?.name ? { name: event.attendanceTakenBy.name } : null,
-    rows,
-  };
+  sections.sort((a, b) => teamOrder(a.team) - teamOrder(b.team));
+  return { sections, myTeam };
 }
 
 router.get(
@@ -226,18 +251,21 @@ router.get(
   asyncHandler(async (req, res) => {
     const event = await loadEvent(req.params.id, req.user);
     if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) throw badRequest('Attendance is not taken for this type of event');
-    res.json({ ...(await attendanceSheet(event)), canRecord: canRecordAttendance(req.user, event) });
+    res.json(await attendanceSheet(event, req.user));
   })
 );
 
 // PUT /api/events/:id/attendance  { records: [{ user, status }] }
-// Members left unmarked are saved as absent.
+// Saves the recorder's own team section. Members of that team left unmarked are saved as absent.
 router.put(
   '/:id/attendance',
   asyncHandler(async (req, res) => {
     const event = await loadEvent(req.params.id, req.user);
     if (!ATTENDANCE_EVENT_TYPES.includes(event.type)) throw badRequest('Attendance is not taken for this type of event');
-    if (!canRecordAttendance(req.user, event)) throw forbidden('You cannot record attendance for this event');
+    if (!canRecordAttendance(req.user, event)) {
+      throw forbidden('Only the Database/Attendance member assigned to this team can take its attendance');
+    }
+    const team = attendanceTeamOf(req.user);
 
     const records = Array.isArray(req.body.records) ? req.body.records : [];
     const statusByUser = new Map();
@@ -246,25 +274,26 @@ router.put(
       statusByUser.set(String(r.user), r.status);
     }
 
-    if (!event.attendanceTakenAt) {
-      // First time: the sheet's member list is fixed from team membership right now.
-      const members = await currentMembers(event);
-      event.attendance = members.map((u) => ({
-        user: u._id,
-        team: u.team,
-        status: statusByUser.get(u._id.toString()) || 'absent',
-      }));
-      event.attendanceTakenAt = new Date();
+    const log = event.attendanceTeams.find((t) => t.team === team);
+    if (!log) {
+      // First time for this team: its member list is fixed from team membership right now.
+      const members = await currentMembers(team);
+      for (const u of members) {
+        event.attendance.push({ user: u._id, team, status: statusByUser.get(u._id.toString()) || 'absent' });
+      }
+      event.attendanceTeams.push({ team, takenAt: new Date(), takenBy: req.user._id });
     } else {
       for (const a of event.attendance) {
+        if (a.team !== team) continue; // other teams' sections belong to their own members
         const status = statusByUser.get(a.user.toString());
         if (status) a.status = status;
       }
+      log.takenAt = new Date();
+      log.takenBy = req.user._id;
     }
-    event.attendanceTakenBy = req.user._id;
     await event.save();
 
-    res.json({ ...(await attendanceSheet(event)), canRecord: true, summary: attendanceSummary(event) });
+    res.json({ ...(await attendanceSheet(event, req.user)), summary: attendanceSummary(event) });
   })
 );
 
