@@ -17,6 +17,8 @@ import statsRoutes from './routes/stats.js';
 import { LOCAL_UPLOAD_DIR, isDriveEnabled } from './services/storage.js';
 import { TEAMS } from './constants.js';
 import { User } from './models/User.js';
+import { Task } from './models/Task.js';
+import { fixFileName } from './utils/fileName.js';
 import { ATTENDANCE_ASSIGNMENTS } from './attendanceAssignments.js';
 
 const app = express();
@@ -82,6 +84,23 @@ async function checkAttendanceAssignments() {
   }
 }
 
+/** Fixes Arabic file names that were saved scrambled before uploads decoded them correctly. */
+async function repairMaterialNames() {
+  const tasks = await Task.find({ 'materials.fileName': { $regex: '[\u0080-\u00ff]' } });
+  let fixed = 0;
+  for (const task of tasks) {
+    for (const m of task.materials) {
+      const name = fixFileName(m.fileName);
+      if (name !== m.fileName) {
+        m.fileName = name;
+        fixed += 1;
+      }
+    }
+    if (task.isModified()) await task.save();
+  }
+  if (fixed) console.log(`Fixed ${fixed} uploaded file name(s) with Arabic text`);
+}
+
 async function start() {
   try {
     await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 8000 });
@@ -96,6 +115,7 @@ async function start() {
   const moved = await User.updateMany({ $or: [{ team: null }, { team: { $exists: false } }] }, { team: 'Gawala' });
   if (moved.modifiedCount) console.log(`Moved ${moved.modifiedCount} member(s) without a team into the Gawala team`);
   await checkAttendanceAssignments();
+  await repairMaterialNames();
   app.listen(config.port, () => {
     console.log(`Server running on http://localhost:${config.port}`);
     console.log(isDriveEnabled() ? 'Uploads go to Google Drive' : `Google Drive not configured: uploads saved in ${LOCAL_UPLOAD_DIR}`);

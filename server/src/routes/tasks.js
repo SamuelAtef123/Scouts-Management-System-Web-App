@@ -10,6 +10,7 @@ import { canManageTeam, hasGlobalAccess } from '../utils/access.js';
 import { storeMaterial, removeMaterial } from '../services/storage.js';
 import { ALLOWED_MATERIAL_TYPES, TASK_STATUSES } from '../constants.js';
 import { config } from '../config.js';
+import { fixFileName } from '../utils/fileName.js';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: config.maxUploadMb * 1024 * 1024, files: 1 },
   fileFilter: (_req, file, cb) => {
+    file.originalname = fixFileName(file.originalname); // keep Arabic names readable
     if (ALLOWED_MATERIAL_TYPES[file.mimetype]) return cb(null, true);
     cb(badRequest('Only PDF, Word documents and images can be uploaded'));
   },
