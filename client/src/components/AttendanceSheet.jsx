@@ -153,7 +153,7 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
                 const status = section.canRecord ? marks[r.user._id] : r.status;
                 return (
                   <div key={r.user._id} className={`attend-row ${status ? `is-${status}` : ''}`}>
-                    <Avatar name={r.user.name} team={r.team} size={34} />
+                    <Avatar person={r.user} team={r.team} size={34} />
                     <span className="attend-name">{r.user.name}</span>
                     <div className="attend-marks" role="group" aria-label={`Attendance of ${r.user.name}`}>
                       {ATTENDANCE_STATUSES.map((s) => (

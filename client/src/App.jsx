@@ -3,6 +3,7 @@ import { useAuth } from './auth.jsx';
 import Layout from './components/Layout.jsx';
 import { Spinner } from './components/ui.jsx';
 import Login from './pages/Login.jsx';
+import CompleteProfile from './pages/CompleteProfile.jsx';
 import Home from './pages/Home.jsx';
 import Events from './pages/Events.jsx';
 import EventDetail from './pages/EventDetail.jsx';
@@ -23,6 +24,8 @@ export default function App() {
   }
 
   if (!user) return <Login />;
+  // First sign-in: the mobile number must be added before using the app.
+  if (!user.phone) return <CompleteProfile />;
 
   return (
     <Routes>

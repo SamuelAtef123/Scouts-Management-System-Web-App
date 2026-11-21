@@ -161,7 +161,7 @@ function MemberDetails({ member, onClose, onEdit }) {
       }
     >
       <div className="member-detail-head">
-        <Avatar name={member.name} team={member.team} size={56} />
+        <Avatar person={member} size={56} />
         <div>
           <h3>{member.name}</h3>
           <p className="muted">@{member.username}</p>
@@ -312,7 +312,7 @@ export default function Members() {
         <div className="member-list">
           {members.map((u) => (
             <button key={u._id} className={`member ${u.isActive ? '' : 'inactive'}`} onClick={() => setViewing(u)}>
-              <Avatar name={u.name} team={u.team} />
+              <Avatar person={u} />
               <span className="member-text">
                 <strong>
                   {u.name}

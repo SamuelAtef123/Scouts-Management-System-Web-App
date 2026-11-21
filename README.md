@@ -15,7 +15,7 @@ The app is designed for phones first and also works on a computer.
 - **Attendance**: each event except "Others" has an attendance sheet. Mark each member Present, Absent or Excused; anyone left unmarked is saved as absent. Each member's attendance rate is shown on their Profile.
 - **Home**: a personal summary showing open, done and overdue tasks, your next tasks and upcoming events.
 - **Members**: every member's details and attendance percentage. The Scouts Leader and Helpers view everyone; all 5 Database / Attendance members can add accounts, edit them, reset passwords and deactivate members (the 3 non-privileged ones only for their assigned team).
-- **Profile**: change your own password.
+- **Profile**: your mobile number and photo (both editable), your attendance, and changing your password. On first sign-in, anyone without a mobile number must add one (a photo is optional) before using the app.
 
 ## Who can do what
 
@@ -156,6 +156,9 @@ All routes except login need an `Authorization: Bearer <token>` header.
 | POST | `/api/auth/login` | Sign in with username and password |
 | GET | `/api/auth/me` | The signed-in user and their permissions |
 | PUT | `/api/auth/me/password` | Change your own password |
+| PUT | `/api/auth/me/profile` | Set your own mobile number |
+| PUT/DELETE | `/api/auth/me/photo` | Set (`multipart/form-data`, field `file`) or remove your photo |
+| GET | `/api/users/:id/photo` | A member's photo |
 | GET | `/api/events?when=upcoming\|past\|all&team=` | List events you can see (`team=group` for whole-group events) |
 | POST/PUT/DELETE | `/api/events[/:id]` | Manage events |
 | GET | `/api/events/:id` | An event with its tasks |

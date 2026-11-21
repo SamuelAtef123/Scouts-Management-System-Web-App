@@ -63,10 +63,10 @@ export const api = {
   del: (path) => request('DELETE', path),
 
   /** Uploads a file with progress (0-100) reported through onProgress. */
-  upload(path, file, onProgress) {
+  upload(path, file, onProgress, { method = 'POST', fileName } = {}) {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', `/api${path}`);
+      xhr.open(method, `/api${path}`);
       const token = tokenStore.get();
       if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       xhr.upload.onprogress = (e) => {
@@ -84,8 +84,17 @@ export const api = {
       };
       xhr.onerror = () => reject(new ApiError(0, 'Upload failed. Check your internet and try again.'));
       const form = new FormData();
-      form.append('file', file);
+      if (fileName) form.append('file', file, fileName);
+      else form.append('file', file);
       xhr.send(form);
     });
   },
 };
+
+/** Loads a protected image (e.g. a member photo) with the sign-in token and returns an object URL. */
+export async function fetchImageUrl(path) {
+  const token = tokenStore.get();
+  const res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  if (!res.ok) throw new ApiError(res.status, 'Image not found');
+  return URL.createObjectURL(await res.blob());
+}

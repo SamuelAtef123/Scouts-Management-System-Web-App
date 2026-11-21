@@ -26,7 +26,7 @@ const upload = multer({
 
 const populateTask = (query) =>
   query
-    .populate('assignee', 'name username team')
+    .populate('assignee', 'name username team photoUpdatedAt')
     .populate('createdBy', 'name')
     .populate('materials.uploadedBy', 'name')
     .populate('event', 'title type team startDate endDate location');

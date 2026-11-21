@@ -1,10 +1,52 @@
 import { useState } from 'react';
-import { ClipboardCheck, KeyRound, LogOut } from 'lucide-react';
+import { ClipboardCheck, KeyRound, LogOut, Phone } from 'lucide-react';
+import PhotoPicker from '../components/PhotoPicker.jsx';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { EVENT_TYPES, ROLE_LABEL } from '../constants.js';
 import { useApi } from '../hooks.js';
 import { Avatar, ErrorBox, Field, Spinner, TeamChip, VerseCard, useToast } from '../components/ui.jsx';
+
+function PhoneCard() {
+  const { user, updateUser } = useAuth();
+  const toast = useToast();
+  const [phone, setPhone] = useState(user.phone || '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const data = await api.put('/auth/me/profile', { phone });
+      updateUser(data.user);
+      setPhone(data.user.phone);
+      toast('Mobile number saved');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="card">
+      <h2 className="card-title">
+        <Phone size={18} /> Mobile number
+      </h2>
+      <form className="form phone-form" onSubmit={submit}>
+        <Field label="Mobile number">
+          <input type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+        </Field>
+        {error && <ErrorBox message={error} />}
+        <button className="btn btn-primary" disabled={busy || phone.trim() === (user.phone || '')}>
+          {busy ? 'Saving…' : 'Save number'}
+        </button>
+      </form>
+    </section>
+  );
+}
 
 function AttendanceCard() {
   const { data, error, loading } = useApi('/stats/me');
@@ -80,9 +122,14 @@ export default function Profile() {
     <div className="page profile">
       <section className="profile-card">
         <div className="stripe" />
-        <Avatar name={user.name} team={user.team} size={72} />
+        <PhotoPicker size={88} onChange={toast} />
         <h1>{user.name}</h1>
         <p className="muted">@{user.username}</p>
+        {user.phone && (
+          <a className="profile-phone" href={`tel:${user.phone}`}>
+            <Phone size={16} /> {user.phone}
+          </a>
+        )}
         <div className="profile-tags">
           <span className="role-tag">{ROLE_LABEL[user.role]}</span>
           {user.team && <TeamChip team={user.team} />}
@@ -94,6 +141,8 @@ export default function Profile() {
           {user.permissions.attendanceTeam && ` You take attendance for the ${user.permissions.attendanceTeam} team.`}
         </p>
       </section>
+
+      <PhoneCard />
 
       <AttendanceCard />
 

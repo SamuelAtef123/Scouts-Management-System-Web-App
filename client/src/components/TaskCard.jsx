@@ -112,7 +112,7 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
       <div className="task-meta">
         {!showEvent && (
           <span className="meta-item">
-            <Avatar name={task.assignee?.name} team={task.assignee?.team} size={22} />
+            <Avatar person={task.assignee} size={22} />
             {mine ? 'You' : task.assignee?.name}
           </span>
         )}

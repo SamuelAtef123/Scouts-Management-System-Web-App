@@ -2,7 +2,9 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { User } from '../models/User.js';
 import { requireAuth, signToken } from '../middleware/auth.js';
+import multer from 'multer';
 import { asyncHandler, badRequest, HttpError } from '../utils/httpError.js';
+import { normalizePhone } from '../utils/phone.js';
 import { hasGlobalAccess, canManageUsers, canViewAllTeams, canViewMembers, memberTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
 
@@ -67,6 +69,54 @@ router.put(
     await user.setPassword(String(newPassword));
     await user.save();
     res.json({ ok: true });
+  })
+);
+
+// Update your own mobile number (asked on first sign-in, editable on the Profile page).
+router.put(
+  '/me/profile',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    req.user.phone = normalizePhone(req.body.phone, { required: true });
+    await req.user.save();
+    res.json({ user: publicUser(req.user) });
+  })
+);
+
+// Your own profile photo. The browser resizes it first, so it stays small.
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const photoUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => {
+    if (PHOTO_TYPES.includes(file.mimetype)) return cb(null, true);
+    cb(badRequest('The photo must be a JPEG, PNG or WebP image'));
+  },
+});
+
+router.put(
+  '/me/photo',
+  requireAuth,
+  photoUpload.single('file'),
+  asyncHandler(async (req, res) => {
+    if (!req.file) throw badRequest('Choose a photo');
+    req.user.photo = req.file.buffer;
+    req.user.photoType = req.file.mimetype;
+    req.user.photoUpdatedAt = new Date();
+    await req.user.save();
+    res.json({ user: publicUser(req.user) });
+  })
+);
+
+router.delete(
+  '/me/photo',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    req.user.photo = undefined;
+    req.user.photoType = undefined;
+    req.user.photoUpdatedAt = null;
+    await req.user.save();
+    res.json({ user: publicUser(req.user) });
   })
 );
 

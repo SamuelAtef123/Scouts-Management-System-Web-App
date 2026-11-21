@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema(
       match: [/^[a-z0-9._-]{3,30}$/, 'Username must be 3-30 characters: letters, numbers, dot, dash or underscore'],
     },
     phone: { type: String, trim: true, maxlength: 20 },
+    // Profile photo, small JPEG/PNG/WebP resized in the browser. Served by GET /api/users/:id/photo.
+    photo: { type: Buffer, select: false },
+    photoType: { type: String, select: false },
+    // When the photo last changed (null = no photo). Lets the app show it and refresh its cache.
+    photoUpdatedAt: { type: Date, default: null },
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ROLE_VALUES, required: true },
     // The team this person belongs to; it decides whose attendance sheet they appear on.
@@ -39,6 +44,8 @@ userSchema.set('toJSON', {
     // Read-only: which team's attendance this member takes (fixed in attendanceAssignments.js).
     ret.attendanceTeam = ret.role === 'database_team' ? (ATTENDANCE_ASSIGNMENTS[ret.username] ?? null) : null;
     delete ret.passwordHash;
+    delete ret.photo;
+    delete ret.photoType;
     delete ret.__v;
     return ret;
   },

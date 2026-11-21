@@ -41,7 +41,7 @@ export default function Layout() {
         <div className="side-bottom">
           <VerseCard compact />
           <div className="side-user">
-            <Avatar name={user.name} team={user.team} size={36} />
+            <Avatar person={user} size={36} />
             <div className="side-user-text">
               <strong>{user.name}</strong>
               <span>{ROLE_LABEL[user.role]}</span>

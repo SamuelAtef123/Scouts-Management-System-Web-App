@@ -29,7 +29,10 @@ export function AuthProvider({ children }) {
     return data.user;
   }, []);
 
-  const value = useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout]);
+  // Replace the signed-in user after they edit their own profile (phone, photo).
+  const updateUser = useCallback((next) => setUser(next), []);
+
+  const value = useMemo(() => ({ user, loading, login, logout, updateUser }), [user, loading, login, logout, updateUser]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

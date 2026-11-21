@@ -2444,3 +2444,139 @@ img {
   margin: 20px 0 12px;
   font-size: 1rem;
 }
+
+/* ---------- Photos & first sign-in ---------- */
+.avatar-photo {
+  object-fit: cover;
+  background: #eceae3;
+}
+
+.photo-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.photo-frame {
+  position: relative;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: 50%;
+}
+
+.photo-frame .avatar {
+  box-shadow: 0 0 0 4px #fff, 0 6px 18px rgba(26, 28, 59, 0.18);
+}
+
+.photo-badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  border: 3px solid #fff;
+}
+
+.photo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.profile-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.phone-form {
+  max-width: 360px;
+}
+
+.onboard {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: linear-gradient(180deg, rgba(22, 26, 92, 0.9), rgba(22, 26, 92, 0.75)), url('/group.jpg') center 40% / cover;
+}
+
+.onboard-card {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 0 22px 24px;
+  border-radius: 24px;
+  background: var(--bg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.onboard-card > .stripe {
+  align-self: stretch;
+  margin: 0 -22px 18px;
+}
+
+.onboard-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  margin-bottom: 6px;
+}
+
+.onboard-card h1 {
+  font-size: 1.5rem;
+  color: var(--navy);
+}
+
+.onboard-card .muted {
+  margin-bottom: 14px;
+}
+
+.onboard-hint {
+  margin: 4px 0 0;
+}
+
+.onboard-form {
+  width: 100%;
+  margin-top: 18px;
+  text-align: left;
+}
+
+.onboard-signout {
+  margin-top: 14px;
+  border: none;
+  background: none;
+}
+
+.input-icon {
+  position: relative;
+}
+
+.input-icon svg {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+}
+
+.input-icon input {
+  padding-left: 42px;
+}

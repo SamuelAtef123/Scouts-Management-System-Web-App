@@ -7,6 +7,7 @@ import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpErro
 import { TEAM_LEVEL_ROLES, canViewMembers, hasGlobalAccess, memberTeams } from '../utils/access.js';
 import { ROLES, ROLE_VALUES, TEAMS } from '../constants.js';
 import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
+import { normalizePhone } from '../utils/phone.js';
 
 const router = Router();
 
@@ -18,7 +19,7 @@ function readUserFields(body, { partial }) {
     if (!out.name) throw badRequest('Name is required');
   }
   if (!partial || body.username !== undefined) out.username = String(body.username || '').trim().toLowerCase();
-  if (body.phone !== undefined) out.phone = String(body.phone || '').trim();
+  if (body.phone !== undefined) out.phone = normalizePhone(body.phone);
   if (!partial || body.role !== undefined) {
     if (!ROLE_VALUES.includes(body.role)) throw badRequest('Choose a valid role');
     out.role = body.role;
@@ -77,6 +78,19 @@ router.get(
 
     const users = await User.find(filter).sort({ name: 1 });
     res.json({ users });
+  })
+);
+
+// A member's profile photo. Any signed-in member can see others' photos (shown on avatars).
+router.get(
+  '/:id/photo',
+  asyncHandler(async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) throw notFound('Photo not found');
+    const user = await User.findById(req.params.id).select('+photo +photoType photoUpdatedAt');
+    if (!user?.photo?.length) throw notFound('Photo not found');
+    res.set('Content-Type', user.photoType || 'image/jpeg');
+    res.set('Cache-Control', 'private, max-age=86400');
+    res.send(user.photo);
   })
 );
 
