@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Scouts Management System — Project Report and User Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<script src="lucide.min.js"></script>
+<style>
+  :root {
+    --navy: #23277d; --navy-deep: #161a5c; --red: #d7262e; --green: #1e9e4a; --yellow: #f6c90e; --gold: #e3a400; --teal: #0f7c86;
+    --ink: #1a1c3b; --ink2: #44475f; --muted: #74778c; --border: #e6e3db; --soft: #f7f5f0;
+    --stripe: linear-gradient(90deg, var(--green) 0 25%, var(--red) 25% 50%, var(--yellow) 50% 75%, var(--navy) 75% 100%);
+  }
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  @page :first { margin: 0; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.5; }
+  svg.lucide { width: 18px; height: 18px; stroke-width: 2.2; }
+  h1, h2, h3 { margin: 0; letter-spacing: -0.02em; line-height: 1.2; }
+  p { margin: 0 0 8px; }
+  .muted { color: var(--muted); }
+
+  /* ---------- Cover ---------- */
+  .cover { position: relative; width: 210mm; height: 297mm; overflow: hidden; page-break-after: always; background: #fff; }
+  .cover-photo { position: absolute; inset: 0 0 auto 0; height: 168mm; }
+  .cover-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+  .cover-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(22,26,92,.25) 0%, rgba(22,26,92,.55) 55%, rgba(22,26,92,.96) 100%); }
+  .cover-stripe { position: absolute; top: 168mm; left: 0; right: 0; height: 3mm; background: var(--stripe); }
+  .cover-logo { position: absolute; top: 140mm; left: 18mm; width: 44mm; height: 44mm; border-radius: 10mm; border: 2mm solid #fff; box-shadow: 0 6px 24px rgba(0,0,0,.25); z-index: 2; }
+  .cover-title { position: absolute; top: 92mm; left: 18mm; right: 18mm; color: #fff; z-index: 2; }
+  .cover-title .eyebrow { font-size: 10pt; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; opacity: .9; }
+  .cover-title h1 { font-size: 34pt; font-weight: 800; margin-top: 6px; }
+  .cover-title .sub { font-size: 13pt; margin-top: 6px; opacity: .92; }
+  .cover-body { position: absolute; top: 192mm; left: 18mm; right: 18mm; }
+  .cover-meta { display: flex; gap: 10mm; margin-bottom: 9mm; }
+  .cover-meta div { font-size: 9pt; color: var(--muted); }
+  .cover-meta b { display: block; color: var(--ink); font-size: 11pt; }
+  .contents { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 8mm; }
+  .contents div { display: flex; gap: 8px; align-items: baseline; padding: 2.4mm 0; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 10pt; }
+  .contents span { color: var(--navy); font-weight: 800; min-width: 18px; }
+  .cover-verse { position: absolute; bottom: 14mm; left: 18mm; right: 18mm; text-align: center; font-family: 'Amiri', serif; color: var(--navy); font-size: 13pt; line-height: 1.8; }
+  .cover-verse small { display: block; color: var(--gold); font-size: 10pt; }
+
+  /* ---------- Sections ---------- */
+  section { margin-bottom: 6mm; }
+  .page-break { page-break-before: always; }
+  .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4mm; break-after: avoid; }
+  .sec-num { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 13pt; flex: none; }
+  .sec-head h2 { font-size: 18pt; font-weight: 800; }
+  .lead { font-size: 11.5pt; color: var(--ink2); margin-bottom: 5mm; }
+  h3 { font-size: 12.5pt; font-weight: 800; margin: 4mm 0 2mm; display: flex; align-items: center; gap: 8px; break-after: avoid; }
+  h3 .ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; color: #fff; }
+  h3 .ic svg { width: 15px; height: 15px; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 4mm 0 5mm; }
+  .stat { border-radius: 12px; padding: 4mm; background: var(--soft); border: 1px solid var(--border); }
+  .stat b { display: block; font-size: 22pt; font-weight: 800; line-height: 1.05; }
+  .stat span { font-size: 8.5pt; color: var(--muted); font-weight: 600; }
+
+  .teams { display: flex; gap: 2mm; flex-wrap: wrap; }
+  .team { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: 9pt; }
+  .team i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .team small { font-family: 'Amiri', serif; font-size: 10pt; font-weight: 400; }
+
+  .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3mm; }
+  .feature { display: flex; gap: 10px; padding: 3.5mm; border-radius: 12px; border: 1px solid var(--border); background: #fff; break-inside: avoid; }
+  .feature .fi { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; }
+  .feature b { display: block; font-size: 10.5pt; }
+  .feature p { margin: 1px 0 0; font-size: 9pt; color: var(--ink2); line-height: 1.45; }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 8.8pt; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; break-inside: avoid; }
+  th { background: var(--navy); color: #fff; text-align: left; padding: 2.6mm 2.6mm; font-weight: 700; font-size: 8.5pt; }
+  td { padding: 2.4mm 2.6mm; border-top: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: #faf9f6; }
+  td:first-child { font-weight: 700; }
+  .yes { color: #157a39; font-weight: 700; }
+  .no { color: var(--muted); }
+
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm; margin-top: 4mm; }
+  .rule { display: flex; gap: 8px; padding: 3mm; border-radius: 10px; background: #eef0fb; font-size: 9pt; font-weight: 600; color: var(--navy-deep); break-inside: avoid; }
+  .rule svg { flex: none; width: 16px; height: 16px; color: var(--navy); margin-top: 1px; }
+
+  .guide { display: grid; grid-template-columns: 1fr 43mm; gap: 6mm; align-items: start; break-inside: avoid; }
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+  .steps li { counter-increment: s; position: relative; padding: 0 0 2.2mm 30px; font-size: 9.6pt; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--c, var(--navy)); color: #fff; font-weight: 800; font-size: 8.5pt; display: grid; place-items: center; }
+  .phone { border-radius: 18px; border: 5px solid #1a1c3b; overflow: hidden; box-shadow: 0 6px 20px rgba(26,28,59,.18); background: #fff; }
+  .phone img { display: block; width: 100%; }
+  .phone-cap { text-align: center; font-size: 8pt; color: var(--muted); margin-top: 2mm; }
+
+  .role-card { border: 1px solid var(--border); border-radius: 14px; padding: 4.5mm 5mm; margin-bottom: 4mm; break-inside: avoid; position: relative; overflow: hidden; }
+  .role-card h3 { margin-top: 0; }
+  .role-tags { display: flex; gap: 6px; flex-wrap: wrap; margin: -1mm 0 2mm; }
+  .role-tags span { font-size: 8pt; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--soft); color: var(--ink2); border: 1px solid var(--border); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .note { font-size: 9pt; color: var(--ink2); background: #fff8dc; border-radius: 10px; padding: 3mm 3.5mm; margin-top: 2mm; break-inside: avoid; }
+  .note b { color: #8a6100; }
+
+  .tech { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin-bottom: 3mm; }
+  .tech div { border-radius: 12px; padding: 3.5mm; border: 1px solid var(--border); background: var(--soft); break-inside: avoid; }
+  .tech svg { color: var(--navy); }
+  .tech b { display: block; margin-top: 2mm; font-size: 10pt; }
+  .tech span { font-size: 8.5pt; color: var(--ink2); }
+  .tech em { display: inline-block; margin-top: 2mm; font-style: normal; font-size: 8pt; font-weight: 700; padding: 1px 8px; border-radius: 999px; }
+  .ok { background: #e3f6ea; color: #157a39; }
+  .wait { background: #fff4cc; color: #8a6100; }
+  .checklist { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 2.5mm 6mm; }
+  .checklist li { display: flex; gap: 8px; font-size: 9.8pt; font-weight: 600; break-inside: avoid; }
+  .checklist li::before { content: ''; flex: none; width: 15px; height: 15px; border-radius: 4px; border: 2px solid #c4c2bb; margin-top: 2px; }
+  .next { list-style: none; counter-reset: n; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 3mm; }
+  .next li { counter-increment: n; display: grid; grid-template-columns: 12mm 1fr; grid-template-rows: auto auto; column-gap: 4mm; padding: 4mm 5mm; border-radius: 14px; background: var(--soft); border: 1px solid var(--border); }
+  .next li::before { content: counter(n); grid-row: span 2; width: 11mm; height: 11mm; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; font-size: 14pt; display: grid; place-items: center; }
+  .next b { font-size: 11.5pt; }
+  .next span { font-size: 9.5pt; color: var(--ink2); }
+  .final-mark { display: flex; align-items: center; justify-content: center; gap: 5mm; margin-top: 16mm; }
+  .final-mark img { width: 22mm; height: 22mm; border-radius: 6mm; box-shadow: 0 4px 14px rgba(26,28,59,.18); }
+  .final-mark b { display: block; font-size: 15pt; color: var(--navy); }
+  .final-mark span { font-size: 9.5pt; color: var(--muted); }
+  .closing { margin-top: 8mm; border-radius: 16px; overflow: hidden; background: var(--navy); color: #fff; text-align: center; break-inside: avoid; }
+  .closing .bar { height: 5px; background: var(--stripe); }
+  .closing p { font-family: 'Amiri', serif; font-size: 14pt; line-height: 1.7; margin: 0; padding: 4mm 10mm 0; }
+  .closing small { display: block; font-family: 'Amiri', serif; color: var(--yellow); font-size: 11pt; padding-bottom: 3.5mm; }
+</style>
+</head>
+<body>
+
+<!-- ================= COVER ================= -->
+<div class="cover">
+  <div class="cover-photo"><img src="group.jpg" alt="" /></div>
+  <div class="cover-title">
+    <div class="eyebrow">Project report and user guide</div>
+    <h1>Scouts Management System</h1>
+    <div class="sub">“Light of the World” · St. Mary Church, Garden City Scouts</div>
+  </div>
+  <div class="cover-stripe"></div>
+  <img class="cover-logo" src="logo.jpg" alt="" />
+  <div class="cover-body">
+    <div class="cover-meta" style="margin-left: 52mm">
+      <div><b>24 November 2026</b>Date</div>
+      <div><b>Gawala team, 60 leaders</b>Users</div>
+      <div><b>Version 1</b>Status: built</div>
+    </div>
+    <div class="contents">
+      <div><span>1</span>Overview</div>
+      <div><span>4</span>Getting started</div>
+      <div><span>2</span>What has been built</div>
+      <div><span>5</span>User guide by role</div>
+      <div><span>3</span>Roles and permissions</div>
+      <div><span>6</span>Running the system</div>
+    </div>
+  </div>
+  <div class="cover-verse" dir="rtl" lang="ar">فَلْيُضِئْ نُورُكُمْ هَكَذَا قُدَّامَ النَّاسِ، لِكَيْ يَرَوْا أَعْمَالَكُمُ الْحَسَنَةَ، وَيُمَجِّدُوا أَبَاكُمُ الَّذِي فِي السَّمَاوَاتِ.<small>إنجيل متى 5: 16</small></div>
+</div>
+
+<!-- ================= 1. OVERVIEW ================= -->
+<section>
+  <div class="sec-head"><div class="sec-num" style="background:var(--navy)">1</div><h2>Overview</h2></div>
+  <p class="lead">“Light of the World” is a web app where the 60 leaders of the Gawala team plan events, share out tasks, take attendance and keep task materials in Google Drive. It is built and working; it now needs the real member accounts and hosting before the whole team uses it.</p>
+  <div class="stats">
+    <div class="stat"><b style="color:var(--navy)">60</b><span>leaders using the app</span></div>
+    <div class="stat"><b style="color:var(--green)">5</b><span>teams in the group</span></div>
+    <div class="stat"><b style="color:var(--red)">5</b><span>roles with their own rights</span></div>
+    <div class="stat"><b style="color:var(--gold)">4</b><span>types of event</span></div>
+  </div>
+  <p>The app is designed for phones first and also works on a computer. It can be added to a phone’s home screen like an app. Every member belongs to one team; the Scouts Leader, the Scouts Leader Helpers and the Database / Attendance team belong to Gawala.</p>
+  <div class="teams">
+    <span class="team" style="background:#fff6d6;color:#8a6100"><i style="background:#e3a400"></i>Ashbal <small>أشبال</small></span>
+    <span class="team" style="background:#e3f6ea;color:#157a39"><i style="background:#1e9e4a"></i>Zahrat <small>زهرات</small></span>
+    <span class="team" style="background:#e7e8f8;color:#23277d"><i style="background:#2b2e8f"></i>Kashafeen <small>كشافين</small></span>
+    <span class="team" style="background:#fde7e8;color:#9d1c22"><i style="background:#d7262e"></i>Morshedat <small>مرشدات</small></span>
+    <span class="team" style="background:#dff3f4;color:#0b5f67"><i style="background:#0f7c86"></i>Gawala <small>جوالة</small></span>
+  </div>
+</section>
+
+<!-- ================= 2. WHAT HAS BEEN BUILT ================= -->
+<section>
+  <div class="sec-head"><div class="sec-num" style="background:var(--green)">2</div><h2>What has been built</h2></div>
+  <p class="lead">All the basic operations planned for the first version are built, plus attendance, member profiles and photos.</p>
+  <div class="features">
+    <div class="feature"><div class="fi" style="background:#e7e8f8;color:var(--navy)"><i data-lucide="lock-keyhole"></i></div><div><b>Sign-in</b><p>Username and password, stays signed in for 7 days, blocks repeated wrong guesses.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#dff3f4;color:var(--teal)"><i data-lucide="smartphone"></i></div><div><b>First sign-in</b><p>Asks for an Egyptian (+20) mobile number and an optional photo before the app opens.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e7e8f8;color:var(--navy)"><i data-lucide="calendar-days"></i></div><div><b>Events</b><p>Create, edit and delete; Upcoming and Past tabs; grouped by month; filter by team.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#fff4cc;color:#b07d00"><i data-lucide="shapes"></i></div><div><b>Event types</b><p>Team Session, Preparation Meeting, Gawala Session and Others, each with its own rules.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e3f6ea;color:var(--green)"><i data-lucide="list-checks"></i></div><div><b>Tasks</b><p>Assigned to a leader with a due date; To do, In progress, Done; overdue tasks in red.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#fde7e8;color:var(--red)"><i data-lucide="upload"></i></div><div><b>Materials</b><p>PDF, Word or image up to 25 MB, saved to Google Drive by team and event; Arabic names kept.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e3f6ea;color:var(--green)"><i data-lucide="clipboard-check"></i></div><div><b>Attendance</b><p>Present, Absent or Excused per member, taken only by the assigned Database member.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#dff3f4;color:var(--teal)"><i data-lucide="users"></i></div><div><b>Members</b><p>List with attendance %, details view, and account management for the Database team.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#fff4cc;color:#b07d00"><i data-lucide="house"></i></div><div><b>Home</b><p>Open, done and overdue counts, your next tasks and the upcoming events.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e7e8f8;color:var(--navy)"><i data-lucide="user-round"></i></div><div><b>Profile</b><p>Your photo, mobile number, attendance rate and password.</p></div></div>
+  </div>
+</section>
+
+<!-- ================= 3. ROLES ================= -->
+<section class="page-break">
+  <div class="sec-head"><div class="sec-num" style="background:var(--red)">3</div><h2>Roles and permissions</h2></div>
+  <p class="lead">A member’s role decides what they can do; their team decides which events they work on and whose attendance sheet they appear on. Every rule is checked by the server, so it cannot be bypassed from outside the app.</p>
+  <table>
+    <tr><th style="width:24%">Role (count)</th><th>Events and tasks</th><th>Preparation Meetings</th><th>Attendance</th><th>Members page</th></tr>
+    <tr><td>Scouts Leader (1)</td><td>Every team and Gawala Sessions</td><td class="yes">Any team</td><td class="no">View only</td><td>View all</td></tr>
+    <tr><td>Scouts Leader Helper (2)</td><td>Every team and Gawala Sessions</td><td class="yes">Any team</td><td class="no">View only</td><td>View all</td></tr>
+    <tr><td>Database / Attendance, privileged (2)</td><td>Every team and Gawala Sessions</td><td class="no">No</td><td class="yes">Takes it for one assigned team</td><td>View, add, edit, deactivate all</td></tr>
+    <tr><td>Database / Attendance, others (3)</td><td>Own team</td><td class="no">No</td><td class="yes">Takes it for one assigned team</td><td>View, add, edit, deactivate their assigned team</td></tr>
+    <tr><td>Team Leader (5)</td><td>Own team</td><td class="yes">Own team</td><td class="no">View only</td><td class="no">No</td></tr>
+    <tr><td>Team Leader Helper (about 47)</td><td>Own team</td><td class="no">No</td><td class="no">View only</td><td class="no">No</td></tr>
+  </table>
+  <div class="rules">
+    <div class="rule"><i data-lucide="upload"></i>Only the person a task is assigned to uploads its material and changes its status.</div>
+    <div class="rule"><i data-lucide="ban"></i>Preparation Meetings have no tasks.</div>
+    <div class="rule"><i data-lucide="users"></i>A Team Session or Preparation Meeting lists only its team; its attendance is taken by that team’s Database member.</div>
+    <div class="rule"><i data-lucide="globe"></i>A Gawala Session lists every team; only the Database member assigned to Gawala takes it.</div>
+  </div>
+
+  <h3 style="margin-top:7mm"><span class="ic" style="background:var(--navy)"><i data-lucide="shapes"></i></span>The four event types</h3>
+  <table>
+    <tr><th style="width:24%">Type</th><th>Belongs to</th><th>Attendance sheet</th><th>Tasks</th></tr>
+    <tr><td>Team Session</td><td>One team</td><td>That team’s members</td><td class="yes">Yes</td></tr>
+    <tr><td>Preparation Meeting</td><td>One team</td><td>That team’s members</td><td class="no">No</td></tr>
+    <tr><td>Gawala Session</td><td>The whole group</td><td>All teams, grouped by team</td><td class="yes">Yes</td></tr>
+    <tr><td>Others</td><td>One team or the whole group</td><td class="no">No attendance</td><td class="yes">Yes</td></tr>
+  </table>
+</section>
+
+<!-- ================= 4. GETTING STARTED ================= -->
+<section class="page-break">
+  <div class="sec-head"><div class="sec-num" style="background:var(--gold)">4</div><h2>Getting started (everyone)</h2></div>
+  <p class="lead">Accounts are created by the Database / Attendance team; there is no self sign-up.</p>
+  <div class="guide">
+    <div>
+      <ol class="steps">
+        <li>Open the app’s web address on your phone and sign in with the username and password you were given.</li>
+        <li>On your first sign-in, enter your <b>Egyptian mobile number</b>: 11 digits starting with 010, 011, 012 or 015, for example 01001234567.</li>
+        <li>Optionally tap the circle to <b>add a photo</b> of yourself, then tap <b>Continue</b>.</li>
+        <li>To use it like an app, add it to your home screen: on iPhone tap Share, then <i>Add to Home Screen</i>; on Android open the browser menu, then <i>Add to Home screen</i>.</li>
+      </ol>
+      <h3><span class="ic" style="background:var(--teal)"><i data-lucide="compass"></i></span>Finding your way around</h3>
+      <table>
+        <tr><th style="width:26%">Tab</th><th>What it shows</th></tr>
+        <tr><td>Home</td><td>Open, done and overdue tasks, your next tasks, upcoming events</td></tr>
+        <tr><td>Events</td><td>Upcoming and past events you can see, grouped by month</td></tr>
+        <tr><td>My tasks</td><td>Everything assigned to you, nearest due date first</td></tr>
+        <tr><td>Members</td><td>Only for the Scouts Leader, Helpers and the Database team</td></tr>
+        <tr><td>Profile</td><td>Your photo, mobile number, attendance rate and password</td></tr>
+      </table>
+      <p class="muted" style="margin-top:3mm;font-size:9pt">Forgot your password? Ask a Database / Attendance member to reset it.</p>
+    </div>
+    <div><div class="phone"><img src="onboard.png" alt="" /></div><div class="phone-cap">First sign-in screen</div></div>
+  </div>
+
+  <h3 style="margin-top:4mm"><span class="ic" style="background:var(--green)"><i data-lucide="list-checks"></i></span>Doing your tasks</h3>
+  <div class="guide">
+    <ol class="steps" style="--c:var(--green)">
+      <li>Open <b>My tasks</b> (or Home) to see what is assigned to you.</li>
+      <li>Tap <b>To do</b>, <b>In progress</b> or <b>Done</b> to update a task as you work.</li>
+      <li>When the material is ready, tap <b>Upload material</b> and pick a PDF, Word file or photo. It is saved to the group’s Google Drive automatically.</li>
+      <li>Uploaded files appear on the task: tap one to open it, or tap <b>✕</b> to remove it.</li>
+    </ol>
+    <div><div class="phone"><img src="home.png" alt="" /></div><div class="phone-cap">Home screen</div></div>
+  </div>
+</section>
+
+<!-- ================= 5. USER GUIDE BY ROLE ================= -->
+<section style="margin-top:8mm">
+  <div class="sec-head"><div class="sec-num" style="background:var(--teal)">5</div><h2>User guide by role</h2></div>
+  <p class="lead">Read the part for your role. Everyone also uses “Doing your tasks” above.</p>
+
+  <div class="role-card">
+    <h3><span class="ic" style="background:var(--navy)"><i data-lucide="crown"></i></span>Scouts Leader and Scouts Leader Helpers</h3>
+    <div class="role-tags"><span>All teams</span><span>Gawala Sessions</span><span>Preparation Meetings for any team</span><span>Members: view only</span></div>
+    <ol class="steps">
+      <li><b>Create an event:</b> Events → <b>+ New event</b>. Enter the title, choose the type and the team (none for a Gawala Session), set the dates and place, then <b>Create event</b>.</li>
+      <li><b>Add tasks:</b> open the event → <b>Add task</b>. Choose who it is assigned to and an optional due date. Preparation Meetings have no tasks.</li>
+      <li><b>Edit or delete</b> an event or task with the pencil and bin buttons. Uploaded files stay in Google Drive.</li>
+      <li><b>Follow all teams:</b> on Events, use the team chips (All teams, Whole group, one team) and the Upcoming / Past tabs.</li>
+      <li><b>See attendance:</b> open an event and tap <b>View</b> on the Attendance card. You cannot take or change it.</li>
+      <li><b>Members:</b> browse members and their attendance %; tap one for details and attendance by event type.</li>
+    </ol>
+  </div>
+
+  <div class="two">
+    <div class="role-card">
+      <h3><span class="ic" style="background:var(--gold)"><i data-lucide="flag"></i></span>Team Leader</h3>
+      <div class="role-tags"><span>Own team</span><span>Preparation Meetings</span></div>
+      <ol class="steps" style="--c:var(--gold)">
+        <li>Create your team’s events: Team Session, Preparation Meeting or Others. Your team is filled in for you.</li>
+        <li>Add tasks and assign them to members of your team.</li>
+        <li>Edit or delete your team’s events and tasks, including Preparation Meetings.</li>
+        <li>See your team’s attendance on the event (view only).</li>
+      </ol>
+    </div>
+    <div class="role-card">
+      <h3><span class="ic" style="background:var(--green)"><i data-lucide="hand-helping"></i></span>Team Leader Helper</h3>
+      <div class="role-tags"><span>Own team</span><span>No Preparation Meetings</span></div>
+      <ol class="steps" style="--c:var(--green)">
+        <li>Create, edit and delete your team’s Team Sessions and Others events, and their tasks.</li>
+        <li>Assign tasks to members of your team.</li>
+        <li>You can see Preparation Meetings but cannot create, edit or delete them.</li>
+        <li>See your team’s attendance (view only).</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section style="margin-top:2mm">
+  <div class="role-card" style="border:none;padding:0;margin-bottom:1mm">
+    <h3 style="font-size:15pt"><span class="ic" style="background:var(--red)"><i data-lucide="clipboard-check"></i></span>Database / Attendance team</h3>
+    <div class="role-tags"><span>One fixed team each</span><span>Takes attendance</span><span>Manages member accounts</span></div>
+    <p>Each of the five members takes attendance for one fixed team: Ashbal, Zahrat, Kashafeen, Morshedat or Gawala. Your team is shown on your Profile.</p>
+  </div>
+  <div class="guide">
+    <div>
+      <h3 style="margin-top:0">Taking attendance</h3>
+      <ol class="steps" style="--c:var(--red)">
+        <li>Open <b>Events</b> and tap a Team Session or Preparation Meeting of your team. If you cover Gawala, this includes Gawala Sessions, which list every team.</li>
+        <li>On the Attendance card, tap <b>Take attendance</b>.</li>
+        <li>Tap <b>P</b> (Present), <b>A</b> (Absent) or <b>E</b> (Excused) for each person. <b>Mark the rest present</b> fills everyone not marked yet.</li>
+        <li>Tap <b>Save attendance</b>. Anyone left unmarked is saved as absent.</li>
+        <li>To correct it later, open the event and tap <b>Edit</b> on the Attendance card.</li>
+      </ol>
+      <div class="note"><b>Good to know:</b> the list of names is fixed the first time attendance is saved, so later team changes do not alter past sheets. Others events have no attendance.</div>
+    </div>
+    <div><div class="phone"><img src="b-sheet.png" alt="" /></div><div class="phone-cap">Attendance sheet</div></div>
+  </div>
+
+  <div class="guide" style="margin-top:4mm">
+    <div>
+      <h3 style="margin-top:0">Managing members</h3>
+      <ol class="steps" style="--c:var(--teal)">
+        <li><b>Add a member:</b> Members → <b>Add member</b>. Enter the name, username, mobile number, role, team and a starting password. Give the username and password to the person.</li>
+        <li><b>Reset a password:</b> tap the member → <b>Edit</b> → type a new password → <b>Save changes</b>.</li>
+        <li><b>Deactivate a member:</b> tap the member → <b>Edit</b> → untick <b>Active</b> → <b>Save changes</b>. They can no longer sign in; their past records stay.</li>
+      </ol>
+      <div class="note"><b>Who manages whom:</b> the 2 privileged members manage every member. The other 3 manage only members of their assigned team, and only as Team Leaders or Team Leader Helpers.</div>
+      <div class="note"><b>Events and tasks:</b> the 2 privileged members manage every team’s events and tasks, like the Scouts Leader. The other 3 manage Gawala events and can see their assigned team’s events.</div>
+    </div>
+    <div><div class="phone"><img src="m2-detail.png" alt="" /></div><div class="phone-cap">Member details</div></div>
+  </div>
+</section>
+
+<!-- ================= 6. RUNNING THE SYSTEM ================= -->
+<section style="margin-top:5mm">
+  <div class="sec-head"><div class="sec-num" style="background:var(--navy)">6</div><h2>Running the system</h2></div>
+  <p class="lead">The app uses the MERN stack and runs as one Node.js website with a MongoDB Atlas database. Setup steps are in the repository’s README.</p>
+  <div class="tech">
+    <div><i data-lucide="database"></i><b>Database</b><span>MongoDB Atlas, free M0 cluster</span><br /><em class="ok">Connected</em></div>
+    <div><i data-lucide="server"></i><b>Server and API</b><span>Node.js and Express</span><br /><em class="wait">Not online yet</em></div>
+    <div><i data-lucide="layout-dashboard"></i><b>Website</b><span>React, served by the same server</span><br /><em class="ok">Built</em></div>
+    <div><i data-lucide="folder-open"></i><b>Materials</b><span>Google Drive via a Google Cloud OAuth client</span><br /><em class="ok">Uploading</em></div>
+  </div>
+
+  <h3><span class="ic" style="background:var(--teal)"><i data-lucide="info"></i></span>Things to know for whoever runs it</h3>
+  <div class="rules" style="grid-template-columns:1fr;margin-top:0">
+    <div class="rule"><i data-lucide="file-code"></i>Attendance assignments (which Database member covers which team) are set by username in server/src/attendanceAssignments.js. Changing them means editing that file and restarting the server.</div>
+    <div class="rule"><i data-lucide="hard-drive"></i>Google Drive keeps working while the Google app stays published (In production) and its token is not revoked or left unused for 6 months. If uploads fail, the server log explains why.</div>
+    <div class="rule"><i data-lucide="key-round"></i>Secrets (database address, Google keys) live only in server/.env, which is never uploaded to GitHub.</div>
+  </div>
+
+</section>
+
+<section class="page-break final">
+  <div class="sec-head"><div class="sec-num" style="background:var(--green)"><i data-lucide="rocket" style="color:#fff"></i></div><h2>Before the whole team uses it</h2></div>
+  <p class="lead">Five steps take the app from built to used by all 60 leaders.</p>
+  <ol class="next">
+    <li><b>Set the real attendance assignments</b><span>Put the usernames of the 5 Database / Attendance members in attendanceAssignments.js.</span></li>
+    <li><b>Clean out the demo data</b><span>Remove the demo accounts and the demo events.</span></li>
+    <li><b>Create the 60 member accounts</b><span>Done by the Database / Attendance team from the Members page.</span></li>
+    <li><b>Put the app online over HTTPS</b><span>So leaders can open it from anywhere, not only from the computer it runs on.</span></li>
+    <li><b>Pilot, then launch</b><span>Try it with one team for a week, then open it to everyone.</span></li>
+  </ol>
+  <p class="muted" style="margin-top:5mm">Planned next: KPIs for members and teams, once the access rules for them are decided.</p>
+
+  <div class="final-mark">
+    <img src="logo.jpg" alt="" />
+    <div><b>Light of the World</b><span>St. Mary Church · Garden City Scouts</span></div>
+  </div>
+  <div class="closing">
+    <div class="bar"></div>
+    <p dir="rtl" lang="ar">فَلْيُضِئْ نُورُكُمْ هَكَذَا قُدَّامَ النَّاسِ، لِكَيْ يَرَوْا أَعْمَالَكُمُ الْحَسَنَةَ، وَيُمَجِّدُوا أَبَاكُمُ الَّذِي فِي السَّمَاوَاتِ.</p>
+    <small>إنجيل متى 5: 16</small>
+  </div>
+</section>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

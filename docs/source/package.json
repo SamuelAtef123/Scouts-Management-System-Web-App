@@ -1,0 +1,17 @@
+{
+  "name": "scouts-docs",
+  "private": true,
+  "description": "Builds docs/Scouts-Project-Report-and-User-Guide.pdf and docs/Scouts-Project-Presentation.pptx",
+  "scripts": {
+    "pdf": "node build-pdf.cjs \"$PWD/report/report.html\" \"$PWD/../Scouts-Project-Report-and-User-Guide.pdf\"",
+    "pptx": "node deck/build.js",
+    "build": "npm run pdf && npm run pptx"
+  },
+  "devDependencies": {
+    "pptxgenjs": "^4.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.4.0",
+    "sharp": "^0.34.0"
+  }
+}
