@@ -1,10 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useMemberPhoto } from '../photos.js';
 import { CircleAlert, CircleCheck, LoaderCircle, X } from 'lucide-react';
-import { TEAM_BY_ID, STATUS_LABEL, VERSE, eventType } from '../constants.js';
+import { TEAM_BY_ID, STATUS_LABEL, VERSE, eventType, teamName } from '../constants.js';
+import { t as tr } from '../i18n.jsx';
 import { initials } from '../format.js';
 
-export function Spinner({ label = 'Loading…' }) {
+export function Spinner({ label = tr('Loading…') }) {
   return (
     <div className="spinner" role="status">
       <LoaderCircle className="spin" size={22} />
@@ -20,7 +21,7 @@ export function ErrorBox({ message, onRetry }) {
       <span>{message}</span>
       {onRetry && (
         <button className="btn btn-ghost btn-sm" onClick={onRetry}>
-          Try again
+          {tr('Try again')}
         </button>
       )}
     </div>
@@ -48,14 +49,14 @@ export function TeamChip({ team, size }) {
     return (
       <span className={`team-chip team-chip-group ${size === 'sm' ? 'team-chip-sm' : ''}`}>
         <span className="team-dot group-dot" />
-        Whole group
+        {tr('Whole group')}
       </span>
     );
   }
   return (
     <span className={`team-chip ${size === 'sm' ? 'team-chip-sm' : ''}`} style={{ '--team': t.color, '--team-soft': t.soft }}>
       <span className="team-dot" />
-      {t.id}
+      {teamName(t.id)}
     </span>
   );
 }
@@ -116,7 +117,7 @@ export function Modal({ title, onClose, children, footer }) {
       <div className="modal" role="dialog" aria-modal="true" aria-label={title} ref={ref}>
         <div className="modal-head">
           <h2>{title}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
+          <button className="icon-btn" onClick={onClose} aria-label={tr('Close')}>
             <X size={20} />
           </button>
         </div>
@@ -127,7 +128,7 @@ export function Modal({ title, onClose, children, footer }) {
   );
 }
 
-export function ConfirmDialog({ title, text, confirmLabel = 'Delete', onConfirm, onClose }) {
+export function ConfirmDialog({ title, text, confirmLabel = tr('Delete'), onConfirm, onClose }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const run = async () => {
@@ -148,10 +149,10 @@ export function ConfirmDialog({ title, text, confirmLabel = 'Delete', onConfirm,
       footer={
         <>
           <button className="btn btn-ghost" onClick={onClose} disabled={busy}>
-            Cancel
+            {tr('Cancel')}
           </button>
           <button className="btn btn-danger" onClick={run} disabled={busy}>
-            {busy ? 'Please wait…' : confirmLabel}
+            {busy ? tr('Please wait…') : confirmLabel}
           </button>
         </>
       }

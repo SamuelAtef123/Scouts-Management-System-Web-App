@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { CalendarDays, ExternalLink, FileText, Image, Pencil, Trash2, Upload, X } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
+import { t as tr } from '../i18n.jsx';
 import { ACCEPTED_FILES, STATUSES, TEAM_BY_ID } from '../constants.js';
 import { daysUntil, fileSize, relativeDay } from '../format.js';
 import { Avatar, ConfirmDialog, TeamChip, useToast } from './ui.jsx';
@@ -38,7 +39,7 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
     try {
       const res = await api.put(`/tasks/${task._id}`, { status });
       onChange(res.task);
-      if (status === 'done') toast('Task marked as done. Well done!');
+      if (status === 'done') toast(tr('Task marked as done. Well done!'));
     } catch (err) {
       toast(err.message, 'error');
     }
@@ -52,7 +53,7 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
     try {
       const res = await api.upload(`/tasks/${task._id}/materials`, file, setProgress);
       onChange(res.task);
-      toast('Material uploaded');
+      toast(tr('Material uploaded'));
     } catch (err) {
       toast(err.message, 'error');
     } finally {
@@ -63,7 +64,7 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
   const removeMaterial = async (m) => {
     const res = await api.del(`/tasks/${task._id}/materials/${m._id}`);
     onChange(res.task);
-    toast('File removed');
+    toast(tr('File removed'));
   };
 
   return (
@@ -82,22 +83,22 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
         {manager && (onEdit || onDelete) && (
           <div className="task-actions">
             {onEdit && (
-              <button className="icon-btn" onClick={() => onEdit(task)} aria-label="Edit task">
+              <button className="icon-btn" onClick={() => onEdit(task)} aria-label={tr('Edit task')}>
                 <Pencil size={17} />
               </button>
             )}
             {onDelete && (
               <button
                 className="icon-btn"
-                aria-label="Delete task"
+                aria-label={tr('Delete task')}
                 onClick={() =>
                   setConfirm({
-                    title: 'Delete this task?',
-                    text: `"${task.title}" will be removed. Files already uploaded stay in Google Drive.`,
+                    title: tr('Delete this task?'),
+                    text: tr('"{title}" will be removed. Files already uploaded stay in Google Drive.', { title: task.title }),
                     run: async () => {
                       await api.del(`/tasks/${task._id}`);
                       onDelete(task);
-                      toast('Task deleted');
+                      toast(tr('Task deleted'));
                     },
                   })
                 }
@@ -113,20 +114,20 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
         {!showEvent && (
           <span className="meta-item">
             <Avatar person={task.assignee} size={22} />
-            {mine ? 'You' : task.assignee?.name}
+            {mine ? tr('You') : task.assignee?.name}
           </span>
         )}
         {task.dueDate && (
           <span className={`meta-item ${overdue ? 'overdue' : ''}`}>
             <CalendarDays size={15} />
-            {overdue ? `Overdue · ${relativeDay(task.dueDate)}` : `Due ${dueLabel(task.dueDate)}`}
+            {overdue ? tr('Overdue · {when}', { when: relativeDay(task.dueDate) }) : tr('Due {when}', { when: dueLabel(task.dueDate) })}
           </span>
         )}
         {!mine && <span className={`status-pill status-${task.status}`}>{STATUSES.find((s) => s.id === task.status)?.label}</span>}
       </div>
 
       {mine && (
-        <div className="segmented" role="group" aria-label="Task status">
+        <div className="segmented" role="group" aria-label={tr('Task status')}>
           {STATUSES.map((s) => (
             <button key={s.id} className={`seg ${task.status === s.id ? `active seg-${s.id}` : ''}`} onClick={() => setStatus(s.id)}>
               {s.label}
@@ -148,12 +149,12 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
               {(mine || manager) && (
                 <button
                   className="icon-btn icon-btn-sm"
-                  aria-label={`Remove ${m.fileName}`}
+                  aria-label={tr('Remove {name}', { name: m.fileName })}
                   onClick={() =>
                     setConfirm({
-                      title: 'Remove this file?',
-                      text: `"${m.fileName}" will be deleted from the task and from Google Drive.`,
-                      confirmLabel: 'Remove',
+                      title: tr('Remove this file?'),
+                      text: tr('"{name}" will be deleted from the task and from Google Drive.', { name: m.fileName }),
+                      confirmLabel: tr('Remove'),
                       run: () => removeMaterial(m),
                     })
                   }
@@ -170,15 +171,15 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
               {progress === null ? (
                 <button className="upload-btn" onClick={() => fileInput.current.click()}>
                   <Upload size={18} />
-                  Upload material
-                  <small>PDF, Word or image</small>
+                  {tr('Upload material')}
+                  <small>{tr('PDF, Word or image')}</small>
                 </button>
               ) : (
                 <div className="upload-progress">
                   <div className="bar">
                     <div style={{ width: `${progress}%` }} />
                   </div>
-                  <span>{progress < 100 ? `Uploading… ${progress}%` : 'Saving to Google Drive…'}</span>
+                  <span>{progress < 100 ? tr('Uploading… {p}%', { p: progress }) : tr('Saving to Google Drive…')}</span>
                 </div>
               )}
             </>

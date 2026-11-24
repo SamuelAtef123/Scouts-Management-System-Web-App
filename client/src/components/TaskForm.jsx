@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { api } from '../api.js';
 import { useApi } from '../hooks.js';
+import { teamName } from '../constants.js';
+import { t as tr } from '../i18n.jsx';
 import { toDateInput } from '../format.js';
 import { ErrorBox, Field, Modal } from './ui.jsx';
 
@@ -43,30 +45,30 @@ export default function TaskForm({ event, task, onClose, onSaved }) {
 
   return (
     <Modal
-      title={task ? 'Edit task' : 'New task'}
+      title={task ? tr('Edit task') : tr('New task')}
       onClose={onClose}
       footer={
         <>
           <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Cancel
+            {tr('Cancel')}
           </button>
           <button type="submit" form="task-form" className="btn btn-primary" disabled={busy}>
-            {busy ? 'Saving…' : task ? 'Save changes' : 'Create task'}
+            {busy ? tr('Saving…') : task ? tr('Save changes') : tr('Create task')}
           </button>
         </>
       }
     >
       <form id="task-form" className="form" onSubmit={submit}>
         <p className="form-context">
-          For <strong>{event.title}</strong>
+          {tr('For')} <strong>{event.title}</strong>
         </p>
-        <Field label="Task">
-          <input value={form.title} onChange={set('title')} placeholder="e.g. Prepare the hymns booklet" required maxLength={120} />
+        <Field label={tr('Task')}>
+          <input value={form.title} onChange={set('title')} placeholder={tr('e.g. Prepare the hymns booklet')} required maxLength={120} />
         </Field>
-        <Field label="Assign to" hint={event.team ? `Members of the ${event.team} team` : 'Any member of the group'}>
+        <Field label={tr('Assign to')} hint={event.team ? tr('Members of the {team} team', { team: teamName(event.team) }) : tr('Any member of the group')}>
           <select value={form.assignee} onChange={set('assignee')} required disabled={loading}>
             <option value="" disabled>
-              {loading ? 'Loading members…' : options.length ? 'Choose a member' : 'No members in this team yet'}
+              {loading ? tr('Loading members…') : options.length ? tr('Choose a member') : tr('No members in this team yet')}
             </option>
             {options.map((u) => (
               <option key={u._id} value={u._id}>
@@ -75,11 +77,11 @@ export default function TaskForm({ event, task, onClose, onSaved }) {
             ))}
           </select>
         </Field>
-        <Field label="Due date (optional)">
+        <Field label={tr('Due date (optional)')}>
           <input type="date" value={form.dueDate} onChange={set('dueDate')} />
         </Field>
-        <Field label="Details (optional)">
-          <textarea value={form.description} onChange={set('description')} rows={3} maxLength={2000} placeholder="What exactly is needed?" />
+        <Field label={tr('Details (optional)')}>
+          <textarea value={form.description} onChange={set('description')} rows={3} maxLength={2000} placeholder={tr('What exactly is needed?')} />
         </Field>
         {error && <ErrorBox message={error} />}
       </form>

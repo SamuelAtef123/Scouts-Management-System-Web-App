@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
+import { LanguageSwitch, t as tr } from '../i18n.jsx';
 import { firstName } from '../format.js';
 import PhotoPicker from '../components/PhotoPicker.jsx';
 import PhoneInput from '../components/PhoneInput.jsx';
@@ -31,23 +32,24 @@ export default function CompleteProfile() {
       <div className="onboard-card">
         <div className="stripe" />
         <img src="/logo.jpg" alt="" className="onboard-logo" />
-        <h1>Welcome, {firstName(user.name)}</h1>
-        <p className="muted">Complete your profile to continue.</p>
+        <h1>{tr('Welcome, {name}', { name: firstName(user.name) })}</h1>
+        <p className="muted">{tr('Complete your profile to continue.')}</p>
+        <LanguageSwitch className="login-lang" />
 
         <PhotoPicker size={104} />
-        <p className="field-hint onboard-hint">A photo is optional. You can add or change it later from your Profile.</p>
+        <p className="field-hint onboard-hint">{tr('A photo is optional. You can add or change it later from your Profile.')}</p>
 
         <form className="form onboard-form" onSubmit={submit}>
-          <Field label="Mobile number" hint="Egyptian mobile, 11 digits. Shown on your profile so leaders can reach you">
+          <Field label={tr('Mobile number')} hint={tr('Egyptian mobile, 11 digits. Shown on your profile so leaders can reach you')}>
             <PhoneInput value={phone} onChange={setPhone} required />
           </Field>
           {error && <ErrorBox message={error} />}
           <button className="btn btn-primary btn-block btn-lg" disabled={busy}>
-            {busy ? 'Saving…' : 'Continue'}
+            {busy ? tr('Saving…') : tr('Continue')}
           </button>
         </form>
         <button type="button" className="link onboard-signout" onClick={logout}>
-          Sign out
+          {tr('Sign out')}
         </button>
       </div>
     </div>

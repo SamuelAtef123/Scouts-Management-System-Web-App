@@ -3,6 +3,8 @@ import { CheckCheck, Lock } from 'lucide-react';
 import { api } from '../api.js';
 import { ATTENDANCE_STATUSES } from '../constants.js';
 import { formatDay, formatTime } from '../format.js';
+import { teamName } from '../constants.js';
+import { t as tr } from '../i18n.jsx';
 import { Avatar, ErrorBox, Modal, Spinner, TeamChip } from './ui.jsx';
 
 /**
@@ -64,21 +66,21 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
 
   return (
     <Modal
-      title="Attendance"
+      title={tr('Attendance')}
       onClose={onClose}
       footer={
         canRecord ? (
           <>
             <button type="button" className="btn btn-ghost" onClick={onClose}>
-              Cancel
+              {tr('Cancel')}
             </button>
             <button type="button" className="btn btn-primary" onClick={save} disabled={busy || !myRows.length}>
-              {busy ? 'Saving…' : mySections.length === 1 ? `Save ${mySections[0].team} attendance` : 'Save attendance'}
+              {busy ? tr('Saving…') : mySections.length === 1 ? tr('Save {team} attendance', { team: teamName(mySections[0].team) }) : tr('Save attendance')}
             </button>
           </>
         ) : (
           <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Close
+            {tr('Close')}
           </button>
         )
       }
@@ -94,9 +96,9 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
         <p className="field-hint attend-note">
           <Lock size={14} />
           {event.type === 'gawala_session'
-            ? 'Gawala Session attendance is taken by the Database/Attendance member assigned to Gawala.'
-            : "This team's attendance is taken by its Database/Attendance member."}{' '}
-          You can view it here.
+            ? tr('Gawala Session attendance is taken by the Database/Attendance member assigned to Gawala.')
+            : tr("This team's attendance is taken by its Database/Attendance member.")}{' '}
+          {tr('You can view it here.')}
         </p>
       )}
 
@@ -104,30 +106,30 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
         <>
           <div className="attend-counts">
             <span className="ac ac-present">
-              <b>{counts.present}</b> Present
+              <b>{counts.present}</b> {tr('Present')}
             </span>
             <span className="ac ac-absent">
-              <b>{counts.absent}</b> Absent
+              <b>{counts.absent}</b> {tr('Absent')}
             </span>
             <span className="ac ac-excused">
-              <b>{counts.excused}</b> Excused
+              <b>{counts.excused}</b> {tr('Excused')}
             </span>
             {counts.unmarked > 0 && (
               <span className="ac">
-                <b>{counts.unmarked}</b> Not marked
+                <b>{counts.unmarked}</b> {tr('Not marked')}
               </span>
             )}
           </div>
           {counts.unmarked > 0 && (
             <div className="attend-tools">
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => markRest('present')}>
-                <CheckCheck size={16} /> Mark the rest present
+                <CheckCheck size={16} /> {tr('Mark the rest present')}
               </button>
-              <span className="field-hint">Anyone not marked is saved as absent.</span>
+              <span className="field-hint">{tr('Anyone not marked is saved as absent.')}</span>
             </div>
           )}
           {mySections.some((s) => !s.taken) && (
-            <p className="field-hint">The list comes from current team membership and is fixed when you first save.</p>
+            <p className="field-hint">{tr('The list comes from current team membership and is fixed when you first save.')}</p>
           )}
         </>
       )}
@@ -137,16 +139,20 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
           <h3 className="attend-team">
             <TeamChip team={section.team} size="sm" />
             <span>
-              {section.rows.length} {section.rows.length === 1 ? 'member' : 'members'}
+              {section.rows.length === 1 ? tr('1 member') : tr('{n} members', { n: section.rows.length })}
 
             </span>
             <span className={`attend-state ${section.taken ? 'done' : ''}`}>
-              {section.taken ? `Taken ${formatDay(section.takenAt)}, ${formatTime(section.takenAt)}${section.takenBy ? ` by ${section.takenBy.name}` : ''}` : 'Not taken yet'}
+              {section.taken
+                ? section.takenBy
+                  ? tr('Taken {day}, {time} by {name}', { day: formatDay(section.takenAt), time: formatTime(section.takenAt), name: section.takenBy.name })
+                  : tr('Taken {day}, {time}', { day: formatDay(section.takenAt), time: formatTime(section.takenAt) })
+                : tr('Not taken yet')}
             </span>
           </h3>
 
           {section.rows.length === 0 ? (
-            <p className="field-hint">No active members belong to this team.</p>
+            <p className="field-hint">{tr('No active members belong to this team.')}</p>
           ) : !section.canRecord && !section.taken ? null : (
             <div className="attend-list">
               {section.rows.map((r) => {
@@ -155,7 +161,7 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
                   <div key={r.user._id} className={`attend-row ${status ? `is-${status}` : ''}`}>
                     <Avatar person={r.user} team={r.team} size={34} />
                     <span className="attend-name">{r.user.name}</span>
-                    <div className="attend-marks" role="group" aria-label={`Attendance of ${r.user.name}`}>
+                    <div className="attend-marks" role="group" aria-label={tr('Attendance of {name}', { name: r.user.name })}>
                       {ATTENDANCE_STATUSES.map((s) => (
                         <button
                           type="button"

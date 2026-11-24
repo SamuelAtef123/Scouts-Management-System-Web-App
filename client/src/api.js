@@ -1,3 +1,5 @@
+import { t } from './i18n.jsx';
+
 const TOKEN_KEY = 'scouts_token';
 
 export const tokenStore = {
@@ -41,17 +43,18 @@ async function request(method, path, body) {
   try {
     res = await fetch(`/api${path}`, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
   } catch {
-    throw new ApiError(0, 'No connection. Check your internet and try again.');
+    throw new ApiError(0, t('No connection. Check your internet and try again.'));
   }
 
   const data = await res.json().catch(() => null);
   if (data === null && !res.ok) {
     // No JSON at all: the API server itself did not answer (not running, or crashed).
-    throw new ApiError(res.status, 'Cannot reach the server. Make sure it is running, then try again.');
+    throw new ApiError(res.status, t('Cannot reach the server. Make sure it is running, then try again.'));
   }
   if (!res.ok) {
     if (res.status === 401 && path !== '/auth/login') onUnauthorized();
-    throw new ApiError(res.status, data.message || 'Something went wrong');
+    // Server messages are in English; show them in the chosen language when a translation exists.
+    throw new ApiError(res.status, t(data.message || 'Something went wrong'));
   }
   return data;
 }
@@ -80,9 +83,9 @@ export const api = {
           /* ignore */
         }
         if (xhr.status >= 200 && xhr.status < 300) resolve(data);
-        else reject(new ApiError(xhr.status, data.message || 'Upload failed'));
+        else reject(new ApiError(xhr.status, t(data.message || 'Upload failed')));
       };
-      xhr.onerror = () => reject(new ApiError(0, 'Upload failed. Check your internet and try again.'));
+      xhr.onerror = () => reject(new ApiError(0, t('Upload failed. Check your internet and try again.')));
       const form = new FormData();
       if (fileName) form.append('file', file, fileName);
       else form.append('file', file);
@@ -95,6 +98,6 @@ export const api = {
 export async function fetchImageUrl(path) {
   const token = tokenStore.get();
   const res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-  if (!res.ok) throw new ApiError(res.status, 'Image not found');
+  if (!res.ok) throw new ApiError(res.status, t('Image not found'));
   return URL.createObjectURL(await res.blob());
 }

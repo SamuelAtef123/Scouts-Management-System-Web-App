@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
-import { EVENT_TYPES, TEAMS } from '../constants.js';
+import { EVENT_TYPES, TEAMS, teamName } from '../constants.js';
+import { isArabic, t as tr } from '../i18n.jsx';
 import { toLocalInput } from '../format.js';
 import { ErrorBox, Field, Modal } from './ui.jsx';
 
@@ -55,7 +56,7 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
   const submit = async (e) => {
     e.preventDefault();
     if (!keptPastDate && form.startDate && new Date(form.startDate) < new Date(Date.now() - 60000)) {
-      setError('The event cannot start in the past');
+      setError(tr('The event cannot start in the past'));
       return;
     }
     setBusy(true);
@@ -77,26 +78,26 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
 
   return (
     <Modal
-      title={event ? 'Edit event' : 'New event'}
+      title={event ? tr('Edit event') : tr('New event')}
       onClose={onClose}
       footer={
         <>
           <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Cancel
+            {tr('Cancel')}
           </button>
           <button type="submit" form="event-form" className="btn btn-primary" disabled={busy}>
-            {busy ? 'Saving…' : event ? 'Save changes' : 'Create event'}
+            {busy ? tr('Saving…') : event ? tr('Save changes') : tr('Create event')}
           </button>
         </>
       }
     >
       <form id="event-form" className="form" onSubmit={submit}>
-        <Field label="Title">
-          <input value={form.title} onChange={set('title')} placeholder="e.g. Weekly meeting" required maxLength={120} />
+        <Field label={tr('Title')}>
+          <input value={form.title} onChange={set('title')} placeholder={tr('e.g. Weekly meeting')} required maxLength={120} />
         </Field>
 
         <div className="field">
-          <span className="field-label">Type</span>
+          <span className="field-label">{tr('Type')}</span>
           <div className="type-picker">
             {types.map((t) => (
               <button
@@ -114,7 +115,7 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
 
         {typeInfo.group ? null : (
           <div className="field">
-            <span className="field-label">Team</span>
+            <span className="field-label">{tr('Team')}</span>
             <div className="team-picker">
               {allowWholeGroup && (
                 <button
@@ -125,7 +126,7 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
                   disabled={locked}
                 >
                   <span className="team-dot group-dot" />
-                  Whole group
+                  {tr('Whole group')}
                 </button>
               )}
               {teams.map((id) => {
@@ -140,18 +141,18 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
                     disabled={teams.length === 1 || (locked && form.team !== id)}
                   >
                     <span className="team-dot" />
-                    {id}
-                    <small lang="ar">{t.arabic}</small>
+                    {teamName(id)}
+                    <small lang={isArabic() ? 'en' : 'ar'}>{isArabic() ? id : t.arabic}</small>
                   </button>
                 );
               })}
             </div>
           </div>
         )}
-        {locked && <p className="field-hint">Attendance was already taken, so the type and team can't change.</p>}
+        {locked && <p className="field-hint">{tr("Attendance was already taken, so the type and team can't change.")}</p>}
 
         <div className="form-row">
-          <Field label="Starts">
+          <Field label={tr('Starts')}>
             <input
               type="datetime-local"
               value={form.startDate}
@@ -160,16 +161,16 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
               required
             />
           </Field>
-          <Field label="Ends (optional)">
+          <Field label={tr('Ends (optional)')}>
             <input type="datetime-local" value={form.endDate} onChange={set('endDate')} min={form.startDate || undefined} />
           </Field>
         </div>
 
-        <Field label="Location (optional)">
-          <input value={form.location} onChange={set('location')} placeholder="e.g. Church yard" maxLength={120} />
+        <Field label={tr('Location (optional)')}>
+          <input value={form.location} onChange={set('location')} placeholder={tr('e.g. Church yard')} maxLength={120} />
         </Field>
-        <Field label="Details (optional)">
-          <textarea value={form.description} onChange={set('description')} rows={3} maxLength={2000} placeholder="What is this event about?" />
+        <Field label={tr('Details (optional)')}>
+          <textarea value={form.description} onChange={set('description')} rows={3} maxLength={2000} placeholder={tr('What is this event about?')} />
         </Field>
         {error && <ErrorBox message={error} />}
       </form>

@@ -1,18 +1,19 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { CalendarDays, House, ListChecks, LogOut, UserRound, Users } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
+import { t as tr } from '../i18n.jsx';
 import { ROLE_LABEL } from '../constants.js';
 import { Avatar, VerseCard } from './ui.jsx';
 
 export function useNavItems() {
   const { user } = useAuth();
   const items = [
-    { to: '/', label: 'Home', icon: House, end: true },
-    { to: '/events', label: 'Events', icon: CalendarDays },
-    { to: '/tasks', label: 'My tasks', icon: ListChecks },
+    { to: '/', label: tr('Home'), icon: House, end: true },
+    { to: '/events', label: tr('Events'), icon: CalendarDays },
+    { to: '/tasks', label: tr('My tasks'), icon: ListChecks },
   ];
-  if (user?.permissions.viewMembers) items.push({ to: '/members', label: 'Members', icon: Users });
-  items.push({ to: '/profile', label: 'Profile', icon: UserRound });
+  if (user?.permissions.viewMembers) items.push({ to: '/members', label: tr('Members'), icon: Users });
+  items.push({ to: '/profile', label: tr('Profile'), icon: UserRound });
   return items;
 }
 
@@ -26,8 +27,8 @@ export default function Layout() {
         <div className="brand">
           <img src="/logo.jpg" alt="" className="brand-logo" />
           <div>
-            <div className="brand-title">Light of the World</div>
-            <div className="brand-sub">St. Mary Church · Garden City</div>
+            <div className="brand-title">{tr('Light of the World')}</div>
+            <div className="brand-sub">{tr('St. Mary Church · Garden City')}</div>
           </div>
         </div>
         <nav className="side-nav">
@@ -46,7 +47,7 @@ export default function Layout() {
               <strong>{user.name}</strong>
               <span>{ROLE_LABEL[user.role]}</span>
             </div>
-            <button className="icon-btn" onClick={logout} aria-label="Sign out" title="Sign out">
+            <button className="icon-btn" onClick={logout} aria-label={tr('Sign out')} title={tr('Sign out')}>
               <LogOut size={18} />
             </button>
           </div>
@@ -55,7 +56,7 @@ export default function Layout() {
 
       <header className="topbar">
         <img src="/logo.jpg" alt="" className="topbar-logo" />
-        <span className="topbar-title">Light of the World</span>
+        <span className="topbar-title">{tr('Light of the World')}</span>
       </header>
 
       <main className="main">

@@ -151,7 +151,7 @@ async function icon(name, color = 'FFFFFF') {
     ['LuClipboardCheck', 'Attendance', 'Present, Absent or Excused per member', HEX.green],
     ['LuUsers', 'Members', 'Attendance % and account management', HEX.teal],
     ['LuHouse', 'Home', 'Open, done and overdue at a glance', HEX.gold],
-    ['LuUserRound', 'Profile', 'Photo, mobile, attendance, password', HEX.navy],
+    ['LuUserRound', 'Profile', 'Photo, mobile, password, English or Arabic', HEX.navy],
   ];
   feats.forEach(([icn, t, d, c], i) => {
     const col = i % 5, row = Math.floor(i / 5);
@@ -209,9 +209,10 @@ async function icon(name, color = 'FFFFFF') {
     'Open the app on your phone and sign in with the username and password from the Database team.',
     'On first sign-in, enter your Egyptian mobile number: 11 digits starting with 010, 011, 012 or 015.',
     'Optionally tap the circle to add a photo of yourself, then tap Continue.',
+    'Prefer Arabic? Tap العربية on the sign-in screen or in your Profile.',
     'Add it to your home screen to open it like an app.',
     'Forgot your password? Ask a Database / Attendance member to reset it.',
-  ], 0.6, 1.55, 8.4, HEX.navy, 0.95);
+  ], 0.6, 1.5, 8.4, HEX.navy, 0.82);
   phone(s, 'onboard.png', 10.0, 1.3, 5.05, 'First sign-in screen');
 
   // ===== 7. Doing your tasks =====

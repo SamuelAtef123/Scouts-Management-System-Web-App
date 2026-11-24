@@ -1,7 +1,11 @@
-const dayFmt = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-const fullFmt = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-const timeFmt = new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true });
-const monthFmt = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' });
+import { locale, t } from './i18n.jsx';
+
+// Formatters follow the chosen language (English or Arabic).
+const fmt = (opts) => new Intl.DateTimeFormat(locale(), opts);
+const dayOpts = { weekday: 'short', day: 'numeric', month: 'short' };
+const fullOpts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+const timeOpts = { hour: 'numeric', minute: '2-digit', hour12: true };
+const monthOpts = { month: 'long', year: 'numeric' };
 
 const startOfDay = (d) => {
   const x = new Date(d);
@@ -9,10 +13,12 @@ const startOfDay = (d) => {
   return x;
 };
 
-export const formatDay = (d) => dayFmt.format(new Date(d));
-export const formatFullDate = (d) => fullFmt.format(new Date(d));
-export const formatTime = (d) => timeFmt.format(new Date(d));
-export const formatMonth = (d) => monthFmt.format(new Date(d));
+export const formatDay = (d) => fmt(dayOpts).format(new Date(d));
+export const formatFullDate = (d) => fmt(fullOpts).format(new Date(d));
+export const formatTime = (d) => fmt(timeOpts).format(new Date(d));
+export const formatMonth = (d) => fmt(monthOpts).format(new Date(d));
+/** Short month name for date tags, e.g. "Nov" / "نوفمبر". */
+export const formatShortMonth = (d) => fmt({ month: 'short' }).format(new Date(d));
 
 /** Whole days from today to the date (negative = in the past). */
 export function daysUntil(d) {
@@ -21,11 +27,13 @@ export function daysUntil(d) {
 
 export function relativeDay(d) {
   const n = daysUntil(d);
-  if (n === 0) return 'Today';
-  if (n === 1) return 'Tomorrow';
-  if (n === -1) return 'Yesterday';
-  if (n > 1 && n < 7) return `In ${n} days`;
-  if (n < -1 && n > -7) return `${-n} days ago`;
+  if (n === 0) return t('Today');
+  if (n === 1) return t('Tomorrow');
+  if (n === -1) return t('Yesterday');
+  if (n === 2) return t('In 2 days');
+  if (n === -2) return t('2 days ago');
+  if (n > 1 && n < 7) return t('In {n} days', { n });
+  if (n < -1 && n > -7) return t('{n} days ago', { n: -n });
   return formatDay(d);
 }
 
@@ -46,16 +54,16 @@ export function toLocalInput(d) {
 export const toDateInput = (d) => (d ? toLocalInput(d).slice(0, 10) : '');
 
 export function fileSize(bytes) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  if (bytes < 1024) return `${bytes} ${t('B')}`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} ${t('KB')}`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} ${t('MB')}`;
 }
 
 export function greeting() {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return t('Good morning');
+  if (h < 18) return t('Good afternoon');
+  return t('Good evening');
 }
 
 export const firstName = (name = '') => name.trim().split(/\s+/)[0];

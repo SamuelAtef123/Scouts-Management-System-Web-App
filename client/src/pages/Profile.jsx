@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { ClipboardCheck, KeyRound, LogOut, Phone } from 'lucide-react';
+import { ClipboardCheck, KeyRound, Languages, LogOut, Phone } from 'lucide-react';
+import { LanguageSwitch, t as tr } from '../i18n.jsx';
 import PhotoPicker from '../components/PhotoPicker.jsx';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { displayPhone, localPhone } from '../format.js';
 import { api, tokenStore } from '../api.js';
 import { useAuth } from '../auth.jsx';
-import { EVENT_TYPES, ROLE_LABEL } from '../constants.js';
+import { EVENT_TYPES, ROLE_LABEL, teamName } from '../constants.js';
 import { useApi } from '../hooks.js';
 import { Avatar, ErrorBox, Field, Spinner, TeamChip, VerseCard, useToast } from '../components/ui.jsx';
 
@@ -24,7 +25,7 @@ function PhoneCard() {
       const data = await api.put('/auth/me/profile', { phone });
       updateUser(data.user);
       setPhone(localPhone(data.user.phone));
-      toast('Mobile number saved');
+      toast(tr('Mobile number saved'));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -35,15 +36,15 @@ function PhoneCard() {
   return (
     <section className="card">
       <h2 className="card-title">
-        <Phone size={18} /> Mobile number
+        <Phone size={18} /> {tr('Mobile number')}
       </h2>
       <form className="form phone-form" onSubmit={submit}>
-        <Field label="Mobile number" hint="Egyptian mobile, 11 digits">
+        <Field label={tr('Mobile number')} hint={tr('Egyptian mobile, 11 digits')}>
           <PhoneInput value={phone} onChange={setPhone} required />
         </Field>
         {error && <ErrorBox message={error} />}
         <button className="btn btn-primary" disabled={busy || phone === localPhone(user.phone)}>
-          {busy ? 'Saving…' : 'Save number'}
+          {busy ? tr('Saving…') : tr('Save number')}
         </button>
       </form>
     </section>
@@ -56,14 +57,14 @@ function AttendanceCard() {
   return (
     <section className="card">
       <h2 className="card-title">
-        <ClipboardCheck size={18} /> My attendance
+        <ClipboardCheck size={18} /> {tr('My attendance')}
       </h2>
       {loading && !data ? (
         <Spinner />
       ) : error ? (
         <ErrorBox message={error} />
       ) : !a.sessions ? (
-        <p className="muted">No attendance recorded for you yet.</p>
+        <p className="muted">{tr('No attendance recorded for you yet.')}</p>
       ) : (
         <>
           <div className="attend-rate">
@@ -72,10 +73,10 @@ function AttendanceCard() {
             </div>
             <div>
               <strong>
-                {a.present} of {a.present + a.absent} sessions attended
+                {tr('{n} of {total} sessions attended', { n: a.present, total: a.present + a.absent })}
               </strong>
               <p className="muted">
-                {a.absent} absent · {a.excused} excused (excused sessions don't count against you)
+                {tr('{a} absent · {e} excused', { a: a.absent, e: a.excused })} {tr("(excused sessions don't count against you)")}
               </p>
             </div>
           </div>
@@ -114,7 +115,7 @@ export default function Profile() {
       // Changing the password signs out other devices; keep this one signed in.
       if (data.token) tokenStore.set(data.token);
       setForm({ currentPassword: '', newPassword: '' });
-      toast('Password changed');
+      toast(tr('Password changed'));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -128,9 +129,11 @@ export default function Profile() {
         <div className="stripe" />
         <PhotoPicker size={88} onChange={toast} />
         <h1>{user.name}</h1>
-        <p className="muted">@{user.username}</p>
+        <p className="muted">
+          <bdi dir="ltr">@{user.username}</bdi>
+        </p>
         {user.phone && (
-          <a className="profile-phone" href={`tel:${user.phone}`}>
+          <a className="profile-phone" href={`tel:${user.phone}`} dir="ltr">
             <Phone size={16} /> {displayPhone(user.phone)}
           </a>
         )}
@@ -140,22 +143,30 @@ export default function Profile() {
         </div>
         <p className="profile-access">
           {user.permissions.allTeams
-            ? 'You can manage events and tasks of every team and of the whole group.'
-            : `You can manage events and tasks of the ${user.team} team.`}
-          {user.permissions.attendanceTeam && ` You take attendance for the ${user.permissions.attendanceTeam} team.`}
+            ? tr('You can manage events and tasks of every team and of the whole group.')
+            : tr('You can manage events and tasks of the {team} team.', { team: teamName(user.team) })}
+          {user.permissions.attendanceTeam &&
+            ` ${tr('You take attendance for the {team} team.', { team: teamName(user.permissions.attendanceTeam) })}`}
         </p>
       </section>
 
       <PhoneCard />
 
+      <section className="card">
+        <h2 className="card-title">
+          <Languages size={18} /> {tr('Language')}
+        </h2>
+        <LanguageSwitch />
+      </section>
+
       <AttendanceCard />
 
       <section className="card">
         <h2 className="card-title">
-          <KeyRound size={18} /> Change password
+          <KeyRound size={18} /> {tr('Change password')}
         </h2>
         <form className="form" onSubmit={submit}>
-          <Field label="Current password">
+          <Field label={tr('Current password')}>
             <input
               type="password"
               value={form.currentPassword}
@@ -164,7 +175,7 @@ export default function Profile() {
               required
             />
           </Field>
-          <Field label="New password" hint="At least 8 characters">
+          <Field label={tr('New password')} hint={tr('At least 8 characters')}>
             <input
               type="password"
               value={form.newPassword}
@@ -176,13 +187,13 @@ export default function Profile() {
           </Field>
           {error && <ErrorBox message={error} />}
           <button className="btn btn-primary" disabled={busy}>
-            {busy ? 'Saving…' : 'Update password'}
+            {busy ? tr('Saving…') : tr('Update password')}
           </button>
         </form>
       </section>
 
       <button className="btn btn-ghost btn-block btn-danger-text" onClick={logout}>
-        <LogOut size={18} /> Sign out
+        <LogOut size={18} /> {tr('Sign out')}
       </button>
 
       <VerseCard />

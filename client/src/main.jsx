@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './auth.jsx';
 import { ToastProvider } from './components/ui.jsx';
 import App from './App.jsx';
+import { LanguageProvider } from './i18n.jsx';
 import './styles.css';
 import './scout.css';
 
@@ -12,7 +13,9 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <AuthProvider>
         <ToastProvider>
-          <App />
+          <LanguageProvider>
+            <App />
+          </LanguageProvider>
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>

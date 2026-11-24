@@ -987,3 +987,196 @@ h3,
     padding-bottom: 78px;
   }
 }
+
+/* ---------- Language switch ---------- */
+.lang-switch {
+  display: inline-flex;
+  padding: 3px;
+  gap: 3px;
+  border-radius: 9px;
+  background: var(--khaki-soft);
+  border: 1px solid var(--border);
+}
+
+.lang-switch button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.lang-switch button[lang='ar'] {
+  font-family: 'Cairo', sans-serif;
+}
+
+.lang-switch button.active {
+  background: var(--forest);
+  color: #fff;
+}
+
+.login-lang {
+  margin-top: 14px;
+}
+
+/* =====================================================================
+   Arabic: Arabic fonts and a right-to-left layout
+   ===================================================================== */
+html[lang='ar'] {
+  --font: 'Cairo', 'Source Sans 3', system-ui, sans-serif;
+  --font-head: 'El Messiri', 'Cairo', serif;
+}
+
+html[lang='ar'] body {
+  font-size: 16px;
+}
+
+/* Letter spacing breaks joined Arabic letters, and Arabic has no capitals */
+html[lang='ar'] * {
+  letter-spacing: 0 !important;
+}
+
+html[lang='ar'] .eyebrow,
+html[lang='ar'] .month-title,
+html[lang='ar'] .field-label,
+html[lang='ar'] .status-pill,
+html[lang='ar'] .type-badge,
+html[lang='ar'] .soon,
+html[lang='ar'] .stat-label,
+html[lang='ar'] .date-month {
+  text-transform: none;
+}
+
+html[lang='ar'] .field-label {
+  font-size: 0.85rem;
+}
+
+html[lang='ar'] .stat-label {
+  font-size: 0.75rem;
+}
+
+html[dir='rtl'] .member,
+html[dir='rtl'] .login-form,
+html[dir='rtl'] .type-option,
+html[dir='rtl'] .onboard-form,
+html[dir='rtl'] .team-option {
+  text-align: right;
+}
+
+/* Items pushed to the far end use the logical side */
+html[dir='rtl'] .attend-card-head .btn,
+html[dir='rtl'] .error-box .btn,
+html[dir='rtl'] .attend-state,
+html[dir='rtl'] .team-option small {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Icons inside fields */
+html[dir='rtl'] .search svg {
+  left: auto;
+  right: 14px;
+}
+
+html[dir='rtl'] .search input {
+  padding-left: 14px;
+  padding-right: 42px;
+}
+
+html[dir='rtl'] .password-input input {
+  padding-right: 14px;
+  padding-left: 48px;
+}
+
+html[dir='rtl'] .password-input .icon-btn {
+  right: auto;
+  left: 5px;
+}
+
+/* Neckerchief corner sits on the starting (right) side */
+html[dir='rtl'] .event-card::before,
+html[dir='rtl'] .task-card::before,
+html[dir='rtl'] .event-card::after,
+html[dir='rtl'] .task-card::after {
+  left: auto;
+  right: 0;
+}
+
+html[dir='rtl'] .event-card::before,
+html[dir='rtl'] .task-card::before {
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+html[dir='rtl'] .event-card::after,
+html[dir='rtl'] .task-card::after {
+  transform: scaleX(-1);
+}
+
+html[dir='rtl'] .event-hero::before {
+  inset: 0 0 auto auto;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+html[dir='rtl'] .task-card {
+  padding-left: 16px;
+  padding-right: 20px;
+}
+
+html[dir='rtl'] .event-card {
+  padding-left: 14px;
+  padding-right: 18px;
+}
+
+html[dir='rtl'] .task-actions {
+  margin: -6px 0 0 -6px;
+}
+
+/* Arrows point the other way */
+html[dir='rtl'] .event-chevron,
+html[dir='rtl'] .back-link svg {
+  transform: scaleX(-1);
+}
+
+html[dir='rtl'] .fab {
+  right: auto;
+  left: 18px;
+}
+
+html[dir='rtl'] .photo-badge {
+  right: auto;
+  left: 0;
+}
+
+/* Sidebar tabs stick out on the other side */
+@media (min-width: 900px) {
+  html[dir='rtl'] .sidebar {
+    padding-right: 16px;
+    padding-left: 0;
+  }
+
+  html[dir='rtl'] .side-link {
+    border-radius: 0 10px 10px 0;
+    padding-left: 14px;
+    padding-right: 16px;
+  }
+
+  html[dir='rtl'] .brand,
+  html[dir='rtl'] .side-bottom {
+    padding-right: 8px;
+    padding-left: 16px;
+  }
+
+  html[dir='rtl'] .hero::after {
+    background: linear-gradient(270deg, rgba(24, 52, 37, 0.95) 0%, rgba(31, 68, 48, 0.62) 42%, rgba(31, 68, 48, 0.05) 78%);
+  }
+}
+
+/* Phone numbers always read left to right, even in Arabic */
+.phone-code,
+.profile-phone {
+  direction: ltr;
+  unicode-bidi: isolate;
+}

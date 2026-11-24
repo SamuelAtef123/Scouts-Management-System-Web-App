@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { ChevronRight, MapPin } from 'lucide-react';
 import { GROUP_STYLE, TEAM_BY_ID } from '../constants.js';
-import { daysUntil, formatTime, relativeDay, dateRange } from '../format.js';
+import { daysUntil, formatShortMonth, formatTime, relativeDay, dateRange } from '../format.js';
 import { TeamChip, TypeBadge } from './ui.jsx';
+import { t as tr } from '../i18n.jsx';
 
 export default function EventCard({ event }) {
   const team = TEAM_BY_ID[event.team] || GROUP_STYLE;
@@ -13,7 +14,7 @@ export default function EventCard({ event }) {
   return (
     <Link to={`/events/${event._id}`} className="event-card" style={{ '--team': team?.color, '--team-soft': team?.soft }}>
       <div className="date-badge">
-        <span className="date-month">{start.toLocaleString('en-GB', { month: 'short' })}</span>
+        <span className="date-month">{formatShortMonth(start)}</span>
         <span className="date-day">{start.getDate()}</span>
       </div>
       <div className="event-body">
@@ -35,16 +36,16 @@ export default function EventCard({ event }) {
         </div>
         {event.attendanceSummary?.taken && (
           <span className="attend-line">
-            {event.attendanceSummary.present}/{event.attendanceSummary.total} attended
+            {tr('{n}/{total} attended', { n: event.attendanceSummary.present, total: event.attendanceSummary.total })}
           </span>
         )}
         {event.taskCount > 0 && (
-          <div className="mini-progress" title={`${event.doneCount} of ${event.taskCount} tasks done`}>
+          <div className="mini-progress" title={tr('{done} of {total} tasks done', { done: event.doneCount, total: event.taskCount })}>
             <div className="bar">
               <div style={{ width: `${progress}%` }} />
             </div>
             <span>
-              {event.doneCount}/{event.taskCount} tasks
+              {tr('{done}/{total} tasks', { done: event.doneCount, total: event.taskCount })}
             </span>
           </div>
         )}

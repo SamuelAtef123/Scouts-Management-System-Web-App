@@ -3,7 +3,8 @@ import { ClipboardCheck, Pencil, Plus, Search, Shield, Users } from 'lucide-reac
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
-import { EVENT_TYPES, ROLES, ROLE_LABEL, TEAMS } from '../constants.js';
+import { EVENT_TYPES, ROLES, ROLE_LABEL, TEAMS, teamName } from '../constants.js';
+import { t as tr } from '../i18n.jsx';
 import { displayPhone, localPhone } from '../format.js';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast } from '../components/ui.jsx';
@@ -47,33 +48,33 @@ function MemberForm({ member, onClose, onSaved }) {
 
   return (
     <Modal
-      title={member ? 'Edit member' : 'Add member'}
+      title={member ? tr('Edit member') : tr('Add member')}
       onClose={onClose}
       footer={
         <>
           <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Cancel
+            {tr('Cancel')}
           </button>
           <button type="submit" form="member-form" className="btn btn-primary" disabled={busy}>
-            {busy ? 'Saving…' : member ? 'Save changes' : 'Add member'}
+            {busy ? tr('Saving…') : member ? tr('Save changes') : tr('Add member')}
           </button>
         </>
       }
     >
       <form id="member-form" className="form" onSubmit={submit}>
-        <Field label="Full name">
+        <Field label={tr('Full name')}>
           <input value={form.name} onChange={set('name')} required maxLength={80} />
         </Field>
         <div className="form-row">
-          <Field label="Username" hint="Used to sign in">
+          <Field label={tr('Username')} hint={tr('Used to sign in')}>
             <input value={form.username} onChange={set('username')} required autoCapitalize="none" pattern="[A-Za-z0-9._\-]{3,30}" />
           </Field>
-          <Field label="Phone (optional)">
+          <Field label={tr('Phone (optional)')}>
             <PhoneInput value={form.phone} onChange={(phone) => setForm((f) => ({ ...f, phone }))} />
           </Field>
         </div>
         <div className="form-row">
-          <Field label="Role">
+          <Field label={tr('Role')}>
             <select
               value={form.role}
               onChange={(e) => {
@@ -91,12 +92,12 @@ function MemberForm({ member, onClose, onSaved }) {
               ))}
             </select>
           </Field>
-          <Field label="Team" hint="Decides whose attendance sheet they appear on">
+          <Field label={tr('Team')} hint={tr('Decides whose attendance sheet they appear on')}>
             <select value={form.team} onChange={set('team')} required>
-              <option value="">Choose a team</option>
+              <option value="">{tr('Choose a team')}</option>
               {teamOptions.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.id}
+                  {teamName(t.id)}
                 </option>
               ))}
             </select>
@@ -106,32 +107,32 @@ function MemberForm({ member, onClose, onSaved }) {
           <p className="form-context">
             {member?.attendanceTeam ? (
               <>
-                Takes attendance for the <strong>{member.attendanceTeam}</strong> team.
+                {tr('Takes attendance for the')} <strong>{teamName(member.attendanceTeam)}</strong> {tr('team.')}
               </>
             ) : (
-              'Not assigned to take any team\'s attendance.'
+              tr("Not assigned to take any team's attendance.")
             )}{' '}
-            This is fixed by the system and can't be changed here.
+            {tr("This is fixed by the system and can't be changed here.")}
           </p>
         )}
         {form.role === 'database_team' && !limited && (
           <label className="check">
             <input type="checkbox" checked={form.isPrivileged} onChange={set('isPrivileged')} />
             <span>
-              <strong>Privileged member</strong>
-              <small>Can manage events and tasks of every team</small>
+              <strong>{tr('Privileged member')}</strong>
+              <small>{tr('Can manage events and tasks of every team')}</small>
             </span>
           </label>
         )}
-        <Field label={member ? 'New password (leave empty to keep)' : 'Password'} hint="At least 8 characters">
+        <Field label={member ? tr('New password (leave empty to keep)') : tr('Password')} hint={tr('At least 8 characters')}>
           <input type="text" value={form.password} onChange={set('password')} minLength={8} required={!member} autoComplete="new-password" />
         </Field>
         {member && !isSelf && (
           <label className="check">
             <input type="checkbox" checked={form.isActive} onChange={set('isActive')} />
             <span>
-              <strong>Active</strong>
-              <small>Inactive members cannot sign in or receive tasks</small>
+              <strong>{tr('Active')}</strong>
+              <small>{tr('Inactive members cannot sign in or receive tasks')}</small>
             </span>
           </label>
         )}
@@ -147,16 +148,16 @@ function MemberDetails({ member, onClose, onEdit }) {
   const a = data?.attendance;
   return (
     <Modal
-      title="Member"
+      title={tr('Member')}
       onClose={onClose}
       footer={
         <>
           <button type="button" className="btn btn-ghost" onClick={onClose}>
-            Close
+            {tr('Close')}
           </button>
           {onEdit && (
             <button type="button" className="btn btn-primary" onClick={onEdit}>
-              <Pencil size={16} /> Edit
+              <Pencil size={16} /> {tr('Edit')}
             </button>
           )}
         </>
@@ -166,46 +167,48 @@ function MemberDetails({ member, onClose, onEdit }) {
         <Avatar person={member} size={56} />
         <div>
           <h3>{member.name}</h3>
-          <p className="muted">@{member.username}</p>
+          <p className="muted">
+            <bdi dir="ltr">@{member.username}</bdi>
+          </p>
         </div>
       </div>
       <dl className="detail-list">
         <div>
-          <dt>Role</dt>
+          <dt>{tr('Role')}</dt>
           <dd>
             {ROLE_LABEL[member.role]}
-            {member.isPrivileged && ' (privileged)'}
+            {member.isPrivileged && ` (${tr('privileged')})`}
           </dd>
         </div>
         <div>
-          <dt>Team</dt>
+          <dt>{tr('Team')}</dt>
           <dd>{member.team ? <TeamChip team={member.team} size="sm" /> : '–'}</dd>
         </div>
         {member.attendanceTeam && (
           <div>
-            <dt>Takes attendance for</dt>
-            <dd>{member.attendanceTeam}</dd>
+            <dt>{tr('Takes attendance for')}</dt>
+            <dd>{teamName(member.attendanceTeam)}</dd>
           </div>
         )}
         <div>
-          <dt>Phone</dt>
-          <dd>{member.phone ? <a href={`tel:${member.phone}`}>{displayPhone(member.phone)}</a> : '–'}</dd>
+          <dt>{tr('Phone')}</dt>
+          <dd>{member.phone ? <a href={`tel:${member.phone}`} dir="ltr">{displayPhone(member.phone)}</a> : '–'}</dd>
         </div>
         <div>
-          <dt>Status</dt>
-          <dd>{member.isActive ? 'Active' : 'Inactive'}</dd>
+          <dt>{tr('Status')}</dt>
+          <dd>{member.isActive ? tr('Active') : tr('Inactive')}</dd>
         </div>
       </dl>
 
       <h3 className="detail-section">
-        <ClipboardCheck size={17} /> Attendance
+        <ClipboardCheck size={17} /> {tr('Attendance')}
       </h3>
       {loading && !data ? (
         <Spinner />
       ) : error ? (
         <ErrorBox message={error} />
       ) : !a.sessions ? (
-        <p className="muted">No attendance recorded yet.</p>
+        <p className="muted">{tr('No attendance recorded yet.')}</p>
       ) : (
         <>
           <div className="attend-rate">
@@ -214,10 +217,10 @@ function MemberDetails({ member, onClose, onEdit }) {
             </div>
             <div>
               <strong>
-                {a.present} of {a.present + a.absent} sessions attended
+                {tr('{n} of {total} sessions attended', { n: a.present, total: a.present + a.absent })}
               </strong>
               <p className="muted">
-                {a.absent} absent · {a.excused} excused
+                {tr('{a} absent · {e} excused', { a: a.absent, e: a.excused })}
               </p>
             </div>
           </div>
@@ -271,34 +274,34 @@ export default function Members() {
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>Members</h1>
+          <h1>{tr('Members')}</h1>
           <p className="muted">
-            {filterTeams.length === 1 && `${filterTeams[0].id} team · `}
-            {data ? `${data.users.filter((u) => u.isActive).length} active members` : 'Loading…'}
-            {!canEdit && ' · view only'}
+            {filterTeams.length === 1 && `${tr('{team} team', { team: teamName(filterTeams[0].id) })} · `}
+            {data ? tr('{n} active members', { n: data.users.filter((u) => u.isActive).length }) : tr('Loading…')}
+            {!canEdit && ` · ${tr('view only')}`}
           </p>
         </div>
         {canEdit && (
           <button className="btn btn-primary" onClick={() => setEditing({})}>
-            <Plus size={18} /> <span className="desktop-only-inline">Add member</span>
-            <span className="mobile-only-inline">Add</span>
+            <Plus size={18} /> <span className="desktop-only-inline">{tr('Add member')}</span>
+            <span className="mobile-only-inline">{tr('Add')}</span>
           </button>
         )}
       </header>
 
       <div className="search">
         <Search size={18} />
-        <input placeholder="Search by name or username" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <input placeholder={tr('Search by name or username')} value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
       {filterTeams.length > 1 && (
       <div className="chips">
         <button className={`chip ${!team ? 'active' : ''}`} onClick={() => setTeam('')}>
-          Everyone
+          {tr('Everyone')}
         </button>
         {filterTeams.map((t) => (
           <button key={t.id} className={`chip ${team === t.id ? 'active' : ''}`} style={{ '--team': t.color, '--team-soft': t.soft }} onClick={() => setTeam(t.id)}>
             <span className="team-dot" />
-            {t.id}
+            {teamName(t.id)}
           </button>
         ))}
       </div>
@@ -309,7 +312,7 @@ export default function Members() {
       ) : error ? (
         <ErrorBox message={error} onRetry={reload} />
       ) : members.length === 0 ? (
-        <EmptyState icon={Users} title="No members found" />
+        <EmptyState icon={Users} title={tr('No members found')} />
       ) : (
         <div className="member-list">
           {members.map((u) => (
@@ -318,12 +321,12 @@ export default function Members() {
               <span className="member-text">
                 <strong>
                   {u.name}
-                  {u.isPrivileged && <Shield size={14} className="privileged" aria-label="Privileged" />}
+                  {u.isPrivileged && <Shield size={14} className="privileged" aria-label={tr('Privileged')} />}
                 </strong>
                 <span>
                   {ROLE_LABEL[u.role]}
-                  {u.attendanceTeam && ` · attendance: ${u.attendanceTeam}`} · @{u.username}
-                  {!u.isActive && ' · Inactive'}
+                  {u.attendanceTeam && ` · ${tr('attendance: {team}', { team: teamName(u.attendanceTeam) })}`} · <bdi dir="ltr">@{u.username}</bdi>
+                  {!u.isActive && ` · ${tr('Inactive')}`}
                 </span>
               </span>
               <span className="member-side">
@@ -359,7 +362,7 @@ export default function Members() {
               users: created ? [...d.users, saved].sort((a, b) => a.name.localeCompare(b.name)) : d.users.map((u) => (u._id === saved._id ? saved : u)),
             }));
             setEditing(null);
-            toast(created ? 'Member added' : 'Member updated');
+            toast(created ? tr('Member added') : tr('Member updated'));
           }}
         />
       )}

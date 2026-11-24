@@ -4,7 +4,8 @@ import { Check, ChevronLeft, ClipboardCheck, Clock, ListChecks, MapPin, Pencil, 
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
-import { GROUP_STYLE, TEAM_BY_ID, eventType } from '../constants.js';
+import { GROUP_STYLE, TEAM_BY_ID, eventType, teamName } from '../constants.js';
+import { t as tr } from '../i18n.jsx';
 import { formatFullDate, formatTime, relativeDay } from '../format.js';
 import EventForm from '../components/EventForm.jsx';
 import TaskForm from '../components/TaskForm.jsx';
@@ -28,7 +29,7 @@ export default function EventDetail() {
     return (
       <div className="page">
         <Link to="/events" className="back-link">
-          <ChevronLeft size={18} /> Events
+          <ChevronLeft size={18} /> {tr('Events')}
         </Link>
         <ErrorBox message={error} onRetry={reload} />
       </div>
@@ -58,7 +59,7 @@ export default function EventDetail() {
   return (
     <div className="page">
       <Link to="/events" className="back-link">
-        <ChevronLeft size={18} /> Events
+        <ChevronLeft size={18} /> {tr('Events')}
       </Link>
 
       <section className="event-hero" style={{ '--team': team.color, '--team-soft': team.soft }}>
@@ -76,7 +77,7 @@ export default function EventDetail() {
               {event.endDate && (
                 <>
                   <br />
-                  until {formatFullDate(event.endDate)} · {formatTime(event.endDate)}
+                  {tr('until {date} · {time}', { date: formatFullDate(event.endDate), time: formatTime(event.endDate) })}
                 </>
               )}
             </span>
@@ -89,17 +90,17 @@ export default function EventDetail() {
           )}
           <li>
             <UserRound size={17} />
-            <span>Created by {event.createdBy?.name}</span>
+            <span>{tr('Created by {name}', { name: event.createdBy?.name })}</span>
           </li>
         </ul>
         {event.description && <p className="event-desc">{event.description}</p>}
         {canManage && (
           <div className="event-hero-actions">
             <button className="btn btn-light" onClick={() => setEditing(true)}>
-              <Pencil size={16} /> Edit
+              <Pencil size={16} /> {tr('Edit')}
             </button>
             <button className="btn btn-light btn-light-danger" onClick={() => setDeleting(true)}>
-              <Trash2 size={16} /> Delete
+              <Trash2 size={16} /> {tr('Delete')}
             </button>
           </div>
         )}
@@ -112,14 +113,14 @@ export default function EventDetail() {
               <ClipboardCheck size={20} />
             </span>
             <div>
-              <h2>Attendance</h2>
+              <h2>{tr('Attendance')}</h2>
               <p className="muted">
-                {type.group ? 'Members of all teams' : `Members of the ${event.team} team`}
+                {type.group ? tr('Members of all teams') : tr('Members of the {team} team', { team: teamName(event.team) })}
               </p>
             </div>
             {(event.canRecordAttendance || attendance?.taken) && (
               <button className={`btn btn-sm ${myPartDone || !event.canRecordAttendance ? 'btn-ghost' : 'btn-primary'}`} onClick={() => setAttendanceOpen(true)}>
-                {event.canRecordAttendance ? (myPartDone ? 'Edit' : 'Take attendance') : 'View'}
+                {event.canRecordAttendance ? (myPartDone ? tr('Edit') : tr('Take attendance')) : tr('View')}
               </button>
             )}
           </div>
@@ -128,7 +129,7 @@ export default function EventDetail() {
               {attendance.teamsExpected.map((t) => (
                 <span key={t} className={`team-taken ${attendance.teamsTaken.includes(t) ? 'done' : ''}`}>
                   {attendance.teamsTaken.includes(t) ? <Check size={13} /> : <span className="pending-dot" />}
-                  {t}
+                  {teamName(t)}
                 </span>
               ))}
             </div>
@@ -141,13 +142,13 @@ export default function EventDetail() {
                 <span className="seg-absent" style={{ flex: attendance.absent }} />
               </div>
               <div className="attend-counts">
-                <span className="ac ac-present"><b>{attendance.present}</b> Present</span>
-                <span className="ac ac-absent"><b>{attendance.absent}</b> Absent</span>
-                <span className="ac ac-excused"><b>{attendance.excused}</b> Excused</span>
+                <span className="ac ac-present"><b>{attendance.present}</b> {tr('Present')}</span>
+                <span className="ac ac-absent"><b>{attendance.absent}</b> {tr('Absent')}</span>
+                <span className="ac ac-excused"><b>{attendance.excused}</b> {tr('Excused')}</span>
               </div>
             </div>
           ) : (
-            <p className="muted attend-empty">Not taken yet.</p>
+            <p className="muted attend-empty">{tr('Not taken yet.')}</p>
           )}
         </section>
       )}
@@ -156,10 +157,10 @@ export default function EventDetail() {
       {!type.noTasks && (
         <>
         <div className="section-head">
-          <h2>Tasks</h2>
+          <h2>{tr('Tasks')}</h2>
           {canManageTasks && (
             <button className="btn btn-primary btn-sm" onClick={() => setTaskForm({})}>
-              <Plus size={16} /> Add task
+              <Plus size={16} /> {tr('Add task')}
             </button>
           )}
         </div>
@@ -170,7 +171,7 @@ export default function EventDetail() {
               <div style={{ width: `${progress}%` }} />
             </div>
             <span>
-              {done} of {tasks.length} done
+              {tr('{done} of {total} done', { done, total: tasks.length })}
             </span>
           </div>
         )}
@@ -178,12 +179,12 @@ export default function EventDetail() {
         {tasks.length === 0 ? (
           <EmptyState
             icon={ListChecks}
-            title="No tasks yet"
-            text={canManageTasks ? 'Split the work: add tasks and assign them to leaders.' : 'Tasks for this event will appear here.'}
+            title={tr('No tasks yet')}
+            text={canManageTasks ? tr('Split the work: add tasks and assign them to leaders.') : tr('Tasks for this event will appear here.')}
             action={
               canManageTasks && (
                 <button className="btn btn-primary" onClick={() => setTaskForm({})}>
-                  <Plus size={18} /> Add the first task
+                  <Plus size={18} /> {tr('Add the first task')}
                 </button>
               )
             }
@@ -205,17 +206,17 @@ export default function EventDetail() {
           onSaved={(updated) => {
             setData((d) => ({ ...d, event: { ...updated, createdBy: d.event.createdBy } }));
             setEditing(false);
-            toast('Event updated');
+            toast(tr('Event updated'));
           }}
         />
       )}
       {deleting && (
         <ConfirmDialog
-          title="Delete this event?"
-          text={`"${event.title}" and its ${tasks.length} task(s) will be deleted. Files already uploaded stay in Google Drive.`}
+          title={tr('Delete this event?')}
+          text={tr('"{title}" and its {n} task(s) will be deleted. Files already uploaded stay in Google Drive.', { title: event.title, n: tasks.length })}
           onConfirm={async () => {
             await api.del(`/events/${event._id}`);
-            toast('Event deleted');
+            toast(tr('Event deleted'));
             navigate('/events', { replace: true });
           }}
           onClose={() => setDeleting(false)}
@@ -228,7 +229,7 @@ export default function EventDetail() {
           onSaved={(summary) => {
             setData((d) => ({ ...d, event: { ...d.event, attendanceSummary: summary } }));
             setAttendanceOpen(false);
-            toast('Attendance saved');
+            toast(tr('Attendance saved'));
           }}
         />
       )}
@@ -239,7 +240,7 @@ export default function EventDetail() {
           onClose={() => setTaskForm(null)}
           onSaved={(task) => {
             upsertTask(task);
-            toast(taskForm._id ? 'Task updated' : 'Task created and assigned');
+            toast(taskForm._id ? tr('Task updated') : tr('Task created and assigned'));
             setTaskForm(null);
           }}
         />

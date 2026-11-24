@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { CalendarDays, CalendarPlus, Plus } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
-import { TEAMS } from '../constants.js';
+import { TEAMS, teamName } from '../constants.js';
+import { t as tr } from '../i18n.jsx';
 import { formatMonth } from '../format.js';
 import EventCard from '../components/EventCard.jsx';
 import EventForm from '../components/EventForm.jsx';
@@ -46,26 +47,30 @@ export default function Events() {
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>Events</h1>
-          <p className="muted">{user.permissions.viewAllTeams ? 'All teams of the group' : `${myTeams.join(' and ')} ${myTeams.length > 1 ? 'teams' : 'team'}, and whole-group events`}</p>
+          <h1>{tr('Events')}</h1>
+          <p className="muted">{user.permissions.viewAllTeams
+              ? tr('All teams of the group')
+              : myTeams.length > 1
+                ? tr('{teams} teams, and whole-group events', { teams: myTeams.map(teamName).join(tr(' and ')) })
+                : tr('{team} team, and whole-group events', { team: teamName(myTeams[0]) })}</p>
         </div>
         <button className="btn btn-primary desktop-only" onClick={() => setCreating(true)}>
-          <Plus size={18} /> New event
+          <Plus size={18} /> {tr('New event')}
         </button>
       </header>
 
       <div className="segmented segmented-lg" role="tablist">
         {['upcoming', 'past'].map((w) => (
           <button key={w} role="tab" aria-selected={when === w} className={`seg ${when === w ? 'active' : ''}`} onClick={() => setParam('when', w === 'upcoming' ? '' : w)}>
-            {w === 'upcoming' ? 'Upcoming' : 'Past'}
+            {w === 'upcoming' ? tr('Upcoming') : tr('Past')}
           </button>
         ))}
       </div>
 
       {filterTeams.length > 1 && (
-        <div className="chips" role="group" aria-label="Filter by team">
+        <div className="chips" role="group" aria-label={tr('Filter by team')}>
           <button className={`chip ${!team ? 'active' : ''}`} onClick={() => setParam('team', '')}>
-            {user.permissions.viewAllTeams ? 'All teams' : 'All'}
+            {user.permissions.viewAllTeams ? tr('All teams') : tr('All')}
           </button>
           <button
             className={`chip ${team === 'group' ? 'active' : ''}`}
@@ -73,7 +78,7 @@ export default function Events() {
             onClick={() => setParam('team', 'group')}
           >
             <span className="team-dot group-dot" />
-            Whole group
+            {tr('Whole group')}
           </button>
           {filterTeams.map((t) => (
             <button
@@ -83,7 +88,7 @@ export default function Events() {
               onClick={() => setParam('team', t.id)}
             >
               <span className="team-dot" />
-              {t.id}
+              {teamName(t.id)}
             </button>
           ))}
         </div>
@@ -96,12 +101,12 @@ export default function Events() {
       ) : groups.length === 0 ? (
         <EmptyState
           icon={CalendarDays}
-          title={when === 'past' ? 'No past events' : 'No upcoming events'}
-          text={when === 'past' ? 'Events appear here after they end.' : 'Plan the next activity for your team.'}
+          title={when === 'past' ? tr('No past events') : tr('No upcoming events')}
+          text={when === 'past' ? tr('Events appear here after they end.') : tr('Plan the next activity for your team.')}
           action={
             when === 'upcoming' && (
               <button className="btn btn-primary" onClick={() => setCreating(true)}>
-                <CalendarPlus size={18} /> Create an event
+                <CalendarPlus size={18} /> {tr('Create an event')}
               </button>
             )
           }
@@ -119,7 +124,7 @@ export default function Events() {
         ))
       )}
 
-      <button className="fab" onClick={() => setCreating(true)} aria-label="New event">
+      <button className="fab" onClick={() => setCreating(true)} aria-label={tr('New event')}>
         <Plus size={26} />
       </button>
 
@@ -128,7 +133,7 @@ export default function Events() {
           defaultTeam={team || undefined}
           onClose={() => setCreating(false)}
           onSaved={(event) => {
-            toast('Event created');
+            toast(tr('Event created'));
             navigate(`/events/${event._id}`);
           }}
         />

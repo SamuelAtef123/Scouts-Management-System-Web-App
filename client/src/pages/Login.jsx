@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
+import { LanguageSwitch, t as tr } from '../i18n.jsx';
 import { VERSE } from '../constants.js';
 import { ErrorBox } from '../components/ui.jsx';
 
@@ -31,9 +32,9 @@ export default function Login() {
   return (
     <div className="login">
       <section className="login-photo">
-        <img src="/group.jpg" alt="The Gawala team together at St. Mary Church, Garden City" />
+        <img src="/group.jpg" alt={tr('The Gawala team together at St. Mary Church, Garden City')} />
         <div className="login-photo-text">
-          <p className="eyebrow">Together we serve</p>
+          <p className="eyebrow">{tr('Together we serve')}</p>
           <blockquote lang="ar" dir="rtl">
             {VERSE.text}
           </blockquote>
@@ -45,13 +46,14 @@ export default function Login() {
 
       <section className="login-panel">
         <div className="stripe" />
-        <img src="/logo.jpg" alt="St. Mary Church Garden City Scout logo" className="login-logo" />
-        <h1>Light of the World</h1>
-        <p className="muted">St. Mary Church · Garden City Scouts</p>
+        <img src="/logo.jpg" alt={tr('St. Mary Church Garden City Scout logo')} className="login-logo" />
+        <h1>{tr('Light of the World')}</h1>
+        <p className="muted">{tr('St. Mary Church · Garden City Scouts')}</p>
+        <LanguageSwitch className="login-lang" />
 
         <form className="form login-form" onSubmit={submit}>
           <label className="field">
-            <span className="field-label">Username</span>
+            <span className="field-label">{tr('Username')}</span>
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
@@ -62,7 +64,7 @@ export default function Login() {
             />
           </label>
           <label className="field">
-            <span className="field-label">Password</span>
+            <span className="field-label">{tr('Password')}</span>
             <div className="password-input">
               <input
                 type={show ? 'text' : 'password'}
@@ -71,17 +73,17 @@ export default function Login() {
                 autoComplete="current-password"
                 required
               />
-              <button type="button" className="icon-btn" onClick={() => setShow((s) => !s)} aria-label={show ? 'Hide password' : 'Show password'}>
+              <button type="button" className="icon-btn" onClick={() => setShow((s) => !s)} aria-label={show ? tr('Hide password') : tr('Show password')}>
                 {show ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </label>
           {error && <ErrorBox message={error} />}
           <button className="btn btn-primary btn-block btn-lg" disabled={busy}>
-            {busy ? 'Signing in…' : 'Sign in'}
+            {busy ? tr('Signing in…') : tr('Sign in')}
           </button>
         </form>
-        <p className="login-help">Forgot your password? Ask the Scouts Leader or the Database team to reset it.</p>
+        <p className="login-help">{tr('Forgot your password? Ask the Scouts Leader or the Database team to reset it.')}</p>
       </section>
     </div>
   );

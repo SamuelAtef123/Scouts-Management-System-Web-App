@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ListChecks, Sparkles } from 'lucide-react';
 import { useApi } from '../hooks.js';
+import { t as tr } from '../i18n.jsx';
 import TaskCard from '../components/TaskCard.jsx';
 import { EmptyState, ErrorBox, Spinner } from '../components/ui.jsx';
 
@@ -31,15 +32,15 @@ export default function MyTasks() {
     <div className="page">
       <header className="page-head">
         <div>
-          <h1>My tasks</h1>
-          <p className="muted">Tasks assigned to you. Upload the material when it is ready.</p>
+          <h1>{tr('My tasks')}</h1>
+          <p className="muted">{tr('Tasks assigned to you. Upload the material when it is ready.')}</p>
         </div>
       </header>
 
       <div className="segmented segmented-lg" role="tablist">
         {TABS.map((t) => (
           <button key={t.id} role="tab" aria-selected={tab === t.id} className={`seg ${tab === t.id ? 'active' : ''}`} onClick={() => setTab(t.id)}>
-            {t.label}
+            {tr(t.label)}
           </button>
         ))}
       </div>
@@ -50,9 +51,9 @@ export default function MyTasks() {
         <ErrorBox message={error} onRetry={reload} />
       ) : tasks.length === 0 ? (
         tab === 'open' ? (
-          <EmptyState icon={Sparkles} title="You're all caught up" text="When someone assigns you a task, it shows up here." />
+          <EmptyState icon={Sparkles} title={tr("You're all caught up")} text={tr('When someone assigns you a task, it shows up here.')} />
         ) : (
-          <EmptyState icon={ListChecks} title="Nothing finished yet" text="Tasks you mark as done appear here." />
+          <EmptyState icon={ListChecks} title={tr('Nothing finished yet')} text={tr('Tasks you mark as done appear here.')} />
         )
       ) : (
         <div className="stack task-grid">
