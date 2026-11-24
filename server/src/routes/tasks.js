@@ -11,6 +11,7 @@ import { storeMaterial, removeMaterial } from '../services/storage.js';
 import { ALLOWED_MATERIAL_TYPES, TASK_STATUSES } from '../constants.js';
 import { config } from '../config.js';
 import { fixFileName } from '../utils/fileName.js';
+import { detectFileType } from '../utils/fileType.js';
 
 const router = Router();
 
@@ -157,6 +158,11 @@ router.post(
     const task = await loadTask(req.params.id);
     if (!isAssignee(task, req.user)) throw forbidden('Only the person assigned to this task can upload its material');
     if (!req.file) throw badRequest('Choose a file to upload');
+    // Trust the file's real content, not the type the browser claims.
+    const real = detectFileType(req.file.buffer);
+    if (!real || !ALLOWED_MATERIAL_TYPES[real.mime]) throw badRequest('Only PDF, Word documents and images can be uploaded');
+    req.file.mimetype = real.mime;
+    req.file.extension = real.ext;
 
     // The assignee may be from another team than the event, so the event is loaded without the visibility check.
     const event = await Event.findById(task.event);

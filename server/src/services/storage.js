@@ -114,7 +114,9 @@ function safeFileName(original) {
  */
 export async function storeMaterial({ file, event, task, uploader }) {
   const drive = getDrive();
-  const name = safeFileName(file.originalname);
+  // The extension always matches the real file type detected from its content.
+  const base = safeFileName(file.originalname).replace(/\.[^.]*$/, '') || 'file';
+  const name = file.extension ? `${base}.${file.extension}` : safeFileName(file.originalname);
 
   if (drive) {
     try {
@@ -136,7 +138,8 @@ export async function storeMaterial({ file, event, task, uploader }) {
   }
 
   await fs.mkdir(LOCAL_UPLOAD_DIR, { recursive: true });
-  const localName = `${crypto.randomUUID()}-${name}`;
+  // Local files get a random name with only the verified extension: nothing from the uploader's file name.
+  const localName = `${crypto.randomUUID()}.${file.extension || 'bin'}`;
   await fs.writeFile(path.join(LOCAL_UPLOAD_DIR, localName), file.buffer);
   return { storage: 'local', fileId: localName, url: `/uploads/${encodeURIComponent(localName)}` };
 }

@@ -68,7 +68,7 @@ async function icon(name, color = 'FFFFFF') {
   });
 
   const ic = {};
-  for (const n of ['LuLockKeyhole', 'LuSmartphone', 'LuCalendarDays', 'LuShapes', 'LuListChecks', 'LuUpload', 'LuClipboardCheck', 'LuUsers', 'LuHouse', 'LuUserRound', 'LuCrown', 'LuFlag', 'LuHandHelping', 'LuDatabase', 'LuServer', 'LuLayoutDashboard', 'LuFolderOpen', 'LuRocket', 'LuKeyRound', 'LuFileCode', 'LuHardDrive', 'LuGlobe', 'LuBan', 'LuUserPlus', 'LuEye', 'LuPencil']) {
+  for (const n of ['LuLockKeyhole', 'LuSmartphone', 'LuCalendarDays', 'LuShapes', 'LuListChecks', 'LuUpload', 'LuClipboardCheck', 'LuUsers', 'LuHouse', 'LuUserRound', 'LuCrown', 'LuFlag', 'LuHandHelping', 'LuDatabase', 'LuServer', 'LuLayoutDashboard', 'LuFolderOpen', 'LuRocket', 'LuKeyRound', 'LuFileCode', 'LuHardDrive', 'LuGlobe', 'LuBan', 'LuUserPlus', 'LuEye', 'LuPencil', 'LuShieldCheck']) {
     ic[n] = await icon(n);
   }
 
@@ -303,7 +303,7 @@ async function icon(name, color = 'FFFFFF') {
   const notes = [
     ['LuFileCode', 'Attendance assignments are set by username in attendanceAssignments.js; change them there and restart.'],
     ['LuHardDrive', 'Google Drive keeps working while the Google app stays published and its token is in use.'],
-    ['LuKeyRound', 'Secrets live only in server/.env, which is never uploaded to GitHub.'],
+    ['LuShieldCheck', 'Security reviewed (SECURITY.md); secrets stay in server/.env; serve over HTTPS and follow the security checklist.'],
   ];
   notes.forEach(([icn, t], i) => {
     const y = 4.35 + i * 0.75;

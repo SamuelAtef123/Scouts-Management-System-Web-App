@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
 import { requireAuth, signToken } from '../middleware/auth.js';
 import multer from 'multer';
 import { asyncHandler, badRequest, HttpError } from '../utils/httpError.js';
 import { normalizePhone } from '../utils/phone.js';
+import { detectFileType } from '../utils/fileType.js';
 import { hasGlobalAccess, canManageUsers, canViewAllTeams, canViewMembers, memberTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
 
@@ -34,16 +36,33 @@ export function publicUser(user) {
   };
 }
 
+// A second limit per username, whatever address the attempts come from (stops password
+// guessing spread over many IPs). Only failed attempts count.
+const accountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 8,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => `user:${String(req.body?.username || '').trim().toLowerCase()}`,
+  message: { message: 'Too many wrong passwords for this account. Try again in 15 minutes.' },
+});
+
+// Compared against when the username does not exist, so a wrong username takes as long as a wrong password.
+const DUMMY_HASH = bcrypt.hashSync('not-a-real-password', 10);
+
 router.post(
   '/login',
   loginLimiter,
+  accountLimiter,
   asyncHandler(async (req, res) => {
     const username = String(req.body.username || '').trim().toLowerCase();
     const password = String(req.body.password || '');
     if (!username || !password) throw badRequest('Enter your username and password');
 
     const user = await User.findOne({ username }).select('+passwordHash');
-    if (!user || !(await user.checkPassword(password))) {
+    const ok = user ? await user.checkPassword(password) : (await bcrypt.compare(password, DUMMY_HASH), false);
+    if (!ok) {
       throw new HttpError(401, 'Wrong username or password');
     }
     if (!user.isActive) throw new HttpError(403, 'Your account has been deactivated');
@@ -61,14 +80,15 @@ router.put(
   requireAuth,
   asyncHandler(async (req, res) => {
     const { currentPassword = '', newPassword = '' } = req.body;
-    if (String(newPassword).length < 6) throw badRequest('The new password must be at least 6 characters');
+    if (String(newPassword).length < 8) throw badRequest('The new password must be at least 8 characters');
 
     const user = await User.findById(req.user._id).select('+passwordHash');
     if (!(await user.checkPassword(String(currentPassword)))) throw badRequest('Your current password is wrong');
 
     await user.setPassword(String(newPassword));
     await user.save();
-    res.json({ ok: true });
+    // Other sessions are now signed out; this device gets a fresh session.
+    res.json({ ok: true, token: signToken(user) });
   })
 );
 
@@ -100,8 +120,10 @@ router.put(
   photoUpload.single('file'),
   asyncHandler(async (req, res) => {
     if (!req.file) throw badRequest('Choose a photo');
+    const real = detectFileType(req.file.buffer);
+    if (!real || !PHOTO_TYPES.includes(real.mime)) throw badRequest('The photo must be a JPEG, PNG or WebP image');
     req.user.photo = req.file.buffer;
-    req.user.photoType = req.file.mimetype;
+    req.user.photoType = real.mime;
     req.user.photoUpdatedAt = new Date();
     await req.user.save();
     res.json({ user: publicUser(req.user) });

@@ -123,8 +123,8 @@ function MemberForm({ member, onClose, onSaved }) {
             </span>
           </label>
         )}
-        <Field label={member ? 'New password (leave empty to keep)' : 'Password'} hint="At least 6 characters">
-          <input type="text" value={form.password} onChange={set('password')} minLength={6} required={!member} autoComplete="new-password" />
+        <Field label={member ? 'New password (leave empty to keep)' : 'Password'} hint="At least 8 characters">
+          <input type="text" value={form.password} onChange={set('password')} minLength={8} required={!member} autoComplete="new-password" />
         </Field>
         {member && !isSelf && (
           <label className="check">

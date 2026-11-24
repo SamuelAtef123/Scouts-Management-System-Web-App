@@ -22,6 +22,10 @@ export const requireAuth = asyncHandler(async (req, _res, next) => {
 
   const user = await User.findById(payload.sub);
   if (!user || !user.isActive) throw new HttpError(401, 'Your account is not active');
+  // A session from before the last password change is no longer valid.
+  if (user.passwordChangedAt && payload.iat * 1000 < user.passwordChangedAt.getTime()) {
+    throw new HttpError(401, 'Your password was changed, please sign in again');
+  }
   req.user = user;
   next();
 });

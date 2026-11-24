@@ -147,7 +147,11 @@ async function main() {
   });
   console.log(created ? `Created the Scouts Leader account "${username}".` : `Account "${username}" already exists, left unchanged.`);
 
-  if (process.argv.includes('--demo')) await seedDemo(leader);
+  if (process.argv.includes('--demo')) {
+    // Demo accounts share a known password; never create them on the live system.
+    if (config.isProduction) throw new Error('Demo data cannot be added when NODE_ENV=production');
+    await seedDemo(leader);
+  }
   await mongoose.disconnect();
 }
 

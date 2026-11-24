@@ -3,7 +3,7 @@ import { ClipboardCheck, KeyRound, LogOut, Phone } from 'lucide-react';
 import PhotoPicker from '../components/PhotoPicker.jsx';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { displayPhone, localPhone } from '../format.js';
-import { api } from '../api.js';
+import { api, tokenStore } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { EVENT_TYPES, ROLE_LABEL } from '../constants.js';
 import { useApi } from '../hooks.js';
@@ -110,7 +110,9 @@ export default function Profile() {
     setBusy(true);
     setError('');
     try {
-      await api.put('/auth/me/password', form);
+      const data = await api.put('/auth/me/password', form);
+      // Changing the password signs out other devices; keep this one signed in.
+      if (data.token) tokenStore.set(data.token);
       setForm({ currentPassword: '', newPassword: '' });
       toast('Password changed');
     } catch (err) {
@@ -162,13 +164,13 @@ export default function Profile() {
               required
             />
           </Field>
-          <Field label="New password" hint="At least 6 characters">
+          <Field label="New password" hint="At least 8 characters">
             <input
               type="password"
               value={form.newPassword}
               onChange={(e) => setForm((f) => ({ ...f, newPassword: e.target.value }))}
               autoComplete="new-password"
-              minLength={6}
+              minLength={8}
               required
             />
           </Field>

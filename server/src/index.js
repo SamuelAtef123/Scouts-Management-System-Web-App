@@ -25,8 +25,33 @@ const app = express();
 const here = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.resolve(here, '../../client/dist');
 
-app.set('trust proxy', 1);
-app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: { policy: 'same-site' } }));
+// Only trust X-Forwarded-For when the app really runs behind proxies (set TRUST_PROXY to their number,
+// e.g. 1 on Render or Railway). Trusting it otherwise lets anyone fake their IP and dodge the sign-in limit.
+app.set('trust proxy', config.trustProxy);
+// Content Security Policy: the browser only runs this app's own scripts, so injected script cannot run
+// (the sign-in token lives in the browser, which makes this important).
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        connectSrc: ["'self'"],
+        manifestSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
+        upgradeInsecureRequests: config.isProduction ? [] : null,
+      },
+    },
+    crossOriginResourcePolicy: { policy: 'same-site' },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 app.use(cors({ origin: config.clientOrigin }));
 app.use(express.json({ limit: '1mb' }));
 if (!config.isProduction) app.use(morgan('dev'));
@@ -40,7 +65,18 @@ app.use('/api/tasks', requireAuth, taskRoutes);
 app.use('/api/stats', requireAuth, statsRoutes);
 
 // Local file storage fallback (only used when Google Drive is not configured).
-app.use('/uploads', express.static(LOCAL_UPLOAD_DIR, { fallthrough: false }));
+// Files are stored under random names with a verified extension (PDF, Word or image), and are
+// additionally sandboxed so that nothing served from here can run scripts on the app's address.
+app.use(
+  '/uploads',
+  express.static(LOCAL_UPLOAD_DIR, {
+    fallthrough: false,
+    setHeaders: (res) => {
+      res.setHeader('Content-Security-Policy', "sandbox; default-src 'none'; img-src 'self'; style-src 'unsafe-inline'");
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+    },
+  })
+);
 
 app.use('/api', (_req, res) => res.status(404).json({ message: 'Not found' }));
 

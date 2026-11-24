@@ -145,7 +145,20 @@ npm run build
 NODE_ENV=production npm start
 ```
 
-The Express server serves the built React app from `client/dist`, so one Node process runs the whole site. Set `NODE_ENV=production`, a strong `JWT_SECRET`, `MONGO_URI` and `TZ=Africa/Cairo`. You can host it on any Node host (Render, Railway, a VPS, …) with MongoDB Atlas. Serve it over HTTPS.
+The Express server serves the built React app from `client/dist`, so one Node process runs the whole site. You can host it on any Node host (Render, Railway, a VPS, …) with MongoDB Atlas.
+
+### Security checklist before going live
+
+- [ ] Serve the site **only over HTTPS**.
+- [ ] `NODE_ENV=production`, `TZ=Africa/Cairo`, `MONGO_URI` and `CLIENT_ORIGIN` (the site's own https address).
+- [ ] `JWT_SECRET`: a random string of at least 32 characters (the server refuses to start with a weak one).
+- [ ] `TRUST_PROXY`: `1` on hosts such as Render or Railway that put one proxy in front of the app; `0` if Node is reached directly.
+- [ ] MongoDB Atlas: a database user with a strong password, and Network Access limited to the host's address where possible.
+- [ ] Remove the demo accounts and events (`seed --demo` is refused in production).
+- [ ] Put the real usernames in `server/src/attendanceAssignments.js`.
+- [ ] Google Drive is configured, so materials do not use the local `uploads/` folder.
+
+See [SECURITY.md](SECURITY.md) for the security assessment and the protections in place.
 
 ## API overview
 

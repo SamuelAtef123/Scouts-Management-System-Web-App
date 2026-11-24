@@ -27,12 +27,16 @@ const userSchema = new mongoose.Schema(
     // Only meaningful for the Database/Attendance team: the 2 members with extra privileges.
     isPrivileged: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
+    // Sessions issued before this moment are rejected (set when the password changes).
+    passwordChangedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
 
 userSchema.methods.setPassword = async function setPassword(plain) {
   this.passwordHash = await bcrypt.hash(plain, 10);
+  // Sign out every existing session. One second back so the new token issued right now stays valid.
+  this.passwordChangedAt = new Date(Date.now() - 1000);
 };
 
 userSchema.methods.checkPassword = function checkPassword(plain) {
@@ -44,6 +48,7 @@ userSchema.set('toJSON', {
     // Read-only: which team's attendance this member takes (fixed in attendanceAssignments.js).
     ret.attendanceTeam = ret.role === 'database_team' ? (ATTENDANCE_ASSIGNMENTS[ret.username] ?? null) : null;
     delete ret.passwordHash;
+    delete ret.passwordChangedAt;
     delete ret.photo;
     delete ret.photoType;
     delete ret.__v;

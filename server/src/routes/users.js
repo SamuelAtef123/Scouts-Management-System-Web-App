@@ -76,7 +76,9 @@ router.get(
       filter.team = req.user.team;
     }
 
-    const users = await User.find(filter).sort({ name: 1 });
+    // For assigning tasks, only what the picker needs (no phone numbers or account details).
+    const fields = membersPage ? undefined : 'name username team role photoUpdatedAt';
+    const users = await User.find(filter, fields).sort({ name: 1 });
     res.json({ users });
   })
 );
@@ -126,7 +128,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const fields = readUserFields(req.body, { partial: false });
     const password = String(req.body.password || '');
-    if (password.length < 6) throw badRequest('The password must be at least 6 characters');
+    if (password.length < 8) throw badRequest('The password must be at least 8 characters');
     if (await User.exists({ username: fields.username })) throw badRequest('This username is already taken');
 
     const user = new User(fields);
@@ -163,7 +165,7 @@ router.put(
     checkRoleTeam(user);
     checkManagerScope(req.user, user, { before });
     if (req.body.password) {
-      if (String(req.body.password).length < 6) throw badRequest('The password must be at least 6 characters');
+      if (String(req.body.password).length < 8) throw badRequest('The password must be at least 8 characters');
       await user.setPassword(String(req.body.password));
     }
     await user.save();
