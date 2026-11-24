@@ -40,6 +40,13 @@ function readEventFields(body, { partial }) {
   return out;
 }
 
+/** Events cannot be planned in the past (one minute of slack for the time it takes to submit the form). */
+function checkNotInPast(startDate) {
+  if (startDate && startDate.getTime() < Date.now() - 60 * 1000) {
+    throw badRequest('The event cannot start in the past');
+  }
+}
+
 /** Checks that `user` may give an event this type and team; returns the team to store. */
 function checkTypeAndTeam(user, type, team) {
   if (GROUP_EVENT_TYPES.includes(type)) {
@@ -180,6 +187,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const fields = readEventFields(req.body, { partial: false });
     fields.team = checkTypeAndTeam(req.user, fields.type, fields.team);
+    checkNotInPast(fields.startDate);
     const event = await Event.create({ ...fields, createdBy: req.user._id });
     res.status(201).json({ event: eventForClient(event) });
   })
@@ -203,6 +211,8 @@ router.put(
     }
 
     const teamChanged = fields.team !== event.team;
+    // A changed start date cannot be in the past; other details of past events can still be edited.
+    if (fields.startDate && fields.startDate.getTime() !== event.startDate.getTime()) checkNotInPast(fields.startDate);
     Object.assign(event, fields);
     await event.save();
     if (teamChanged) await Task.updateMany({ event: event._id }, { team: event.team });

@@ -17,16 +17,10 @@ export default function TaskForm({ event, task, onClose, onSaved }) {
   const [error, setError] = useState('');
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  // Members of the event's team first, then everyone else the user can see.
-  const groups = useMemo(() => {
+  // Only members of the event's team can be assigned (any member for a whole-group event).
+  const options = useMemo(() => {
     const users = data?.users || [];
-    const team = users.filter((u) => u.team === event.team);
-    const others = users.filter((u) => u.team !== event.team);
-    if (!event.team) return [{ label: 'All members', users }];
-    return [
-      { label: `${event.team} team`, users: team },
-      { label: 'Other members', users: others },
-    ].filter((g) => g.users.length);
+    return event.team ? users.filter((u) => u.team === event.team) : users;
   }, [data, event.team]);
 
   const submit = async (e) => {
@@ -69,19 +63,15 @@ export default function TaskForm({ event, task, onClose, onSaved }) {
         <Field label="Task">
           <input value={form.title} onChange={set('title')} placeholder="e.g. Prepare the hymns booklet" required maxLength={120} />
         </Field>
-        <Field label="Assign to">
+        <Field label="Assign to" hint={event.team ? `Members of the ${event.team} team` : 'Any member of the group'}>
           <select value={form.assignee} onChange={set('assignee')} required disabled={loading}>
             <option value="" disabled>
-              {loading ? 'Loading members…' : 'Choose a member'}
+              {loading ? 'Loading members…' : options.length ? 'Choose a member' : 'No members in this team yet'}
             </option>
-            {groups.map((g) => (
-              <optgroup key={g.label} label={g.label}>
-                {g.users.map((u) => (
-                  <option key={u._id} value={u._id}>
-                    {u.name}
-                  </option>
-                ))}
-              </optgroup>
+            {options.map((u) => (
+              <option key={u._id} value={u._id}>
+                {u.name}
+              </option>
             ))}
           </select>
         </Field>

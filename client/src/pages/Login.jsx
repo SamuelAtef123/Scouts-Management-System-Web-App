@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { VERSE } from '../constants.js';
@@ -6,6 +7,7 @@ import { ErrorBox } from '../components/ui.jsx';
 
 export default function Login() {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
@@ -18,6 +20,8 @@ export default function Login() {
     setError('');
     try {
       await login(username, password);
+      // Always start on the Home page after signing in.
+      navigate('/', { replace: true });
     } catch (err) {
       setError(err.message);
       setBusy(false);

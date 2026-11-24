@@ -33,6 +33,10 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
   const [error, setError] = useState('');
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  // Events cannot start in the past. When editing, an unchanged past date is still allowed.
+  const nowInput = toLocalInput(new Date());
+  const keptPastDate = event && form.startDate === toLocalInput(event.startDate);
+  const startMin = keptPastDate ? undefined : nowInput;
   const typeInfo = EVENT_TYPES.find((t) => t.id === form.type);
   const teams = teamsFor(form.type);
   // "Others" can belong to the whole group too, for group-wide leaders.
@@ -50,6 +54,10 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
 
   const submit = async (e) => {
     e.preventDefault();
+    if (!keptPastDate && form.startDate && new Date(form.startDate) < new Date(Date.now() - 60000)) {
+      setError('The event cannot start in the past');
+      return;
+    }
     setBusy(true);
     setError('');
     const body = {
@@ -144,7 +152,13 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
 
         <div className="form-row">
           <Field label="Starts">
-            <input type="datetime-local" value={form.startDate} onChange={set('startDate')} required />
+            <input
+              type="datetime-local"
+              value={form.startDate}
+              onChange={set('startDate')}
+              min={startMin}
+              required
+            />
           </Field>
           <Field label="Ends (optional)">
             <input type="datetime-local" value={form.endDate} onChange={set('endDate')} min={form.startDate || undefined} />

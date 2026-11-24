@@ -8,7 +8,7 @@ The app is designed for phones first and also works on a computer.
 
 ## Features (first version)
 
-- **Events**: create, edit and delete events, and see upcoming and past events (grouped by month, with a team filter).
+- **Events**: create, edit and delete events (never starting in the past), and see upcoming and past events (grouped by month, with a team filter).
 - **Tasks**: add tasks to an event, assign each one to a leader, and set a due date. The person assigned can move the task through *To do → In progress → Done*.
 - **Materials**: the person assigned uploads the task's material (a PDF, Word document or image). It goes to Google Drive, sorted into `Team / Date Event title` folders.
 - **Event types**: Team Session, Preparation Meeting, Gawala Session and Others. A Gawala Session belongs to the whole group, so everyone sees it; every other type belongs to one team.
@@ -29,7 +29,8 @@ The app is designed for phones first and also works on a computer.
 | Team Leader Helper (the rest) | Their own team | Their own team |
 
 - Only the person a task is assigned to can upload its material and change its status.
-- People with team-only access can assign tasks to members of that team. People with access to every team can assign tasks to anyone.
+- A task can only be assigned to a member of its event's team, whoever creates it. Whole-group events (Gawala Sessions, and whole-group Others events) can be assigned to any member.
+- Events cannot start in the past. Past events can still be edited, as long as their date is not moved.
 - **Members page** (details and attendance percentage):
   - Scouts Leader and Scouts Leader Helpers: **view** all members.
   - The 2 privileged Database / Attendance members: view all members, and **add, edit or deactivate** accounts and reset passwords.

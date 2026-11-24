@@ -6,7 +6,7 @@ import { Event } from '../models/Event.js';
 import { User } from '../models/User.js';
 import { loadEvent } from './events.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
-import { canManageTeam, hasGlobalAccess } from '../utils/access.js';
+import { canManageTeam } from '../utils/access.js';
 import { storeMaterial, removeMaterial } from '../services/storage.js';
 import { ALLOWED_MATERIAL_TYPES, TASK_STATUSES } from '../constants.js';
 import { config } from '../config.js';
@@ -41,14 +41,16 @@ async function loadTask(id) {
 
 const isAssignee = (task, user) => task.assignee.equals(user._id);
 
-/** Checks the person a task is assigned to: active, and in the event's team unless the creator has group-wide access
- * (only group leaders manage whole-group events, so they can assign those to anyone). */
-async function checkAssignee(assigneeId, event, user) {
+/**
+ * Checks the person a task is assigned to: an active member of the event's team, for everyone
+ * including group-wide leaders. Whole-group events (no team) can be assigned to any active member.
+ */
+async function checkAssignee(assigneeId, event) {
   if (!mongoose.isValidObjectId(assigneeId)) throw badRequest('Choose who the task is assigned to');
   const assignee = await User.findOne({ _id: assigneeId, isActive: true });
   if (!assignee) throw badRequest('This member was not found or is not active');
-  if (!hasGlobalAccess(user) && assignee.team !== event.team) {
-    throw badRequest(`You can only assign tasks to members of the ${event.team} team`);
+  if (event.team && assignee.team !== event.team) {
+    throw badRequest(`Tasks of this event can only be assigned to members of the ${event.team} team`);
   }
   return assignee;
 }
@@ -91,7 +93,7 @@ router.post(
     if (event.type === 'preparation_meeting') throw badRequest('Preparation Meetings do not have tasks');
     const title = String(req.body.title || '').trim();
     if (!title) throw badRequest('Task title is required');
-    const assignee = await checkAssignee(req.body.assignee, event, req.user);
+    const assignee = await checkAssignee(req.body.assignee, event);
 
     const task = await Task.create({
       title,
@@ -130,7 +132,7 @@ router.put(
       if (req.body.dueDate !== undefined) task.dueDate = parseDueDate(req.body.dueDate);
       if (req.body.assignee !== undefined && String(req.body.assignee) !== task.assignee.toString()) {
         const event = await loadEvent(task.event, req.user, { manage: 'tasks' });
-        task.assignee = (await checkAssignee(req.body.assignee, event, req.user))._id;
+        task.assignee = (await checkAssignee(req.body.assignee, event))._id;
       }
     }
 

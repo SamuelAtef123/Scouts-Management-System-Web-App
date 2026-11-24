@@ -220,8 +220,8 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
   s.addText('Scouts Leader and Scouts Leader Helpers', { placeholder: 'title' });
   const sl = [
-    ['LuCalendarDays', 'Create events', 'Events → + New event: title, type, team (none for a Gawala Session), dates, place.'],
-    ['LuListChecks', 'Add tasks', 'Open the event → Add task: who it is for and an optional due date.'],
+    ['LuCalendarDays', 'Create events', 'Events → + New event: title, type, team, dates (today or later), place.'],
+    ['LuListChecks', 'Add tasks', "Open the event → Add task: a member of the event's team, optional due date."],
     ['LuPencil', 'Edit or delete', 'Pencil and bin buttons; uploaded files stay in Google Drive.'],
     ['LuGlobe', 'Follow every team', 'Team chips and the Upcoming / Past tabs on Events.'],
     ['LuEye', 'See attendance', 'Tap View on the Attendance card; you cannot take or change it.'],
