@@ -2,7 +2,7 @@
 
 Pre-deployment review of the Scouts Management System, 24 November 2026.
 
-**Result:** 4 confirmed issues and 6 hardening gaps were found; all are fixed except one, an access-rule decision for the owner (finding 3). No known-vulnerable dependencies.
+**Result:** 4 confirmed issues and 6 hardening gaps were found. 9 are fixed; finding 3 is accepted by the owner as intended design. No known-vulnerable dependencies.
 
 ## Scope and method
 
@@ -17,7 +17,7 @@ Pre-deployment review of the Scouts Management System, 24 November 2026.
 | --- | --- | --- | --- |
 | 1 | **High** | **Disguised web page upload.** Uploads trusted the type the browser claimed. A web page labelled as a PDF was stored and served from the app's own address as a live page, whose script could read a member's sign-in token. Only when Google Drive is not configured (local storage). | **Fixed.** The real type is detected from the file's content; only PDF, Word and images are accepted; stored names are random with the verified extension; served files are sandboxed. Re-tested: rejected. |
 | 2 | **High** | **Unlimited password guessing.** The sign-in limit (20 tries in 15 minutes) trusted the `X-Forwarded-For` header, so a new fake address on every try gave unlimited guesses (tested: 40 of 40 allowed). | **Fixed.** Proxy trust is now a setting (`TRUST_PROXY`, off by default), and a second limit allows 8 failed tries per account in 15 minutes whatever the address. Re-tested: 8 of 40 allowed. |
-| 3 | **Medium** | **Privileged Database members can take over higher accounts.** They can reset the password of, deactivate, or change the role of the Scouts Leader and Helpers, and can create new Scouts Leader accounts. | **Open: owner decision.** Recommended: only the Scouts Leader manages Scouts Leader and Helper accounts; Database members manage everyone else. |
+| 3 | **Medium** | **Privileged Database members can take over higher accounts.** They can reset the password of, deactivate, or change the role of the Scouts Leader and Helpers, and can create new Scouts Leader accounts. | **Accepted by the owner** (24 November 2026) as intended: the privileged Database members manage every account. Mitigation: give these 2 accounts strong passwords, and have the Scouts Leader check the Members page regularly. |
 | 4 | **Medium** | **Sessions survived a password reset.** A stolen sign-in kept working for up to 7 days after the password was changed. | **Fixed.** Changing or resetting a password signs out all existing sessions; the member's current device gets a fresh one. |
 | 5 | Medium | **No browser security policy.** With the sign-in token kept in the browser, any injected script could steal it. | **Fixed.** A strict Content Security Policy now allows only the app's own scripts. Tested: all pages load, nothing blocked. |
 | 6 | Medium | **Weak signing secret accepted.** The production server started with any `JWT_SECRET`, including the example value `change-me`. | **Fixed.** In production the server refuses secrets shorter than 32 characters or containing "change-me". |
@@ -39,7 +39,7 @@ Pre-deployment review of the Scouts Management System, 24 November 2026.
 ## Remaining recommendations
 
 - Deploy only over **HTTPS**, and follow the security checklist in the README.
-- Decide **finding 3**.
+- Finding 3 is accepted: make sure the 2 privileged Database members use strong, unique passwords.
 - Restrict MongoDB Atlas Network Access to the host's address once it is known, and use a strong database password.
 - Keep Google Drive configured in production, so materials never use local storage.
 - Re-run `npm audit` in `server` and `client` before each release.
