@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { CalendarDays, ExternalLink, FileText, Image, Pencil, Trash2, Upload, X } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
-import { ACCEPTED_FILES, STATUSES } from '../constants.js';
+import { ACCEPTED_FILES, STATUSES, TEAM_BY_ID } from '../constants.js';
 import { daysUntil, fileSize, relativeDay } from '../format.js';
 import { Avatar, ConfirmDialog, TeamChip, useToast } from './ui.jsx';
 
@@ -67,7 +67,7 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
   };
 
   return (
-    <article className={`task-card ${task.status === 'done' ? 'is-done' : ''}`}>
+    <article className={`task-card ${task.status === 'done' ? 'is-done' : ''}`} style={{ '--team': TEAM_BY_ID[task.team]?.color }}>
       <div className="task-top">
         <div className="task-main">
           {showEvent && task.event && (
