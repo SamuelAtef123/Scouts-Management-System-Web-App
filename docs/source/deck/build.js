@@ -13,15 +13,17 @@ const OUT = process.argv[2] || path.resolve(__dirname, '../../Scouts-Project-Pre
 // Colours from the group logo.
 const THEME = {
   name: 'Light of the World',
-  headFontFace: 'Calibri',
+  headFontFace: 'Rockwell',
   bodyFontFace: 'Calibri',
   colors: {
-    dk1: '1A1C3B', lt1: 'FFFFFF', dk2: '23277D', lt2: 'F3F4FB',
-    accent1: '23277D', accent2: '1E9E4A', accent3: 'D7262E', accent4: 'E3A400', accent5: '0F7C86', accent6: 'F6C90E',
-    hlink: '23277D', folHlink: '0F7C86',
+    dk1: '2B2418', lt1: 'FFFFFF', dk2: '2D5A3E', lt2: 'F2ECDD',
+    accent1: '2D5A3E', accent2: '1E8A43', accent3: 'C8352B', accent4: 'D99A16', accent5: '0F7C86', accent6: 'F3C84B',
+    hlink: '2D5A3E', folHlink: '0F7C86',
   },
 };
-const HEX = { navy: '23277D', green: '1E9E4A', red: 'D7262E', gold: 'E3A400', teal: '0F7C86', yellow: 'F6C90E', ink: '1A1C3B', muted: '6B6F86', border: 'E3E4EE', tint: 'F3F4FB' };
+// Scout field-kit palette (matches the app): forest green and khaki on canvas, logo colours as accents.
+const HEX = { navy: '2D5A3E', forestDeep: '1F4430', green: '1E8A43', red: 'C8352B', gold: 'D99A16', teal: '0F7C86', yellow: 'F3C84B', ink: '2B2418', muted: '7A6F5A', border: 'DCCFAE', tint: 'FFFDF7', canvas: 'F2ECDD', khaki: 'CFC09A', stitch: 'C9B98E' };
+const ASSETS = path.resolve(__dirname, 'assets');
 
 async function icon(name, color = 'FFFFFF') {
   const svg = ReactDOMServer.renderToStaticMarkup(React.createElement(lu[name], { color: `#${color}`, size: 256 }));
@@ -50,11 +52,12 @@ async function icon(name, color = 'FFFFFF') {
   });
   pres.defineSlideMaster({
     title: 'Content',
-    background: { color: 'FFFFFF' },
+    background: { path: path.join(ASSETS, 'canvas-topo.png') },
     margin: [0.5, 0.6, 0.6, 0.6],
     objects: [
-      { placeholder: { options: { name: 'title', type: 'title', x: 0.6, y: 0.35, w: 12.1, h: 0.85, fontSize: 32, bold: true, color: C.text2, valign: 'middle', align: 'left', margin: 0 }, text: '' } },
-      { image: { x: 0.6, y: 6.95, w: 0.32, h: 0.32, path: path.join(IMG, 'logo.jpg') } },
+      { placeholder: { options: { name: 'title', type: 'title', x: 0.6, y: 0.3, w: 12.1, h: 0.85, fontSize: 28, bold: true, color: C.text2, valign: 'middle', align: 'left', margin: 0 }, text: '' } },
+      { image: { x: 0.6, y: 1.13, w: 12.1, h: 0.1, path: path.join(ASSETS, 'rope.png') } },
+      { image: { x: 0.6, y: 6.95, w: 0.32, h: 0.32, path: path.join(IMG, 'logo.jpg'), rounding: true } },
       { text: { text: 'Scouts Management System  ·  Light of the World', options: { x: 1.0, y: 6.95, w: 6, h: 0.32, fontSize: 10, color: C.text1, transparency: 40, valign: 'middle', margin: 0 } } },
     ],
     slideNumber: { x: 12.2, y: 6.95, w: 0.5, h: 0.32, fontSize: 10, color: HEX.muted, align: 'right' },
@@ -75,11 +78,16 @@ async function icon(name, color = 'FFFFFF') {
   // Icon in a coloured circle — the deck's motif.
   const badge = (slide, name, x, y, d, color) => {
     slide.addShape(pres.shapes.OVAL, { x, y, w: d, h: d, fill: { color }, line: { color, width: 0 }, objectName: `icon circle ${name}` });
-    const p = d * 0.24;
+    const r = d * 0.07;
+    slide.addShape(pres.shapes.OVAL, { x: x + r, y: y + r, w: d - 2 * r, h: d - 2 * r, fill: { type: 'none' }, line: { color: 'FFFFFF', width: 0.75, dashType: 'dash', transparency: 25 }, objectName: `badge stitching ${name}` });
+    const p = d * 0.26;
     slide.addImage({ data: ic[name], x: x + p, y: y + p, w: d - 2 * p, h: d - 2 * p, altText: name.replace('Lu', ''), objectName: `icon ${name}` });
   };
-  const card = (slide, x, y, w, h, name = 'card') =>
-    slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.12, fill: { color: HEX.tint }, line: { color: HEX.border, width: 0.75 }, objectName: name });
+  const card = (slide, x, y, w, h, name = 'card') => {
+    slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.1, fill: { color: HEX.tint }, line: { color: HEX.border, width: 0.75 }, objectName: name });
+    // stitched edge, like an embroidered patch
+    slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + 0.07, y: y + 0.07, w: w - 0.14, h: h - 0.14, rectRadius: 0.07, fill: { type: 'none' }, line: { color: HEX.stitch, width: 1, dashType: 'dash' }, objectName: `${name} stitching` });
+  };
   const phone = (slide, file, x, y, h, caption) => {
     const w = h * (390 / 844);
     slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x - 0.09, y: y - 0.09, w: w + 0.18, h: h + 0.18, rectRadius: 0.22, fill: { color: HEX.ink }, line: { color: HEX.ink, width: 0 }, shadow: { type: 'outer', blur: 8, offset: 3, angle: 90, color: '000000', opacity: 0.25 }, objectName: 'phone frame' });
@@ -100,8 +108,10 @@ async function icon(name, color = 'FFFFFF') {
   pres.addSection({ title: 'Overview' });
   let s = pres.addSlide({ masterName: 'Title Dark', sectionTitle: 'Overview' });
   s.addImage({ path: path.join(IMG, 'group.jpg'), x: 0, y: 0, w: W, h: W * (554 / 974), altText: 'The Gawala team together at St. Mary Church', objectName: 'group photo', sizing: { type: 'cover', w: W, h: 7.5 } });
-  s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: W, h: 7.5, fill: { color: HEX.navy, transparency: 38 }, line: { color: HEX.navy, width: 0 }, objectName: 'photo overlay' });
-  s.addImage({ path: path.join(IMG, 'logo.jpg'), x: 0.8, y: 1.45, w: 1.6, h: 1.6, altText: 'St. Mary Church Garden City Scout logo', objectName: 'logo' });
+  s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: W, h: 7.5, fill: { color: HEX.forestDeep, transparency: 30 }, line: { color: HEX.forestDeep, width: 0 }, objectName: 'photo overlay' });
+  s.addImage({ path: path.join(ASSETS, 'deckle.png'), x: 0, y: 7.0, w: W, h: 0.5, altText: '', objectName: 'torn paper edge' });
+  s.addShape(pres.shapes.OVAL, { x: 0.72, y: 1.37, w: 1.76, h: 1.76, fill: { color: 'FFFFFF' }, line: { color: HEX.khaki, width: 3 }, objectName: 'logo ring' });
+  s.addImage({ path: path.join(IMG, 'logo.jpg'), x: 0.8, y: 1.45, w: 1.6, h: 1.6, rounding: true, altText: 'St. Mary Church Garden City Scout logo', objectName: 'logo' });
   s.addText('Scouts Management System', { placeholder: 'title' });
   s.addText('Project report and user guide  ·  Light of the World', { placeholder: 'body' });
   s.addText('St. Mary Church, Garden City Scouts  ·  24 November 2026', { x: 0.8, y: 5.45, w: 9.5, h: 0.4, fontSize: 14, color: 'FFFFFF', transparency: 15, isTextBox: true, margin: 0 });
@@ -335,7 +345,8 @@ async function icon(name, color = 'FFFFFF') {
   // ===== 14. Closing =====
   s = pres.addSlide({ masterName: 'Closing Dark', sectionTitle: 'Running the system' });
   s.addText('Light of the World', { placeholder: 'title' });
-  s.addImage({ path: path.join(IMG, 'logo.jpg'), x: 5.67, y: 1.75, w: 2.0, h: 2.0, altText: 'Scout logo', objectName: 'logo' });
+  s.addShape(pres.shapes.OVAL, { x: 5.57, y: 1.65, w: 2.2, h: 2.2, fill: { color: 'FFFFFF' }, line: { color: HEX.khaki, width: 3 }, objectName: 'logo ring' });
+  s.addImage({ path: path.join(IMG, 'logo.jpg'), x: 5.67, y: 1.75, w: 2.0, h: 2.0, rounding: true, altText: 'Scout logo', objectName: 'logo' });
   s.addText('فَلْيُضِئْ نُورُكُمْ هَكَذَا قُدَّامَ النَّاسِ، لِكَيْ يَرَوْا أَعْمَالَكُمُ الْحَسَنَةَ، وَيُمَجِّدُوا أَبَاكُمُ الَّذِي فِي السَّمَاوَاتِ.', { x: 1.2, y: 4.15, w: 10.9, h: 1.3, fontSize: 24, fontFace: 'Arial', color: 'FFFFFF', align: 'center', valign: 'middle', rtlMode: true, lang: 'ar-EG', isTextBox: true, margin: 0 });
   s.addText('إنجيل متى 5: 16', { x: 1.2, y: 5.5, w: 10.9, h: 0.5, fontSize: 18, fontFace: 'Arial', color: HEX.yellow, align: 'center', rtlMode: true, lang: 'ar-EG', isTextBox: true, margin: 0 });
   s.addText('St. Mary Church  ·  Garden City Scouts', { x: 1.2, y: 6.5, w: 10.9, h: 0.4, fontSize: 14, color: 'FFFFFF', transparency: 25, align: 'center', isTextBox: true, margin: 0 });
