@@ -64,3 +64,16 @@ export function initials(name = '') {
   const parts = name.trim().split(/\s+/);
   return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase();
 }
+
+/** Stored mobile (+201001234567) -> what members type and see in fields: 01001234567. */
+export function localPhone(phone) {
+  if (!phone) return '';
+  return phone.startsWith('+20') ? `0${phone.slice(3)}` : phone;
+}
+
+/** Stored mobile -> readable: +20 100 123 4567. */
+export function displayPhone(phone) {
+  if (!phone) return '';
+  const m = /^\+20(\d{3})(\d{3})(\d{4})$/.exec(phone);
+  return m ? `+20 ${m[1]} ${m[2]} ${m[3]}` : phone;
+}

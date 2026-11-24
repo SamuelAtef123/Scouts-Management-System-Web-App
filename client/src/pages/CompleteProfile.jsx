@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Phone } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { firstName } from '../format.js';
 import PhotoPicker from '../components/PhotoPicker.jsx';
+import PhoneInput from '../components/PhoneInput.jsx';
 import { ErrorBox, Field } from '../components/ui.jsx';
 
 /** Shown after signing in while the account has no mobile number: number required, photo optional. */
@@ -38,19 +38,8 @@ export default function CompleteProfile() {
         <p className="field-hint onboard-hint">A photo is optional. You can add or change it later from your Profile.</p>
 
         <form className="form onboard-form" onSubmit={submit}>
-          <Field label="Mobile number" hint="Shown on your profile so leaders can reach you">
-            <div className="input-icon">
-              <Phone size={18} />
-              <input
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="01001234567"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-            </div>
+          <Field label="Mobile number" hint="Egyptian mobile, 11 digits. Shown on your profile so leaders can reach you">
+            <PhoneInput value={phone} onChange={setPhone} required />
           </Field>
           {error && <ErrorBox message={error} />}
           <button className="btn btn-primary btn-block btn-lg" disabled={busy}>

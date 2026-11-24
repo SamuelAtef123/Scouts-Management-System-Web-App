@@ -2580,3 +2580,18 @@ img {
 .input-icon input {
   padding-left: 42px;
 }
+
+.phone-input .phone-code {
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  color: var(--ink-2);
+  pointer-events: none;
+}
+
+.phone-input input {
+  padding-left: 76px;
+  letter-spacing: 0.02em;
+}

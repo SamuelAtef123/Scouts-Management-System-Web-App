@@ -4,6 +4,8 @@ import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
 import { EVENT_TYPES, ROLES, ROLE_LABEL, TEAMS } from '../constants.js';
+import { displayPhone, localPhone } from '../format.js';
+import PhoneInput from '../components/PhoneInput.jsx';
 import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast } from '../components/ui.jsx';
 
 function MemberForm({ member, onClose, onSaved }) {
@@ -16,7 +18,7 @@ function MemberForm({ member, onClose, onSaved }) {
   const [form, setForm] = useState({
     name: member?.name || '',
     username: member?.username || '',
-    phone: member?.phone || '',
+    phone: localPhone(member?.phone),
     role: member?.role || 'team_leader_helper',
     team: member?.team || (limited ? teamOptions[0]?.id || '' : ''),
     isPrivileged: member?.isPrivileged || false,
@@ -67,7 +69,7 @@ function MemberForm({ member, onClose, onSaved }) {
             <input value={form.username} onChange={set('username')} required autoCapitalize="none" pattern="[A-Za-z0-9._\-]{3,30}" />
           </Field>
           <Field label="Phone (optional)">
-            <input value={form.phone} onChange={set('phone')} inputMode="tel" maxLength={20} />
+            <PhoneInput value={form.phone} onChange={(phone) => setForm((f) => ({ ...f, phone }))} />
           </Field>
         </div>
         <div className="form-row">
@@ -187,7 +189,7 @@ function MemberDetails({ member, onClose, onEdit }) {
         )}
         <div>
           <dt>Phone</dt>
-          <dd>{member.phone ? <a href={`tel:${member.phone}`}>{member.phone}</a> : '–'}</dd>
+          <dd>{member.phone ? <a href={`tel:${member.phone}`}>{displayPhone(member.phone)}</a> : '–'}</dd>
         </div>
         <div>
           <dt>Status</dt>

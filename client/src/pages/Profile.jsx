@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ClipboardCheck, KeyRound, LogOut, Phone } from 'lucide-react';
 import PhotoPicker from '../components/PhotoPicker.jsx';
+import PhoneInput from '../components/PhoneInput.jsx';
+import { displayPhone, localPhone } from '../format.js';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { EVENT_TYPES, ROLE_LABEL } from '../constants.js';
@@ -10,7 +12,7 @@ import { Avatar, ErrorBox, Field, Spinner, TeamChip, VerseCard, useToast } from 
 function PhoneCard() {
   const { user, updateUser } = useAuth();
   const toast = useToast();
-  const [phone, setPhone] = useState(user.phone || '');
+  const [phone, setPhone] = useState(localPhone(user.phone));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -21,7 +23,7 @@ function PhoneCard() {
     try {
       const data = await api.put('/auth/me/profile', { phone });
       updateUser(data.user);
-      setPhone(data.user.phone);
+      setPhone(localPhone(data.user.phone));
       toast('Mobile number saved');
     } catch (err) {
       setError(err.message);
@@ -36,11 +38,11 @@ function PhoneCard() {
         <Phone size={18} /> Mobile number
       </h2>
       <form className="form phone-form" onSubmit={submit}>
-        <Field label="Mobile number">
-          <input type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+        <Field label="Mobile number" hint="Egyptian mobile, 11 digits">
+          <PhoneInput value={phone} onChange={setPhone} required />
         </Field>
         {error && <ErrorBox message={error} />}
-        <button className="btn btn-primary" disabled={busy || phone.trim() === (user.phone || '')}>
+        <button className="btn btn-primary" disabled={busy || phone === localPhone(user.phone)}>
           {busy ? 'Saving…' : 'Save number'}
         </button>
       </form>
@@ -127,7 +129,7 @@ export default function Profile() {
         <p className="muted">@{user.username}</p>
         {user.phone && (
           <a className="profile-phone" href={`tel:${user.phone}`}>
-            <Phone size={16} /> {user.phone}
+            <Phone size={16} /> {displayPhone(user.phone)}
           </a>
         )}
         <div className="profile-tags">
