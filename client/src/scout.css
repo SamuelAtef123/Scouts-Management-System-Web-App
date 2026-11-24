@@ -1,0 +1,989 @@
+/* =====================================================================
+   "Field kit" theme — scout canvas, khaki, stitched badges, rope, map lines.
+   Loaded after styles.css: it redefines the tokens and restyles components.
+   ===================================================================== */
+
+:root {
+  /* Scout palette: forest green & khaki, with the logo's red, yellow and navy as accents */
+  --forest: #2d5a3e;
+  --forest-deep: #1f4430;
+  --forest-soft: #e4ece3;
+  --khaki: #cfc09a;
+  --khaki-deep: #8a7a4e;
+  --khaki-soft: #ece4cf;
+  --canvas: #f2ecdd;
+  --paper: #fffdf7;
+  --bark: #2b2418;
+  --bark-2: #4d4433;
+  --stitch: #c9b98e;
+  --logo-navy: #23277d;
+
+  /* Existing tokens re-pointed to the scout palette */
+  --navy: var(--forest);
+  --navy-deep: var(--forest-deep);
+  --bg: var(--canvas);
+  --surface: var(--paper);
+  --surface-2: #f8f3e6;
+  --ink: var(--bark);
+  --ink-2: var(--bark-2);
+  --muted: #7a6f5a;
+  --border: #dccfae;
+  --focus: rgba(45, 90, 62, 0.28);
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 0 rgba(43, 36, 24, 0.06), 0 2px 6px rgba(43, 36, 24, 0.06);
+  --shadow-lg: 0 14px 40px rgba(43, 36, 24, 0.22);
+
+  --font: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-head: 'Zilla Slab', 'Rockwell', Georgia, serif;
+  --rope: repeating-linear-gradient(135deg, var(--khaki-deep) 0 3px, var(--khaki) 3px 6px);
+}
+
+body {
+  background-color: var(--canvas);
+  background-image: url('/topo.svg');
+  background-size: 1200px auto;
+  background-attachment: fixed;
+  font-size: 16.5px;
+}
+
+h1,
+h2,
+h3,
+.brand-title,
+.topbar-title,
+.stat-value,
+.date-day,
+.event-title,
+.task-title,
+.modal-head h2,
+.empty-title,
+.month-title {
+  font-family: var(--font-head);
+  letter-spacing: -0.005em;
+}
+
+/* Stamped labels: small caps text like printed on gear */
+.eyebrow,
+.month-title,
+.field-label,
+.date-month,
+.status-pill,
+.type-badge,
+.soon,
+.stat-label {
+  font-family: var(--font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.field-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--bark-2);
+}
+
+/* ---------- Rope divider under section headings ---------- */
+.section-head {
+  position: relative;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.section-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--rope);
+  opacity: 0.55;
+}
+
+.section-head h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.page-head h1 {
+  font-size: 2.1rem;
+  font-weight: 700;
+}
+
+/* ---------- Top bar & bottom bar (phones) ---------- */
+.topbar {
+  background: var(--forest);
+  border-bottom: none;
+  box-shadow: 0 2px 0 var(--forest-deep);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.topbar::after {
+  /* stitched hem */
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 5px;
+  border-bottom: 1.5px dashed rgba(255, 255, 255, 0.28);
+}
+
+.topbar-title {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.topbar-logo {
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--khaki);
+}
+
+.bottom-nav {
+  background: var(--paper);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -1px 0 rgba(43, 36, 24, 0.04), 0 -6px 18px rgba(43, 36, 24, 0.08);
+}
+
+.bottom-link {
+  color: #8f8470;
+  font-weight: 700;
+}
+
+.bottom-link svg {
+  padding: 5px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  transition: background 0.15s, color 0.15s;
+}
+
+.bottom-link.active {
+  color: var(--forest);
+}
+
+.bottom-link.active::before {
+  display: none;
+}
+
+.bottom-link.active svg {
+  background: var(--forest);
+  color: #fff;
+  transform: none;
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px var(--khaki);
+}
+
+/* ---------- Sidebar (computers): forest canvas with notebook tabs ---------- */
+@media (min-width: 900px) {
+  .sidebar {
+    background-color: var(--forest);
+    background-image: linear-gradient(rgba(31, 68, 48, 0.55), rgba(31, 68, 48, 0.55)), url('/topo.svg');
+    background-size: auto, 900px auto;
+    border-right: none;
+    color: #fff;
+    padding-right: 0;
+  }
+
+  .brand {
+    padding-right: 16px;
+  }
+
+  .brand-title {
+    color: #fff;
+    font-size: 1.2rem;
+  }
+
+  .brand-sub {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .brand-logo {
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--khaki);
+  }
+
+  .side-link {
+    color: rgba(255, 255, 255, 0.82);
+    border-radius: 10px 0 0 10px;
+    margin-left: 0;
+    padding-left: 16px;
+  }
+
+  .side-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+
+  /* active item = a paper tab sticking out of the notebook */
+  .side-link.active {
+    background: var(--canvas);
+    color: var(--forest-deep);
+    box-shadow: none;
+    font-weight: 700;
+  }
+
+  .side-bottom {
+    padding-right: 16px;
+  }
+
+  .side-user {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+    color: #fff;
+  }
+
+  .side-user-text span {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .side-user .icon-btn {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .side-user .icon-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+}
+
+/* ---------- Cards: paper with a stitched edge ---------- */
+.card,
+.event-card,
+.task-card,
+.member-list,
+.profile-card,
+.event-hero,
+.empty,
+.stat {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.card,
+.profile-card {
+  outline: 1.5px dashed var(--stitch);
+  outline-offset: -7px;
+}
+
+.card-title {
+  font-family: var(--font-head);
+  font-size: 1.25rem;
+}
+
+/* Neckerchief corner: a folded triangle in the team's colour */
+.event-card,
+.task-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.event-card::before,
+.task-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  width: 22px;
+  height: 22px;
+  background: var(--team, var(--khaki));
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.event-card::after,
+.task-card::after {
+  /* the knot shadow of the fold */
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  background: linear-gradient(135deg, transparent 48%, rgba(0, 0, 0, 0.18) 50%, transparent 54%);
+  pointer-events: none;
+}
+
+.event-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 0 rgba(43, 36, 24, 0.06), 0 8px 18px rgba(43, 36, 24, 0.12);
+}
+
+.event-title {
+  font-size: 1.12rem;
+  font-weight: 700;
+}
+
+.task-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.task-card {
+  padding-left: 20px;
+}
+
+.event-card {
+  padding-left: 18px;
+}
+
+.task-card.is-done {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 12px, rgba(45, 90, 62, 0.035) 12px 24px);
+}
+
+/* ---------- Date as a luggage tag ---------- */
+.date-badge {
+  position: relative;
+  width: 58px;
+  height: 66px;
+  border-radius: 6px;
+  background: var(--khaki-soft);
+  color: var(--bark);
+  border: 1.5px solid var(--khaki);
+  clip-path: polygon(22% 0, 78% 0, 100% 16%, 100% 100%, 0 100%, 0 16%);
+  padding-top: 10px;
+}
+
+.date-badge::before {
+  /* the tag's eyelet */
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: var(--canvas);
+  box-shadow: inset 0 0 0 1.5px var(--khaki-deep);
+}
+
+.date-month {
+  font-size: 0.66rem;
+  color: var(--team, var(--khaki-deep));
+}
+
+.date-day {
+  font-size: 1.55rem;
+  font-weight: 700;
+}
+
+.event-chevron {
+  color: var(--khaki);
+}
+
+/* ---------- Merit-badge stats ---------- */
+.stats {
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 8px 14px;
+  gap: 2px;
+  background: var(--paper);
+}
+
+.stat-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px currentColor;
+}
+
+.stat-icon::after {
+  /* embroidered ring */
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(255, 255, 255, 0.75);
+}
+
+.stat-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.stat-navy .stat-icon {
+  background: var(--forest);
+  color: var(--forest);
+}
+
+.stat-green .stat-icon {
+  background: #1e8a43;
+  color: #1e8a43;
+}
+
+.stat-red .stat-icon {
+  background: #c8352b;
+  color: #c8352b;
+}
+
+.stat-yellow .stat-icon {
+  background: #d99a16;
+  color: #d99a16;
+}
+
+.stat-icon svg {
+  color: #fff;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.stat-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* ---------- Buttons: sturdy, with a pressed edge ---------- */
+.btn {
+  border-radius: 8px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  background: var(--forest);
+  box-shadow: 0 3px 0 var(--forest-deep);
+  border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #336847;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--forest-deep);
+}
+
+.btn-ghost {
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  box-shadow: 0 2px 0 var(--border);
+}
+
+.btn-danger {
+  background: #c8352b;
+  box-shadow: 0 3px 0 #922219;
+}
+
+.fab {
+  border-radius: 50%;
+  background: var(--forest);
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--khaki), 0 10px 24px rgba(31, 68, 48, 0.45);
+}
+
+/* ---------- Chips, tags, stamps ---------- */
+.chip {
+  border-radius: 8px;
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  font-weight: 700;
+}
+
+.chip.active:not([style]) {
+  background: var(--forest);
+  border-color: var(--forest);
+}
+
+.team-chip {
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.status-pill,
+.type-badge,
+.soon {
+  border-radius: 4px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  background: transparent;
+  border: 1.5px solid currentColor;
+}
+
+.status-todo {
+  color: #6f6754;
+}
+
+.status-in_progress {
+  color: #a06b00;
+}
+
+.status-done {
+  color: #1e7a3c;
+}
+
+.type-badge {
+  color: var(--khaki-deep);
+}
+
+.type-team_session {
+  color: #1e7a3c;
+}
+
+.type-preparation_meeting {
+  color: #a06b00;
+}
+
+.type-gawala_session {
+  color: #0b6670;
+}
+
+.soon {
+  color: #c8352b;
+}
+
+.role-tag {
+  border-radius: 6px;
+  background: var(--forest-soft);
+  color: var(--forest-deep);
+}
+
+/* ---------- Segmented controls ---------- */
+.segmented {
+  background: var(--khaki-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.seg {
+  border-radius: 7px;
+}
+
+.seg.active {
+  background: var(--paper);
+  box-shadow: 0 1px 0 var(--border), 0 1px 3px rgba(43, 36, 24, 0.12);
+}
+
+.seg.active.seg-done {
+  background: var(--forest);
+}
+
+/* ---------- Progress bars: a rope that fills ---------- */
+.bar {
+  background: var(--khaki-soft);
+  height: 7px;
+}
+
+.bar > div {
+  background: repeating-linear-gradient(135deg, #1e7a3c 0 4px, #2d9a52 4px 8px);
+}
+
+/* ---------- Forms ---------- */
+.field input,
+.field select,
+.field textarea,
+.search input {
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.search input:focus {
+  border-color: var(--forest);
+}
+
+.form-context {
+  background: var(--khaki-soft);
+  border: 1px dashed var(--khaki);
+  border-radius: 8px;
+}
+
+.team-option,
+.type-option {
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.type-option.active {
+  border-color: var(--forest);
+  background: var(--forest-soft);
+}
+
+.check {
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+/* ---------- Home hero: a photo torn out of a notebook ---------- */
+.hero {
+  border-radius: 12px 12px 0 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.hero::after {
+  background: linear-gradient(180deg, rgba(31, 68, 48, 0) 20%, rgba(31, 68, 48, 0.6) 58%, rgba(24, 52, 37, 0.95) 100%);
+}
+
+.hero-content {
+  padding-bottom: 34px;
+}
+
+.hero h1 {
+  font-size: 2.3rem;
+  font-weight: 700;
+}
+
+.hero-tag {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: none;
+}
+
+.hero-motto {
+  font-family: var(--font-head);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.home .hero {
+  position: relative;
+}
+
+.home .hero-content::after {
+  /* torn paper edge */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 22px;
+  background: url('/deckle.svg') bottom / 100% 100% no-repeat;
+}
+
+@media (min-width: 900px) {
+  .hero::after {
+    background: linear-gradient(90deg, rgba(24, 52, 37, 0.95) 0%, rgba(31, 68, 48, 0.62) 42%, rgba(31, 68, 48, 0.05) 78%);
+  }
+
+  .hero h1 {
+    font-size: 2.9rem;
+  }
+}
+
+/* ---------- Event page header ---------- */
+.event-hero {
+  background: var(--paper);
+  outline: 1.5px dashed var(--stitch);
+  outline-offset: -7px;
+}
+
+.event-hero::before {
+  height: auto;
+  inset: 0 auto auto 0;
+  width: 46px;
+  height: 46px;
+  background: var(--team);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.event-hero h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+/* ---------- Verse: a stitched patch ---------- */
+.verse-card {
+  background: var(--forest);
+  outline: 1.5px dashed rgba(255, 255, 255, 0.35);
+  outline-offset: -7px;
+  border-radius: var(--radius);
+}
+
+.verse-card .stripe {
+  display: none;
+}
+
+.verse-card blockquote {
+  padding-top: 24px;
+}
+
+.verse-card figcaption {
+  color: #f3c84b;
+}
+
+/* ---------- Login ---------- */
+.login-photo::after {
+  background: linear-gradient(180deg, rgba(31, 68, 48, 0.1) 0%, rgba(31, 68, 48, 0.45) 45%, rgba(24, 52, 37, 0.94) 100%);
+}
+
+.login-panel {
+  background: var(--canvas);
+  border-radius: 0;
+}
+
+.login-panel::before {
+  /* torn edge above the form */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -20px;
+  height: 22px;
+  background: url('/deckle.svg') bottom / 100% 100% no-repeat;
+}
+
+.login-panel > .stripe {
+  display: none;
+}
+
+.login-logo {
+  border-radius: 50%;
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 3px var(--khaki), var(--shadow-lg);
+  margin-top: 0;
+  transform: translateY(-34px);
+  margin-bottom: -20px;
+}
+
+.login-panel h1 {
+  color: var(--forest-deep);
+  font-size: 1.9rem;
+}
+
+@media (min-width: 900px) {
+  .login-panel::before {
+    display: none;
+  }
+
+  .login-photo::after {
+    background: linear-gradient(180deg, rgba(31, 68, 48, 0.05) 30%, rgba(24, 52, 37, 0.9) 100%);
+  }
+
+  .login-logo {
+    transform: none;
+    margin: 0 0 16px;
+  }
+}
+
+/* ---------- First sign-in ---------- */
+.onboard {
+  background: linear-gradient(180deg, rgba(24, 52, 37, 0.9), rgba(31, 68, 48, 0.78)), url('/group.jpg') center 40% / cover;
+}
+
+.onboard-card {
+  background: var(--canvas);
+  border-radius: 12px;
+  outline: 1.5px dashed var(--stitch);
+  outline-offset: -8px;
+}
+
+.onboard-card > .stripe {
+  display: none;
+}
+
+.onboard-logo {
+  margin-top: 22px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--khaki);
+}
+
+.onboard-card h1 {
+  color: var(--forest-deep);
+}
+
+/* ---------- Profile ---------- */
+.profile-card > .stripe {
+  display: none;
+}
+
+.profile-card {
+  padding-top: 24px;
+}
+
+.photo-frame .avatar {
+  box-shadow: 0 0 0 4px var(--paper), 0 0 0 6px var(--khaki), 0 6px 18px rgba(43, 36, 24, 0.18);
+}
+
+.photo-badge {
+  background: var(--forest);
+  border-color: var(--paper);
+}
+
+/* ---------- Avatars become round badges ---------- */
+.avatar {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px rgba(43, 36, 24, 0.12);
+  font-family: var(--font-head);
+}
+
+/* ---------- Empty states ---------- */
+.empty {
+  border: 1.5px dashed var(--khaki);
+  background: rgba(255, 253, 247, 0.75);
+  box-shadow: none;
+}
+
+.empty-icon {
+  border-radius: 50%;
+  background: var(--forest-soft);
+  color: var(--forest);
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 4.5px var(--khaki);
+}
+
+/* ---------- Attendance ---------- */
+.attend-icon {
+  border-radius: 50%;
+  background: var(--forest-soft);
+  color: var(--forest);
+}
+
+.attend-list {
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.mark {
+  border-radius: 50%;
+  font-family: var(--font-head);
+  font-size: 1rem;
+}
+
+.attend-group.is-mine {
+  background: var(--forest-soft);
+  border: 1px dashed var(--forest);
+}
+
+.ac {
+  border-radius: 6px;
+}
+
+.rate-ring {
+  background: conic-gradient(var(--forest) calc(var(--p) * 1%), var(--khaki-soft) 0);
+}
+
+/* ---------- Members ---------- */
+.member:hover {
+  background: var(--surface-2);
+}
+
+.rate-badge {
+  border-radius: 4px;
+}
+
+/* ---------- Upload & materials ---------- */
+.upload-btn {
+  border-radius: 8px;
+  border: 1.5px dashed var(--forest);
+  background: var(--forest-soft);
+  color: var(--forest-deep);
+}
+
+.upload-btn:hover {
+  background: #d8e4d6;
+}
+
+.material {
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.material-icon {
+  border-radius: 6px;
+  background: var(--khaki-soft);
+  color: var(--khaki-deep);
+}
+
+.material-name {
+  color: var(--forest-deep);
+}
+
+/* ---------- Modal sheet ---------- */
+.modal {
+  background: var(--canvas);
+}
+
+.modal-head {
+  border-bottom: 1px dashed var(--stitch);
+  padding-bottom: 14px;
+}
+
+.modal-foot {
+  border-top: 1px dashed var(--stitch);
+}
+
+.modal-backdrop {
+  background: rgba(24, 33, 22, 0.55);
+}
+
+/* ---------- Toasts ---------- */
+.toast {
+  background: var(--forest-deep);
+  border-radius: 8px;
+}
+
+.link,
+.back-link {
+  color: var(--forest);
+}
+
+/* Phones: compact badges in one row of four */
+@media (max-width: 699px) {
+  .stats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .stat {
+    padding: 12px 4px 10px;
+  }
+
+  .stat-icon {
+    width: 42px;
+    height: 42px;
+    box-shadow: 0 0 0 2px var(--paper), 0 0 0 3.5px currentColor;
+  }
+
+  .stat-icon::after {
+    inset: 3px;
+  }
+
+  .stat-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  .stat-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.05em;
+    line-height: 1.25;
+  }
+}
+
+/* Sign-in (phones): keep the verse clear of the logo badge that overlaps the photo */
+@media (max-width: 899px) {
+  .login-photo {
+    height: 50vh;
+  }
+
+  .login-photo-text {
+    padding-bottom: 78px;
+  }
+}

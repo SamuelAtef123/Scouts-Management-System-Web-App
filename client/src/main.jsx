@@ -5,6 +5,7 @@ import { AuthProvider } from './auth.jsx';
 import { ToastProvider } from './components/ui.jsx';
 import App from './App.jsx';
 import './styles.css';
+import './scout.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
