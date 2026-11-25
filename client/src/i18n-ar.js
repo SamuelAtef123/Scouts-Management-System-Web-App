@@ -69,6 +69,7 @@ export const AR = {
   'Preparation Meeting': 'اجتماع تحضيري',
   'Gawala Session': 'جلسة الجوالة',
   Others: 'أخرى',
+  'All people': 'كل الأفراد',
   'To do': 'لم تبدأ',
   'In progress': 'جارٍ العمل',
   Done: 'تمت',

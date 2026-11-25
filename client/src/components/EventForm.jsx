@@ -107,7 +107,11 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
                 onClick={() => pickType(t.id)}
                 disabled={locked && form.type !== t.id}
               >
-                <strong>{t.label}</strong>
+                <strong>
+                  {t.label}
+                  {/* Make clear that a Gawala Session is for everyone, unlike a Team Session */}
+                  {t.id === 'gawala_session' && <span className="type-note">{tr('All people')}</span>}
+                </strong>
               </button>
             ))}
           </div>

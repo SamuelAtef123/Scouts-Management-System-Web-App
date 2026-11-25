@@ -1431,3 +1431,13 @@ html[lang='ar'] .done-stamp {
   font-size: 1.15rem;
   transform: rotate(8deg);
 }
+
+/* "· All people" next to Gawala Session in the event form */
+.type-note {
+  display: block;
+  margin-top: 1px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--khaki-deep);
+  white-space: nowrap;
+}
