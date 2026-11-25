@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
-import { EVENT_TYPES, TEAMS, teamName } from '../constants.js';
-import { isArabic, t as tr } from '../i18n.jsx';
+import { EVENT_TYPES, TEAMS } from '../constants.js';
+import { t as tr } from '../i18n.jsx';
 import { toLocalInput } from '../format.js';
 import { ErrorBox, Field, Modal } from './ui.jsx';
 
@@ -130,7 +130,9 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
                   disabled={locked}
                 >
                   <span className="team-dot group-dot" />
-                  {tr('Whole group')}
+                  <span className="team-option-name" lang="ar">
+                    المجموعة كلها
+                  </span>
                 </button>
               )}
               {teams.map((id) => {
@@ -145,8 +147,9 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
                     disabled={teams.length === 1 || (locked && form.team !== id)}
                   >
                     <span className="team-dot" />
-                    {teamName(id)}
-                    <small lang={isArabic() ? 'en' : 'ar'}>{isArabic() ? id : t.arabic}</small>
+                    <span className="team-option-name" lang="ar">
+                      {t.arabic}
+                    </span>
                   </button>
                 );
               })}
