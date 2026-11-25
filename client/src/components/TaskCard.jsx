@@ -80,6 +80,8 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
           <h3 className="task-title">{task.title}</h3>
           {task.description && <p className="task-desc">{task.description}</p>}
         </div>
+        {/* A rubber stamp on finished tasks */}
+        {task.status === 'done' && <span className="done-stamp">{tr('Done')}</span>}
         {manager && (onEdit || onDelete) && (
           <div className="task-actions">
             {onEdit && (
@@ -123,7 +125,8 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent }
             {overdue ? tr('Overdue · {when}', { when: relativeDay(task.dueDate) }) : tr('Due {when}', { when: dueLabel(task.dueDate) })}
           </span>
         )}
-        {!mine && <span className={`status-pill status-${task.status}`}>{STATUSES.find((s) => s.id === task.status)?.label}</span>}
+        {/* finished tasks show the stamp instead */}
+        {!mine && task.status !== 'done' && <span className={`status-pill status-${task.status}`}>{STATUSES.find((s) => s.id === task.status)?.label}</span>}
       </div>
 
       {mine && (
