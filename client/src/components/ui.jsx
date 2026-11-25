@@ -1,14 +1,41 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useMemberPhoto } from '../photos.js';
-import { CircleAlert, CircleCheck, LoaderCircle, X } from 'lucide-react';
+import { CircleAlert, CircleCheck, X } from 'lucide-react';
 import { TEAM_BY_ID, STATUS_LABEL, VERSE, eventType } from '../constants.js';
 import { t as tr } from '../i18n.jsx';
 import { initials } from '../format.js';
 
+/**
+ * Loading indicator: a scout compass whose needle swings, overshoots and settles on north,
+ * then keeps hunting gently while loading continues. Still when the device asks for reduced motion.
+ */
+export function CompassLoader({ size = 34 }) {
+  return (
+    <svg className="compass" viewBox="0 0 40 40" width={size} height={size} aria-hidden="true">
+      <circle className="compass-rim" cx="20" cy="20" r="18" />
+      <circle className="compass-stitch" cx="20" cy="20" r="14.6" />
+      <g className="compass-ticks">
+        <line x1="20" y1="3.6" x2="20" y2="6.4" />
+        <line x1="36.4" y1="20" x2="33.6" y2="20" />
+        <line x1="20" y1="36.4" x2="20" y2="33.6" />
+        <line x1="3.6" y1="20" x2="6.4" y2="20" />
+      </g>
+      <text className="compass-n" x="20" y="11.4" textAnchor="middle">
+        N
+      </text>
+      <g className="compass-needle">
+        <path className="needle-north" d="M20 8.5 L23.2 20 L16.8 20 Z" />
+        <path className="needle-south" d="M20 31.5 L23.2 20 L16.8 20 Z" />
+      </g>
+      <circle className="compass-pin" cx="20" cy="20" r="2.1" />
+    </svg>
+  );
+}
+
 export function Spinner({ label = tr('Loading…') }) {
   return (
     <div className="spinner" role="status">
-      <LoaderCircle className="spin" size={22} />
+      <CompassLoader />
       <span>{label}</span>
     </div>
   );

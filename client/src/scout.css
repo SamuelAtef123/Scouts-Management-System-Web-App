@@ -1296,3 +1296,103 @@ html[dir='rtl'] .photo-badge {
 .hero-tag [lang='ar'] {
   font-size: 1.08em;
 }
+
+/* ---------- Compass loader ---------- */
+.compass {
+  flex: none;
+  overflow: visible;
+}
+
+.compass-rim {
+  fill: var(--paper);
+  stroke: var(--forest);
+  stroke-width: 2.4;
+}
+
+.compass-stitch {
+  fill: none;
+  stroke: var(--khaki);
+  stroke-width: 1;
+  stroke-dasharray: 2 1.6;
+}
+
+.compass-ticks line {
+  stroke: var(--forest);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.compass-n {
+  font-family: var(--font-head);
+  font-size: 5.6px;
+  font-weight: 700;
+  fill: #c8352b;
+}
+
+.needle-north {
+  fill: #c8352b;
+}
+
+.needle-south {
+  fill: var(--bark);
+}
+
+.compass-pin {
+  fill: var(--paper);
+  stroke: var(--bark);
+  stroke-width: 1.2;
+}
+
+.compass-needle {
+  transform-box: view-box;
+  transform-origin: 20px 20px;
+  /* find north (swing, overshoot, settle), then keep hunting gently while loading */
+  animation:
+    compass-find 1.5s cubic-bezier(0.3, 0.7, 0.3, 1) both,
+    compass-hunt 2.6s ease-in-out 1.5s infinite;
+}
+
+@keyframes compass-find {
+  0% {
+    transform: rotate(-140deg);
+  }
+  32% {
+    transform: rotate(48deg);
+  }
+  52% {
+    transform: rotate(-22deg);
+  }
+  70% {
+    transform: rotate(10deg);
+  }
+  85% {
+    transform: rotate(-4deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes compass-hunt {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  30% {
+    transform: rotate(7deg);
+  }
+  70% {
+    transform: rotate(-5deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compass-needle {
+    animation: none;
+  }
+}
+
+.splash .compass {
+  width: 46px;
+  height: 46px;
+}
