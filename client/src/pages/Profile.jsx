@@ -150,6 +150,8 @@ export default function Profile() {
         </p>
       </section>
 
+      <AttendanceCard />
+
       <PhoneCard />
 
       <section className="card">
@@ -158,8 +160,6 @@ export default function Profile() {
         </h2>
         <LanguageSwitch />
       </section>
-
-      <AttendanceCard />
 
       <section className="card">
         <h2 className="card-title">
