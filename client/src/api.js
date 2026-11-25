@@ -101,3 +101,26 @@ export async function fetchImageUrl(path) {
   if (!res.ok) throw new ApiError(res.status, t('Image not found'));
   return URL.createObjectURL(await res.blob());
 }
+
+/**
+ * Opens a protected file (one waiting for review) in a new tab. The tab is opened first, while the
+ * click still counts, so browsers do not block it; the file is loaded with the sign-in token.
+ */
+export async function openProtectedFile(path) {
+  const tab = window.open('', '_blank');
+  try {
+    const token = tokenStore.get();
+    const res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new ApiError(res.status, t(data.message || 'File not found'));
+    }
+    const url = URL.createObjectURL(await res.blob());
+    if (tab) tab.location.href = url;
+    else window.location.href = url;
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  } catch (err) {
+    tab?.close();
+    throw err;
+  }
+}

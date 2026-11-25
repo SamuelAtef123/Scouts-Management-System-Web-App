@@ -7,7 +7,7 @@ import multer from 'multer';
 import { asyncHandler, badRequest, HttpError } from '../utils/httpError.js';
 import { normalizePhone } from '../utils/phone.js';
 import { detectFileType } from '../utils/fileType.js';
-import { hasGlobalAccess, canManageUsers, canViewAllTeams, canViewMembers, memberTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
+import { hasGlobalAccess, isReviewer, canManageUsers, canViewAllTeams, canViewMembers, memberTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
 
 const router = Router();
@@ -32,6 +32,7 @@ export function publicUser(user) {
       viewMembers: canViewMembers(user), // Members page: details and attendance %
       memberTeams: memberTeams(user), // teams whose members they can view there
       manageUsers: canManageUsers(user), // add / edit / deactivate members
+      reviewMaterials: isReviewer(user), // reviews uploaded files before they go to Google Drive
     },
   };
 }

@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { createReadStream } from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { Readable } from 'node:stream';
@@ -9,7 +10,10 @@ import { HttpError } from '../utils/httpError.js';
 
 /*
  * Task materials go to Google Drive, organised as:
- *   <GOOGLE_DRIVE_FOLDER_ID>/<Team>/<YYYY-MM-DD Event title>/<file>
+ *   <GOOGLE_DRIVE_FOLDER_ID>/<Kadr>/<YYYY-MM-DD Event title>/<file>
+ *
+ * Files from members who are not reviewers wait in a private folder until a reviewer approves
+ * them (see getReviewFolder); only then are they moved into the event's folder.
  *
  * When Drive is not configured (local development), files are saved
  * to server/uploads instead so the app still works end to end.
@@ -96,7 +100,8 @@ function eventFolderName(event) {
 /** Makes sure the event has a Drive folder and returns its id (saves it on the event). */
 async function ensureEventFolder(drive, event) {
   if (event.driveFolderId) return event.driveFolderId;
-  const teamFolder = await findOrCreateFolder(drive, event.team, config.drive.rootFolderId);
+  // Whole-group events (no kadr) get their own folder.
+  const teamFolder = await findOrCreateFolder(drive, event.team || 'Whole group', config.drive.rootFolderId);
   const eventFolder = await findOrCreateFolder(drive, eventFolderName(event), teamFolder);
   event.driveFolderId = eventFolder;
   await event.save();
@@ -108,24 +113,49 @@ function safeFileName(original) {
   return base.slice(-120) || 'file';
 }
 
-/**
- * Stores an uploaded file for a task.
- * @returns {Promise<{storage, fileId, url}>}
- */
-export async function storeMaterial({ file, event, task, uploader }) {
-  const drive = getDrive();
+/** The Drive name of a task's file: "<task> - <uploader> - <file>". */
+function storedName(file, task, uploader) {
   // The extension always matches the real file type detected from its content.
   const base = safeFileName(file.originalname).replace(/\.[^.]*$/, '') || 'file';
   const name = file.extension ? `${base}.${file.extension}` : safeFileName(file.originalname);
+  return { name, driveName: `${task.title.slice(0, 60)} - ${uploader.name} - ${name}` };
+}
+
+let reviewFolderId;
+
+/**
+ * The Drive folder where files wait for review. It must not be shared with the group, so by default it is
+ * a folder in the Google account's own Drive (OAuth). A service account has no Drive space of its own,
+ * so it uses a "_Waiting for review" folder inside the root folder instead.
+ */
+async function getReviewFolder(drive) {
+  if (reviewFolderId) return reviewFolderId;
+  const d = config.drive;
+  if (d.reviewFolderId) reviewFolderId = d.reviewFolderId;
+  else if (d.oauthRefreshToken) reviewFolderId = await findOrCreateFolder(drive, 'Scouts - waiting for review', 'root');
+  else reviewFolderId = await findOrCreateFolder(drive, '_Waiting for review', d.rootFolderId);
+  return reviewFolderId;
+}
+
+/** Local files waiting for review: NOT under /uploads, so they are never served publicly. */
+export const LOCAL_PENDING_DIR = path.resolve(LOCAL_UPLOAD_DIR, '../uploads-pending');
+const localPath = (material) =>
+  path.join(material.reviewStatus === 'pending' ? LOCAL_PENDING_DIR : LOCAL_UPLOAD_DIR, path.basename(material.fileId));
+
+/**
+ * Stores an uploaded file for a task: straight into the event's folder when `approved`,
+ * otherwise in the private waiting folder until a reviewer approves it.
+ * @returns {Promise<{storage, fileId, url}>}
+ */
+export async function storeMaterial({ file, event, task, uploader, approved = true }) {
+  const drive = getDrive();
+  const { driveName } = storedName(file, task, uploader);
 
   if (drive) {
     try {
-      const folderId = await ensureEventFolder(drive, event);
+      const folderId = approved ? await ensureEventFolder(drive, event) : await getReviewFolder(drive);
       const { data } = await drive.files.create({
-        requestBody: {
-          name: `${task.title.slice(0, 60)} - ${uploader.name} - ${name}`,
-          parents: [folderId],
-        },
+        requestBody: { name: driveName, parents: [folderId] },
         media: { mimeType: file.mimetype, body: Readable.from(file.buffer) },
         fields: 'id, webViewLink',
         ...ALL_DRIVES,
@@ -137,20 +167,67 @@ export async function storeMaterial({ file, event, task, uploader }) {
     }
   }
 
-  await fs.mkdir(LOCAL_UPLOAD_DIR, { recursive: true });
+  const dir = approved ? LOCAL_UPLOAD_DIR : LOCAL_PENDING_DIR;
+  await fs.mkdir(dir, { recursive: true });
   // Local files get a random name with only the verified extension: nothing from the uploader's file name.
   const localName = `${crypto.randomUUID()}.${file.extension || 'bin'}`;
-  await fs.writeFile(path.join(LOCAL_UPLOAD_DIR, localName), file.buffer);
-  return { storage: 'local', fileId: localName, url: `/uploads/${encodeURIComponent(localName)}` };
+  await fs.writeFile(path.join(dir, localName), file.buffer);
+  return { storage: 'local', fileId: localName, url: approved ? `/uploads/${encodeURIComponent(localName)}` : `pending:${localName}` };
+}
+
+/** Moves an approved file from the waiting folder into the event's folder. Returns its new { fileId, url }. */
+export async function approveMaterial(material, event) {
+  if (material.storage === 'drive') {
+    const drive = getDrive();
+    if (!drive) throw new HttpError(502, 'Google Drive is not connected, so the file cannot be approved now. Please tell the Database team.');
+    try {
+      const folderId = await ensureEventFolder(drive, event);
+      const { data: current } = await drive.files.get({ fileId: material.fileId, fields: 'parents', ...ALL_DRIVES });
+      const { data } = await drive.files.update({
+        fileId: material.fileId,
+        addParents: folderId,
+        removeParents: (current.parents || []).join(','),
+        fields: 'id, webViewLink',
+        ...ALL_DRIVES,
+      });
+      return { fileId: data.id, url: data.webViewLink };
+    } catch (err) {
+      logDriveError(err);
+      throw new HttpError(502, 'The file could not be moved to Google Drive. Please tell the Database team.');
+    }
+  }
+  const name = path.basename(material.fileId);
+  await fs.mkdir(LOCAL_UPLOAD_DIR, { recursive: true });
+  await fs.rename(path.join(LOCAL_PENDING_DIR, name), path.join(LOCAL_UPLOAD_DIR, name));
+  return { fileId: name, url: `/uploads/${encodeURIComponent(name)}` };
+}
+
+/** Opens a stored file for reading (used to show files that wait for review). */
+export async function readMaterial(material) {
+  try {
+    if (material.storage === 'drive') {
+      const drive = getDrive();
+      if (!drive) throw new Error('Drive not configured');
+      const res = await drive.files.get({ fileId: material.fileId, alt: 'media', ...ALL_DRIVES }, { responseType: 'stream' });
+      return res.data;
+    }
+    const file = localPath(material);
+    await fs.access(file);
+    return createReadStream(file);
+  } catch (err) {
+    console.warn(`Could not read stored file ${material.fileId}: ${err.message}`);
+    throw new HttpError(404, 'The file could not be opened. It may have been deleted.');
+  }
 }
 
 export async function removeMaterial(material) {
+  if (!material.fileId) return; // a file sent back is already deleted
   try {
     if (material.storage === 'drive') {
       const drive = getDrive();
       if (drive) await drive.files.delete({ fileId: material.fileId, ...ALL_DRIVES });
     } else {
-      await fs.unlink(path.join(LOCAL_UPLOAD_DIR, path.basename(material.fileId)));
+      await fs.unlink(localPath(material));
     }
   } catch (err) {
     // The record is removed either way; a file already deleted by hand is not an error for the user.

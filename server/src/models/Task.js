@@ -1,5 +1,9 @@
 import mongoose from 'mongoose';
-import { TASK_STATUSES } from '../constants.js';
+import { REVIEW_STATUSES, TASK_STATUSES } from '../constants.js';
+
+function isKept() {
+  return this.reviewStatus !== 'changes';
+}
 
 const materialSchema = new mongoose.Schema(
   {
@@ -8,9 +12,16 @@ const materialSchema = new mongoose.Schema(
     size: { type: Number, required: true },
     storage: { type: String, enum: ['drive', 'local'], required: true },
     // Google Drive file id, or the local file name when Drive is not configured.
-    fileId: { type: String, required: true },
-    url: { type: String, required: true },
+    // Empty once a file is sent back (the file itself is deleted, the note stays).
+    fileId: { type: String, required: isKept },
+    url: { type: String, required: isKept },
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    // pending: waiting for review, kept out of the event's Drive folder;
+    // approved: in the event's folder; changes: sent back to the uploader with a note.
+    reviewStatus: { type: String, enum: REVIEW_STATUSES, default: 'approved' },
+    reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    reviewedAt: { type: Date },
+    reviewNote: { type: String, trim: true, maxlength: 500, default: '' },
   },
   { timestamps: { createdAt: 'uploadedAt', updatedAt: false } }
 );

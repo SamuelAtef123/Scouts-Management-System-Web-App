@@ -71,7 +71,7 @@ async function icon(name, color = 'FFFFFF') {
   });
 
   const ic = {};
-  for (const n of ['LuLockKeyhole', 'LuSmartphone', 'LuCalendarDays', 'LuShapes', 'LuListChecks', 'LuUpload', 'LuClipboardCheck', 'LuUsers', 'LuHouse', 'LuUserRound', 'LuCrown', 'LuFlag', 'LuHandHelping', 'LuDatabase', 'LuServer', 'LuLayoutDashboard', 'LuFolderOpen', 'LuRocket', 'LuKeyRound', 'LuFileCode', 'LuHardDrive', 'LuGlobe', 'LuBan', 'LuUserPlus', 'LuEye', 'LuPencil', 'LuShieldCheck']) {
+  for (const n of ['LuLockKeyhole', 'LuSmartphone', 'LuCalendarDays', 'LuShapes', 'LuListChecks', 'LuUpload', 'LuClipboardCheck', 'LuUsers', 'LuHouse', 'LuUserRound', 'LuCrown', 'LuFlag', 'LuHandHelping', 'LuDatabase', 'LuServer', 'LuLayoutDashboard', 'LuFolderOpen', 'LuRocket', 'LuKeyRound', 'LuFileCode', 'LuHardDrive', 'LuGlobe', 'LuBan', 'LuUserPlus', 'LuEye', 'LuPencil', 'LuShieldCheck', 'LuFileCheck2']) {
     ic[n] = await icon(n);
   }
 
@@ -147,7 +147,7 @@ async function icon(name, color = 'FFFFFF') {
     ['LuCalendarDays', 'Events', 'Upcoming and past, filter by kadr', HEX.navy],
     ['LuShapes', 'Event types', 'Four types, each with its own rules', HEX.gold],
     ['LuListChecks', 'Tasks', 'Assign, set due dates, track progress', HEX.green],
-    ['LuUpload', 'Materials', 'PDF, Word or photo saved to Google Drive', HEX.red],
+    ['LuUpload', 'Materials', 'PDF, Word or photo, reviewed, then saved to Google Drive', HEX.red],
     ['LuClipboardCheck', 'Attendance', 'Present, Absent or Excused per member', HEX.green],
     ['LuUsers', 'Members', 'Attendance % and account management', HEX.teal],
     ['LuHouse', 'Home', 'Open, done and overdue at a glance', HEX.gold],
@@ -181,7 +181,7 @@ async function icon(name, color = 'FFFFFF') {
     [b('Kadr Leader Helper (about 47)'), 'Own kadr', no('No'), no('View only'), no('No')],
   ];
   s.addTable(rows, { x: 0.6, y: 1.4, w: 12.1, colW: [3.0, 2.7, 2.0, 2.4, 2.0], fontSize: 13, color: HEX.ink, border: { type: 'solid', pt: 0.75, color: HEX.border }, fill: { color: 'FFFFFF' }, rowH: 0.56, valign: 'middle', margin: [0.04, 0.1, 0.04, 0.1], objectName: 'roles table' });
-  s.addText([R('Only the person a task is assigned to uploads its material and changes its status.', { bullet: true, breakLine: true }), R('Which kadr each Database member covers is fixed in the system, not chosen in the app.', { bullet: true })], { x: 0.6, y: 5.55, w: 12.1, h: 0.9, fontSize: 14, color: HEX.ink, paraSpaceAfter: 4, isTextBox: true, margin: 0 });
+  s.addText([R('Only the person a task is assigned to uploads its material and changes its status; a leader reviews each file before it goes to Google Drive.', { bullet: true, breakLine: true }), R('Which kadr each Database member covers is fixed in the system, not chosen in the app.', { bullet: true })], { x: 0.6, y: 5.55, w: 12.1, h: 0.9, fontSize: 14, color: HEX.ink, paraSpaceAfter: 4, isTextBox: true, margin: 0 });
 
   // ===== 5. Event types =====
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'Roles and permissions' });
@@ -222,8 +222,8 @@ async function icon(name, color = 'FFFFFF') {
     'Open My tasks, or Home, to see what is assigned to you.',
     'Tap To do, In progress or Done to update a task as you work.',
     'When the material is ready, tap Upload material and pick a PDF, Word file or photo.',
-    "It is saved to the group's Google Drive automatically, in the kadr and event folder.",
-    'Tap a file to open it, or tap ✕ to remove it.',
+    "It waits for a leader's review, then goes to the group's Google Drive, in the kadr and event folder.",
+    'Sent back? Read the note and upload a new version. Tap a file to open it.',
   ], 0.6, 1.55, 8.4, HEX.green, 0.95);
   phone(s, 'home.png', 10.0, 1.3, 5.05, 'Home screen');
 
@@ -234,7 +234,7 @@ async function icon(name, color = 'FFFFFF') {
     ['LuCalendarDays', 'Create events', 'Events → + New event: title, type, kadr, dates (today or later), place.'],
     ['LuListChecks', 'Add tasks', "Open the event → Add task: a member of the event's kadr, optional due date."],
     ['LuPencil', 'Edit or delete', 'Pencil and bin buttons; uploaded files stay in Google Drive.'],
-    ['LuGlobe', 'Follow every kadr', 'Kadr chips and the Upcoming / Past tabs on Events.'],
+    ['LuFileCheck2', 'Review files', 'My tasks → To review: open, then Approve (to Google Drive) or Send back with a note.'],
     ['LuEye', 'See attendance', 'Tap View on the Attendance card; you cannot take or change it.'],
     ['LuUsers', 'Members (view only)', 'Every member with attendance %; tap one for details.'],
   ];
@@ -251,7 +251,7 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
   s.addText('Kadr Leader and Kadr Leader Helper', { placeholder: 'title' });
   const cols = [
-    ['LuFlag', 'Kadr Leader', HEX.gold, ['Create your kadr’s Kadr Sessions, Preparation Meetings and Others events', 'Add tasks and assign them to members of your kadr', 'Edit or delete your kadr’s events and tasks, including Preparation Meetings', 'See your kadr’s attendance (view only)']],
+    ['LuFlag', 'Kadr Leader', HEX.gold, ['Create your kadr’s Kadr Sessions, Preparation Meetings and Others events', 'Add tasks and assign them to members of your kadr', 'Edit or delete your kadr’s events and tasks, including Preparation Meetings', 'See your kadr’s attendance (view only)', 'Review files sent for your kadr’s tasks (Gawala: whole-group events too)']],
     ['LuHandHelping', 'Kadr Leader Helper', HEX.green, ['Create, edit and delete your kadr’s Kadr Sessions and Others events', 'Add tasks and assign them to members of your kadr', 'See Preparation Meetings, but not create, edit or delete them', 'See your kadr’s attendance (view only)']],
   ];
   cols.forEach(([icn, t, c, items], i) => {

@@ -4,6 +4,7 @@ import { Event } from '../models/Event.js';
 import { asyncHandler } from '../utils/httpError.js';
 import { visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
+import { countReviews } from './tasks.js';
 
 const router = Router();
 
@@ -62,7 +63,7 @@ router.get(
       Task.countDocuments({ assignee: req.user._id, status: { $ne: 'done' }, dueDate: { $lt: startOfToday } }),
       Event.countDocuments({ team: { $in: [...visibleTeams(req.user, TEAMS), null] }, startDate: { $gte: startOfToday } }),
     ]);
-    const attendance = await attendanceStats(req.user._id);
+    const [attendance, reviews] = await Promise.all([attendanceStats(req.user._id), countReviews(req.user)]);
 
     const counts = Object.fromEntries(byStatus.map((s) => [s._id, s.n]));
     const total = byStatus.reduce((sum, s) => sum + s.n, 0);
@@ -76,6 +77,7 @@ router.get(
       },
       upcomingEvents,
       attendance,
+      reviews, // files waiting for this user's review
     });
   })
 );

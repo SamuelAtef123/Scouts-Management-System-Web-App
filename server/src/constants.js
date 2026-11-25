@@ -12,6 +12,8 @@ export const ROLES = {
 
 export const ROLE_VALUES = Object.values(ROLES);
 
+export const REVIEW_STATUSES = ['pending', 'approved', 'changes'];
+
 export const TASK_STATUSES = ['todo', 'in_progress', 'done'];
 
 // Material types a user can upload for a task (PDF, Word, images).

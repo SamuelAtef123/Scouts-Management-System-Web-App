@@ -10,7 +10,7 @@ The app is designed for phones first and also works on a computer.
 
 - **Events**: create, edit and delete events (never starting in the past), and see upcoming and past events (grouped by month, with a kadr filter).
 - **Tasks**: add tasks to an event, assign each one to a leader, and set a due date. The person assigned can move the task through *To do → In progress → Done*.
-- **Materials**: the person assigned uploads the task's material (a PDF, Word document or image). It goes to Google Drive, sorted into `Kadr / Date Event title` folders.
+- **Materials**: the person assigned uploads the task's material (a PDF, Word document or image). A leader reviews it first; once approved it goes to Google Drive, sorted into `Kadr / Date Event title` folders (whole-group events under `Whole group`).
 - **Event types**: Kadr Session, Preparation Meeting, Gawala Session and Others. A Gawala Session belongs to the whole group, so everyone sees it; every other type belongs to one kadr.
 - **Attendance**: each event except "Others" has an attendance sheet. Mark each member Present, Absent or Excused; anyone left unmarked is saved as absent. Each member's attendance rate is shown on their Profile.
 - **Language**: English or Arabic, chosen on the sign-in screen or the Profile page and remembered on each phone. Arabic switches the whole app (texts, dates, server messages) to a right-to-left layout with Arabic fonts. Translations live in `client/src/i18n-ar.js`.
@@ -30,6 +30,11 @@ The app is designed for phones first and also works on a computer.
 | Kadr Leader Helper (the rest) | Their own kadr | Their own kadr |
 
 - Only the person a task is assigned to can upload its material and change its status.
+- **Reviewing uploaded files.** A file uploaded for a task waits as *Waiting for review* in a private place and is not in the event's Drive folder yet. It can be reviewed by:
+  - the Group Leader and the Group Leader Helpers, for every event;
+  - the Kadr Leader of the event's kadr (the Gawala Kadr Leader for whole-group events).
+
+  Reviewers find these files under **My tasks → To review**, with a count on Home and in the menu. **Approve** moves the file into the event's Drive folder. **Send back** deletes it and shows the uploader a note, so they can upload a new version. A reviewer's own upload is approved straight away. Until then, only the uploader and the reviewers can open the file, and the task cannot be marked Done.
 - A task can only be assigned to a member of its event's kadr, whoever creates it. Whole-group events (Gawala Sessions, and whole-group Others events) can be assigned to any member.
 - Events cannot start in the past. Past events can still be edited, as long as their date is not moved.
 - **Members page** (details and attendance percentage):
@@ -134,8 +139,9 @@ If Google Drive is not configured, uploaded files are saved in `server/uploads/`
    - **Option A: a normal Google account (recommended).** Create an *OAuth client ID* of type "Web application" and add `https://developers.google.com/oauthplayground` as a redirect URI. In the [OAuth Playground](https://developers.google.com/oauthplayground), open the settings (⚙), choose "Use your own OAuth credentials", authorise the `https://www.googleapis.com/auth/drive` scope with the account that owns the folder, and exchange the code for a refresh token. Then fill in `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` and `GOOGLE_OAUTH_REFRESH_TOKEN`.
    - **Option B: a service account.** This only works with Google Workspace Shared Drives, because service accounts have no storage of their own. Create a service account and a JSON key. Add the service account's email as a member of the Shared Drive. Then set `GOOGLE_SERVICE_ACCOUNT_KEY_FILE` (or `GOOGLE_SERVICE_ACCOUNT_JSON`).
 4. Restart the server. It prints `Uploads go to Google Drive`, and `GET /api/health` returns `"drive": true`.
+5. Files waiting for review are kept out of the shared folder. With Option A they wait in a private folder, **Scouts - waiting for review**, in the signed-in account's own Drive. With Option B they wait in a **_Waiting for review** folder inside the main folder; restrict who can open it, or set `GOOGLE_DRIVE_REVIEW_FOLDER_ID` to a private folder. Without Google Drive (local development) they wait in `server/uploads-pending`, which is never served publicly.
 
-When an event or task is deleted, its uploaded files **stay in Drive** as an archive. Removing a single file from a task deletes it from Drive.
+When an event or task is deleted, its approved files **stay in Drive** as an archive; files still waiting for review are deleted. Removing a single file from a task deletes it from Drive.
 
 ## Production
 
@@ -182,6 +188,10 @@ All routes except login need an `Authorization: Bearer <token>` header.
 | POST/PUT/DELETE | `/api/tasks[/:id]` | Manage tasks (the assignee can only change the status) |
 | POST | `/api/tasks/:id/materials` | Upload material (`multipart/form-data`, field `file`) |
 | DELETE | `/api/tasks/:id/materials/:materialId` | Remove an uploaded file |
+| GET | `/api/tasks/reviews`, `/api/tasks/reviews/count` | Tasks with files waiting for your review, and how many files |
+| GET | `/api/tasks/:id/materials/:materialId/file` | Open a file waiting for review (its uploader and the reviewers) |
+| POST | `/api/tasks/:id/materials/:materialId/approve` | Approve a file: it moves into the event's Drive folder |
+| POST | `/api/tasks/:id/materials/:materialId/send-back` | Send a file back with a `note`; the file is deleted |
 | GET | `/api/users`, `/api/users/:id`, `/api/users/attendance` | Members, one member's details and attendance, everyone's attendance % |
 | POST/PUT | `/api/users[/:id]` | Add or edit members (Database / Attendance team; the 3 non-privileged ones for their assigned kadr only) |
 | GET | `/api/stats/me` | The home screen summary and your attendance |

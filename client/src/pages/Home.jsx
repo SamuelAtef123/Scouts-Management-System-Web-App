@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { CalendarDays, CircleAlert, CircleCheck, ListChecks, Sparkles } from 'lucide-react';
+import { CalendarDays, CircleAlert, CircleCheck, FileCheck2, ListChecks, Sparkles } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
 import { roleLabel, TEAM_BY_ID, teamName } from '../constants.js';
@@ -60,6 +60,19 @@ export default function Home() {
         <Stat icon={CircleAlert} value={s?.tasks.overdue} label={tr('Overdue')} tone="red" />
         <Stat icon={CalendarDays} value={s?.upcomingEvents} label={tr('Upcoming events')} tone="yellow" />
       </section>
+
+      {s?.reviews > 0 && (
+        <Link to="/tasks?tab=review" className="review-banner">
+          <span className="review-banner-icon">
+            <FileCheck2 size={20} />
+          </span>
+          <span>
+            <strong>{s.reviews === 1 ? tr('1 file is waiting for your review') : tr('{n} files are waiting for your review', { n: s.reviews })}</strong>
+            <span className="muted">{tr('They go to Google Drive once you approve them.')}</span>
+          </span>
+          <span className="link">{tr('Review')}</span>
+        </Link>
+      )}
 
       <div className="home-grid">
         <section>

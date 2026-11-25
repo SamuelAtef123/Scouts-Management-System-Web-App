@@ -260,7 +260,7 @@
     <div class="feature"><div class="fi" style="background:#e7e8f8;color:var(--navy)"><i data-lucide="calendar-days"></i></div><div><b>Events</b><p>Create, edit and delete; Upcoming and Past tabs; grouped by month; filter by kadr.</p></div></div>
     <div class="feature"><div class="fi" style="background:#fff4cc;color:#b07d00"><i data-lucide="shapes"></i></div><div><b>Event types</b><p>Kadr Session, Preparation Meeting, Gawala Session and Others, each with its own rules.</p></div></div>
     <div class="feature"><div class="fi" style="background:#e3f6ea;color:var(--green)"><i data-lucide="list-checks"></i></div><div><b>Tasks</b><p>Assigned to a leader with a due date; To do, In progress, Done; overdue tasks in red.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#fde7e8;color:var(--red)"><i data-lucide="upload"></i></div><div><b>Materials</b><p>PDF, Word or image up to 25 MB, saved to Google Drive by kadr and event; Arabic names kept.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#fde7e8;color:var(--red)"><i data-lucide="upload"></i></div><div><b>Materials</b><p>PDF, Word or image up to 25 MB. A leader reviews it, then it is saved to Google Drive by kadr and event.</p></div></div>
     <div class="feature"><div class="fi" style="background:#e3f6ea;color:var(--green)"><i data-lucide="clipboard-check"></i></div><div><b>Attendance</b><p>Present, Absent or Excused per member, taken only by the assigned Database member.</p></div></div>
     <div class="feature"><div class="fi" style="background:#dff3f4;color:var(--teal)"><i data-lucide="users"></i></div><div><b>Members</b><p>List with attendance %, details view, and account management for the Database team.</p></div></div>
     <div class="feature"><div class="fi" style="background:#fff4cc;color:#b07d00"><i data-lucide="house"></i></div><div><b>Home</b><p>Open, done and overdue counts, your next tasks and the upcoming events.</p></div></div>
@@ -282,7 +282,7 @@
     <tr><td>Kadr Leader Helper (about 47)</td><td>Own kadr</td><td class="no">No</td><td class="no">View only</td><td class="no">No</td></tr>
   </table>
   <div class="rules">
-    <div class="rule"><i data-lucide="upload"></i>Only the person a task is assigned to uploads its material and changes its status.</div>
+    <div class="rule"><i data-lucide="upload"></i>Only the person a task is assigned to uploads its material and changes its status. Each file is reviewed before it goes to Google Drive.</div>
     <div class="rule"><i data-lucide="ban"></i>Preparation Meetings have no tasks. Tasks go only to members of the event’s kadr, and events cannot start in the past.</div>
     <div class="rule"><i data-lucide="users"></i>A Kadr Session or Preparation Meeting lists only its kadr; its attendance is taken by that kadr’s Database member.</div>
     <div class="rule"><i data-lucide="globe"></i>A Gawala Session lists every kadr; only the Database member assigned to Gawala takes it.</div>
@@ -329,8 +329,9 @@
     <ol class="steps" style="--c:var(--green)">
       <li>Open <b>My tasks</b> (or Home) to see what is assigned to you.</li>
       <li>Tap <b>To do</b>, <b>In progress</b> or <b>Done</b> to update a task as you work.</li>
-      <li>When the material is ready, tap <b>Upload material</b> and pick a PDF, Word file or photo. It is saved to the group’s Google Drive automatically.</li>
-      <li>Uploaded files appear on the task: tap one to open it, or tap <b>✕</b> to remove it.</li>
+      <li>When the material is ready, tap <b>Upload material</b> and pick a PDF, Word file or photo. It shows <b>Waiting for review</b> until a leader approves it; then it is saved to the group’s Google Drive.</li>
+      <li>If a file is <b>sent back</b>, read the leader’s note and upload a new version. A task with a file waiting or sent back cannot be marked Done.</li>
+      <li>Tap a file to open it, or tap <b>✕</b> to remove it.</li>
     </ol>
     <div><div class="phone"><img src="home.png" alt="" /></div><div class="phone-cap">Home screen</div></div>
   </div>
@@ -351,6 +352,7 @@
       <li><b>Follow all kadrs:</b> on Events, use the kadr chips (All kadrs, Whole group, one kadr) and the Upcoming / Past tabs.</li>
       <li><b>See attendance:</b> open an event and tap <b>View</b> on the Attendance card. You cannot take or change it.</li>
       <li><b>Members:</b> browse members and their attendance %; tap one for details and attendance by event type.</li>
+      <li><b>Review files:</b> My tasks → <b>To review</b> (Home shows how many wait). Open a file, then <b>Approve</b> it (it goes to Google Drive) or <b>Send back</b> with a note.</li>
     </ol>
   </div>
 
@@ -363,6 +365,7 @@
         <li>Add tasks and assign them to members of your kadr.</li>
         <li>Edit or delete your kadr’s events and tasks, including Preparation Meetings.</li>
         <li>See your kadr’s attendance on the event (view only).</li>
+        <li>Review files sent for your kadr’s tasks in My tasks → To review. The Gawala Kadr Leader also reviews whole-group events.</li>
       </ol>
     </div>
     <div class="role-card">

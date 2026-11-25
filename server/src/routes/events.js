@@ -2,6 +2,8 @@ import { Router } from 'express';
 import mongoose from 'mongoose';
 import { Event } from '../models/Event.js';
 import { Task } from '../models/Task.js';
+import { taskForClient } from './tasks.js';
+import { removeMaterial } from '../services/storage.js';
 import { User } from '../models/User.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
 import { canManageEvent, canManageTeam, canRecordAttendance, canSeeEvent, canViewAllTeams, hasGlobalAccess, recordableTeams, visibleTeams } from '../utils/access.js';
@@ -174,10 +176,11 @@ router.get(
       .sort({ createdAt: 1 })
       .populate('assignee', 'name username team photoUpdatedAt')
       .populate('createdBy', 'name')
-      .populate('materials.uploadedBy', 'name');
+      .populate('materials.uploadedBy', 'name')
+      .populate('materials.reviewedBy', 'name');
     res.json({
       event: { ...eventForClient(event), canRecordAttendance: canRecordAttendance(req.user, event), canManage: canManageEvent(req.user, event) },
-      tasks,
+      tasks: tasks.map((t) => taskForClient(t, req.user)),
     });
   })
 );
@@ -224,7 +227,9 @@ router.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     const event = await loadEvent(req.params.id, req.user, { manage: true });
-    // Uploaded materials stay in Google Drive as an archive; only the records are removed.
+    // Approved materials stay in Google Drive as an archive; files still waiting for review are deleted.
+    const waiting = await Task.find({ event: event._id, 'materials.reviewStatus': 'pending' });
+    await Promise.all(waiting.flatMap((t) => t.materials.filter((m) => m.reviewStatus === 'pending')).map(removeMaterial));
     await Task.deleteMany({ event: event._id });
     await event.deleteOne();
     res.json({ ok: true });

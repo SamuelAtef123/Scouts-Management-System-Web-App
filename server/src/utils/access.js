@@ -115,3 +115,28 @@ export function memberTeams(user) {
 export function canViewMembers(user) {
   return memberTeams(user).length > 0;
 }
+
+/**
+ * Who reviews files uploaded for a task before they go to the event's Drive folder:
+ * the Group Leader, the Group Leader Helpers, and the Kadr Leader of the event's kadr.
+ * For whole-group events (no kadr) that is the Gawala Kadr Leader.
+ */
+export function canReviewMaterials(user, team) {
+  if (!user?.isActive) return false;
+  if (user.role === ROLES.SCOUT_LEADER || user.role === ROLES.SCOUT_LEADER_HELPER) return true;
+  if (user.role !== ROLES.TEAM_LEADER || !user.team) return false;
+  return team ? user.team === team : user.team === 'Gawala';
+}
+
+/** Reviews anything at all (shows the "To review" list). */
+export function isReviewer(user) {
+  if (!user?.isActive) return false;
+  return [ROLES.SCOUT_LEADER, ROLES.SCOUT_LEADER_HELPER].includes(user.role) || (user.role === ROLES.TEAM_LEADER && Boolean(user.team));
+}
+
+/** MongoDB filter for the tasks whose files this user reviews (null = none). */
+export function reviewTaskFilter(user) {
+  if (!isReviewer(user)) return null;
+  if (user.role !== ROLES.TEAM_LEADER) return {};
+  return { team: user.team === 'Gawala' ? { $in: ['Gawala', null] } : user.team };
+}

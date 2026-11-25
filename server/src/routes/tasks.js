@@ -6,8 +6,8 @@ import { Event } from '../models/Event.js';
 import { User } from '../models/User.js';
 import { loadEvent } from './events.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
-import { canManageTeam } from '../utils/access.js';
-import { storeMaterial, removeMaterial } from '../services/storage.js';
+import { canManageTeam, canReviewMaterials, reviewTaskFilter } from '../utils/access.js';
+import { approveMaterial, readMaterial, storeMaterial, removeMaterial } from '../services/storage.js';
 import { ALLOWED_MATERIAL_TYPES, TASK_STATUSES } from '../constants.js';
 import { config } from '../config.js';
 import { fixFileName } from '../utils/fileName.js';
@@ -30,7 +30,29 @@ const populateTask = (query) =>
     .populate('assignee', 'name username team photoUpdatedAt')
     .populate('createdBy', 'name')
     .populate('materials.uploadedBy', 'name')
+    .populate('materials.reviewedBy', 'name')
     .populate('event', 'title type team startDate endDate location');
+
+const idOf = (ref) => String(ref?._id ?? ref ?? '');
+
+/**
+ * A task as `user` may see it. Files that are not approved yet are private: only their uploader and
+ * the reviewers can open them (through /materials/:id/file), and nobody gets their storage link.
+ */
+export function taskForClient(task, user) {
+  const json = task.toJSON ? task.toJSON() : task;
+  const canReview = canReviewMaterials(user, json.team ?? null);
+  json.canReview = canReview;
+  json.materials = (json.materials || []).map((m) => {
+    const status = m.reviewStatus || 'approved';
+    if (status === 'approved') return { ...m, reviewStatus: status, fileId: undefined, canOpen: true };
+    const own = idOf(m.uploadedBy) === idOf(user._id);
+    return { ...m, fileId: undefined, url: undefined, canOpen: status === 'pending' && (own || canReview) };
+  });
+  return json;
+}
+
+const sendTask = async (res, id, user, status = 200) => res.status(status).json({ task: taskForClient(await populateTask(Task.findById(id)), user) });
 
 async function loadTask(id) {
   if (!mongoose.isValidObjectId(id)) throw notFound('Task not found');
@@ -73,16 +95,47 @@ router.get(
     else if (status === 'done') filter.status = 'done';
 
     const tasks = await populateTask(Task.find(filter).sort({ dueDate: 1, createdAt: -1 }).limit(200));
-    res.json({ tasks });
+    res.json({ tasks: tasks.map((t) => taskForClient(t, req.user)) });
   })
 );
+
+// GET /api/tasks/reviews — tasks with files waiting for this user's review.
+router.get(
+  '/reviews',
+  asyncHandler(async (req, res) => {
+    const filter = reviewTaskFilter(req.user);
+    if (!filter) return res.json({ tasks: [] });
+    const tasks = await populateTask(Task.find({ ...filter, 'materials.reviewStatus': 'pending' }).sort({ updatedAt: 1 }).limit(200));
+    res.json({ tasks: tasks.map((t) => taskForClient(t, req.user)) });
+  })
+);
+
+// GET /api/tasks/reviews/count — the number of files waiting for this user's review (menu badge).
+router.get(
+  '/reviews/count',
+  asyncHandler(async (req, res) => {
+    res.json({ count: await countReviews(req.user) });
+  })
+);
+
+export async function countReviews(user) {
+  const filter = reviewTaskFilter(user);
+  if (!filter) return 0;
+  const [row] = await Task.aggregate([
+    { $match: { ...filter, 'materials.reviewStatus': 'pending' } },
+    { $unwind: '$materials' },
+    { $match: { 'materials.reviewStatus': 'pending' } },
+    { $count: 'n' },
+  ]);
+  return row?.n || 0;
+}
 
 router.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const task = await loadTask(req.params.id);
     if (!isAssignee(task, req.user) && !canManageTeam(req.user, task.team)) throw notFound('Task not found');
-    res.json({ task: await populateTask(Task.findById(task._id)) });
+    await sendTask(res, task._id, req.user);
   })
 );
 
@@ -104,7 +157,7 @@ router.post(
       createdBy: req.user._id,
       dueDate: parseDueDate(req.body.dueDate) ?? undefined,
     });
-    res.status(201).json({ task: await populateTask(Task.findById(task._id)) });
+    await sendTask(res, task._id, req.user, 201);
   })
 );
 
@@ -117,6 +170,9 @@ router.put(
 
     if (req.body.status !== undefined) {
       if (!TASK_STATUSES.includes(req.body.status)) throw badRequest('Invalid status');
+      if (req.body.status === 'done' && task.materials.some((m) => m.reviewStatus === 'pending' || m.reviewStatus === 'changes')) {
+        throw badRequest('This task has files waiting for review or sent back, so it cannot be marked done yet');
+      }
       task.status = req.body.status;
     }
 
@@ -137,7 +193,7 @@ router.put(
     }
 
     await task.save();
-    res.json({ task: await populateTask(Task.findById(task._id)) });
+    await sendTask(res, task._id, req.user);
   })
 );
 
@@ -146,7 +202,8 @@ router.delete(
   asyncHandler(async (req, res) => {
     const task = await loadTask(req.params.id);
     if (!canManageTeam(req.user, task.team)) throw forbidden('You can only delete tasks of your own kadr');
-    // Uploaded materials stay in Google Drive as an archive.
+    // Approved materials stay in Google Drive as an archive; files still waiting for review are deleted.
+    await Promise.all(task.materials.filter((m) => m.reviewStatus === 'pending').map(removeMaterial));
     await task.deleteOne();
     res.json({ ok: true });
   })
@@ -169,17 +226,23 @@ router.post(
     // The assignee may be from another team than the event, so the event is loaded without the visibility check.
     const event = await Event.findById(task.event);
     if (!event) throw notFound('Event not found');
-    const stored = await storeMaterial({ file: req.file, event, task, uploader: req.user });
+    // A reviewer's own upload needs no review; everyone else's waits in a private folder until approved.
+    const approved = canReviewMaterials(req.user, task.team);
+    const stored = await storeMaterial({ file: req.file, event, task, uploader: req.user, approved });
+    // A new upload answers earlier "sent back" notes.
+    task.materials = task.materials.filter((m) => m.reviewStatus !== 'changes');
     task.materials.push({
       fileName: req.file.originalname,
       mimeType: req.file.mimetype,
       size: req.file.size,
       uploadedBy: req.user._id,
       ...stored,
+      reviewStatus: approved ? 'approved' : 'pending',
+      ...(approved ? { reviewedBy: req.user._id, reviewedAt: new Date() } : {}),
     });
-    if (task.status === 'todo') task.status = 'in_progress';
+    if (task.status !== 'in_progress' && (task.status === 'todo' || !approved)) task.status = 'in_progress';
     await task.save();
-    res.status(201).json({ task: await populateTask(Task.findById(task._id)) });
+    await sendTask(res, task._id, req.user, 201);
   })
 );
 
@@ -194,7 +257,79 @@ router.delete(
     await removeMaterial(material);
     material.deleteOne();
     await task.save();
-    res.json({ task: await populateTask(Task.findById(task._id)) });
+    await sendTask(res, task._id, req.user);
+  })
+);
+
+/** Loads a task and one of its files that waits for review, checking that `user` reviews it. */
+async function loadPendingForReview(req) {
+  const task = await loadTask(req.params.id);
+  const material = task.materials.id(req.params.materialId);
+  if (!material) throw notFound('File not found');
+  if (!canReviewMaterials(req.user, task.team)) {
+    throw forbidden("Only the Group Leader, Group Leader Helpers and this kadr's Kadr Leader can review this file");
+  }
+  if (material.reviewStatus !== 'pending') throw badRequest('This file is not waiting for review');
+  return { task, material };
+}
+
+// Open a file: its uploader and the reviewers can open files that wait for review.
+router.get(
+  '/:id/materials/:materialId/file',
+  asyncHandler(async (req, res) => {
+    const task = await loadTask(req.params.id);
+    const material = task.materials.id(req.params.materialId);
+    if (!material || !material.fileId) throw notFound('File not found');
+    const own = material.uploadedBy.equals(req.user._id);
+    const allowed = own || canReviewMaterials(req.user, task.team) || (material.reviewStatus === 'approved' && canManageTeam(req.user, task.team));
+    if (!allowed) throw notFound('File not found');
+
+    const stream = await readMaterial(material);
+    res.setHeader('Content-Type', material.mimeType);
+    res.setHeader('Content-Disposition', `inline; filename*=UTF-8''${encodeURIComponent(material.fileName)}`);
+    res.setHeader('Content-Security-Policy', "sandbox; default-src 'none'; img-src 'self'; style-src 'unsafe-inline'");
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'private, no-store');
+    stream.on('error', () => res.destroy());
+    stream.pipe(res);
+  })
+);
+
+// Approve: the file moves into the event's Google Drive folder.
+router.post(
+  '/:id/materials/:materialId/approve',
+  asyncHandler(async (req, res) => {
+    const { task, material } = await loadPendingForReview(req);
+    const event = await Event.findById(task.event);
+    if (!event) throw notFound('Event not found');
+    Object.assign(material, await approveMaterial(material, event));
+    material.reviewStatus = 'approved';
+    material.reviewedBy = req.user._id;
+    material.reviewedAt = new Date();
+    material.reviewNote = '';
+    await task.save();
+    await sendTask(res, task._id, req.user);
+  })
+);
+
+// Send back: the file is deleted and the uploader sees the note, then uploads a new version.
+router.post(
+  '/:id/materials/:materialId/send-back',
+  asyncHandler(async (req, res) => {
+    const { task, material } = await loadPendingForReview(req);
+    const note = String(req.body.note || '').trim();
+    if (!note) throw badRequest('Write what should be changed');
+    if (note.length > 500) throw badRequest('The note can be at most 500 characters');
+    await removeMaterial(material);
+    material.reviewStatus = 'changes';
+    material.reviewNote = note;
+    material.reviewedBy = req.user._id;
+    material.reviewedAt = new Date();
+    material.fileId = '';
+    material.url = '';
+    if (task.status === 'done') task.status = 'in_progress';
+    await task.save();
+    await sendTask(res, task._id, req.user);
   })
 );
 

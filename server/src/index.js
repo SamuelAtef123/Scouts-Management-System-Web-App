@@ -174,6 +174,12 @@ async function start() {
   const moved = await User.updateMany({ $or: [{ team: null }, { team: { $exists: false } }] }, { team: 'Gawala' });
   if (moved.modifiedCount) console.log(`Moved ${moved.modifiedCount} member(s) without a kadr into the Gawala kadr`);
   await renameTeamToKadr();
+  // Files uploaded before reviews existed are already in Google Drive: they count as approved.
+  await Task.updateMany(
+    { 'materials.reviewStatus': { $exists: false } },
+    { $set: { 'materials.$[m].reviewStatus': 'approved' } },
+    { arrayFilters: [{ 'm.reviewStatus': { $exists: false } }] }
+  );
   await checkAttendanceAssignments();
   await repairMaterialNames();
   app.listen(config.port, () => {
