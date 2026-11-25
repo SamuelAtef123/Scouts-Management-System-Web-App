@@ -1180,3 +1180,95 @@ html[dir='rtl'] .photo-badge {
   direction: ltr;
   unicode-bidi: isolate;
 }
+
+/* ---------- Minimal team label: coloured dot + Arabic team name ---------- */
+.team-chip,
+.team-chip-group {
+  gap: 6px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-family: 'Cairo', var(--font);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: color-mix(in srgb, var(--team, var(--forest)) 78%, black);
+  letter-spacing: 0 !important;
+}
+
+.team-chip-sm {
+  font-size: 0.8rem;
+}
+
+.team-chip-group {
+  color: var(--forest-deep);
+}
+
+.team-chip .team-dot {
+  width: 7px;
+  height: 7px;
+}
+
+/* On dark or coloured backgrounds the label stays readable */
+.hero .team-chip {
+  color: #fff;
+}
+
+/* ---------- Minimal attendance rate: number + thin line ---------- */
+.rate-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent !important;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.rate-badge i {
+  display: block;
+  width: 40px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--khaki-soft);
+  overflow: hidden;
+}
+
+.rate-badge i span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: currentColor;
+}
+
+.rate-good {
+  color: #1e7a3c;
+}
+
+.rate-mid {
+  color: #b07800;
+}
+
+.rate-low {
+  color: #b52a20;
+}
+
+.rate-none {
+  color: var(--muted);
+}
+
+.member-side {
+  gap: 7px;
+}
+
+/* Arabic team names inside filters and tags use the Arabic font */
+.chip [lang='ar'],
+.hero-tag [lang='ar'] {
+  font-family: 'Cairo', var(--font);
+}

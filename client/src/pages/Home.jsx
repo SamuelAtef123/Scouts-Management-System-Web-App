@@ -46,7 +46,7 @@ export default function Home() {
             <span className="hero-tag">{ROLE_LABEL[user.role]}</span>
             {user.team && (
               <span className="hero-tag" style={{ '--team': TEAM_BY_ID[user.team]?.color }}>
-                <span className="team-dot" /> {teamName(user.team)}
+                <span className="team-dot" /> <span lang="ar">{TEAM_BY_ID[user.team]?.arabic}</span>
               </span>
             )}
           </div>

@@ -246,7 +246,14 @@ function MemberDetails({ member, onClose, onEdit }) {
 function RateBadge({ rate }) {
   if (rate === null || rate === undefined) return <span className="rate-badge rate-none">–</span>;
   const tone = rate >= 75 ? 'good' : rate >= 50 ? 'mid' : 'low';
-  return <span className={`rate-badge rate-${tone}`}>{rate}%</span>;
+  return (
+    <span className={`rate-badge rate-${tone}`} title={tr('Attendance')}>
+      <b>{rate}%</b>
+      <i aria-hidden="true">
+        <span style={{ width: `${rate}%` }} />
+      </i>
+    </span>
+  );
 }
 
 export default function Members() {
@@ -301,7 +308,7 @@ export default function Members() {
         {filterTeams.map((t) => (
           <button key={t.id} className={`chip ${team === t.id ? 'active' : ''}`} style={{ '--team': t.color, '--team-soft': t.soft }} onClick={() => setTeam(t.id)}>
             <span className="team-dot" />
-            {teamName(t.id)}
+            <span lang="ar">{t.arabic}</span>
           </button>
         ))}
       </div>

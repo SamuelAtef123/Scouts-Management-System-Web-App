@@ -88,7 +88,7 @@ export default function Events() {
               onClick={() => setParam('team', t.id)}
             >
               <span className="team-dot" />
-              {teamName(t.id)}
+              <span lang="ar">{t.arabic}</span>
             </button>
           ))}
         </div>

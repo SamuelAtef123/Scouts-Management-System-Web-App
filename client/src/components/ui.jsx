@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useMemberPhoto } from '../photos.js';
 import { CircleAlert, CircleCheck, LoaderCircle, X } from 'lucide-react';
-import { TEAM_BY_ID, STATUS_LABEL, VERSE, eventType, teamName } from '../constants.js';
+import { TEAM_BY_ID, STATUS_LABEL, VERSE, eventType } from '../constants.js';
 import { t as tr } from '../i18n.jsx';
 import { initials } from '../format.js';
 
@@ -47,16 +47,23 @@ export function TeamChip({ team, size }) {
   const t = TEAM_BY_ID[team];
   if (!t) {
     return (
-      <span className={`team-chip team-chip-group ${size === 'sm' ? 'team-chip-sm' : ''}`}>
+      <span className={`team-chip team-chip-group ${size === 'sm' ? 'team-chip-sm' : ''}`} lang="ar" dir="rtl">
         <span className="team-dot group-dot" />
-        {tr('Whole group')}
+        المجموعة كلها
       </span>
     );
   }
   return (
-    <span className={`team-chip ${size === 'sm' ? 'team-chip-sm' : ''}`} style={{ '--team': t.color, '--team-soft': t.soft }}>
+    // Team names are always shown in Arabic, as the group uses them.
+    <span
+      className={`team-chip ${size === 'sm' ? 'team-chip-sm' : ''}`}
+      style={{ '--team': t.color, '--team-soft': t.soft }}
+      lang="ar"
+      dir="rtl"
+      title={t.id}
+    >
       <span className="team-dot" />
-      {teamName(t.id)}
+      {t.arabic}
     </span>
   );
 }
