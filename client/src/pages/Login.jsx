@@ -32,7 +32,7 @@ export default function Login() {
   return (
     <div className="login">
       <section className="login-photo">
-        <img src="/group.jpg" alt={tr('The Gawala team together at St. Mary Church, Garden City')} />
+        <img src="/group.jpg" alt={tr('The Gawala kadr together at St. Mary Church, Garden City')} />
         <div className="login-photo-text">
           <p className="eyebrow">{tr('Together we serve')}</p>
           <blockquote lang="ar" dir="rtl">
@@ -83,7 +83,7 @@ export default function Login() {
             {busy ? tr('Signing in…') : tr('Sign in')}
           </button>
         </form>
-        <p className="login-help">{tr('Forgot your password? Ask the Scouts Leader or the Database team to reset it.')}</p>
+        <p className="login-help">{tr('Forgot your password? Ask the Group Leader or the Database team to reset it.')}</p>
       </section>
     </div>
   );

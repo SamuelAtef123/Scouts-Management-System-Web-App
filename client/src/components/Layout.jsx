@@ -2,7 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { CalendarDays, House, ListChecks, LogOut, UserRound, Users } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { t as tr } from '../i18n.jsx';
-import { ROLE_LABEL } from '../constants.js';
+import { roleLabel } from '../constants.js';
 import { Avatar, VerseCard } from './ui.jsx';
 
 export function useNavItems() {
@@ -45,7 +45,7 @@ export default function Layout() {
             <Avatar person={user} size={36} />
             <div className="side-user-text">
               <strong>{user.name}</strong>
-              <span>{ROLE_LABEL[user.role]}</span>
+              <span>{roleLabel(user)}</span>
             </div>
             <button className="icon-btn" onClick={logout} aria-label={tr('Sign out')} title={tr('Sign out')}>
               <LogOut size={18} />

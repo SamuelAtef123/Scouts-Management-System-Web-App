@@ -6,7 +6,7 @@ import PhoneInput from '../components/PhoneInput.jsx';
 import { displayPhone, localPhone } from '../format.js';
 import { api, tokenStore } from '../api.js';
 import { useAuth } from '../auth.jsx';
-import { EVENT_TYPES, ROLE_LABEL, teamName } from '../constants.js';
+import { EVENT_TYPES, roleLabel, teamName } from '../constants.js';
 import { useApi } from '../hooks.js';
 import { Avatar, ErrorBox, Field, Spinner, TeamChip, VerseCard, useToast } from '../components/ui.jsx';
 
@@ -138,15 +138,15 @@ export default function Profile() {
           </a>
         )}
         <div className="profile-tags">
-          <span className="role-tag">{ROLE_LABEL[user.role]}</span>
+          <span className="role-tag">{roleLabel(user)}</span>
           {user.team && <TeamChip team={user.team} />}
         </div>
         <p className="profile-access">
           {user.permissions.allTeams
-            ? tr('You can manage events and tasks of every team and of the whole group.')
-            : tr('You can manage events and tasks of the {team} team.', { team: teamName(user.team) })}
+            ? tr('You can manage events and tasks of every kadr and of the whole group.')
+            : tr('You can manage events and tasks of the {team} kadr.', { team: teamName(user.team) })}
           {user.permissions.attendanceTeam &&
-            ` ${tr('You take attendance for the {team} team.', { team: teamName(user.permissions.attendanceTeam) })}`}
+            ` ${tr('You take attendance for the {team} kadr.', { team: teamName(user.permissions.attendanceTeam) })}`}
         </p>
       </section>
 

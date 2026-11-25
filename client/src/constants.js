@@ -15,16 +15,24 @@ export const TEAM_BY_ID = Object.fromEntries(TEAMS.map((t) => [t.id, t]));
 const item = (id, en, extra = {}) => ({ id, get label() { return t(en); }, ...extra });
 
 export const ROLES = [
-  item('scout_leader', 'Scouts Leader'),
-  item('scout_leader_helper', 'Scouts Leader Helper'),
+  item('scout_leader', 'Group Leader'),
+  item('scout_leader_helper', 'Group Leader Helper'),
   item('database_team', 'Database / Attendance'),
-  item('team_leader', 'Team Leader'),
-  item('team_leader_helper', 'Team Leader Helper'),
+  item('team_leader', 'Kadr Leader'),
+  item('team_leader_helper', 'Kadr Leader Helper'),
 ];
 
 const labelMap = (list) => new Proxy({}, { get: (_, id) => list.find((x) => x.id === id)?.label });
 
 export const ROLE_LABEL = labelMap(ROLES);
+
+/** A person's role, naming their kadr for kadr leaders (Ashbal Kadr Leader / قائد كدر أشبال). */
+export function roleLabel(person) {
+  if (!person) return '';
+  if (person.team && person.role === 'team_leader') return t('{team} Kadr Leader', { team: teamName(person.team) });
+  if (person.team && person.role === 'team_leader_helper') return t('{team} Kadr Leader Helper', { team: teamName(person.team) });
+  return ROLE_LABEL[person.role];
+}
 
 export const STATUSES = [item('todo', 'To do'), item('in_progress', 'In progress'), item('done', 'Done')];
 
@@ -41,9 +49,9 @@ export const VERSE = {
 export const ACCEPTED_FILES = '.pdf,.doc,.docx,image/*';
 
 // Event types. `group: true` = belongs to the whole group (members of ALL teams on the attendance sheet).
-// Preparation Meetings are created only by the Scouts Leader, Helpers, and a Team Leader for their own team.
+// Preparation Meetings are created only by the Group Leader, Helpers, and a Kadr Leader for their own kadr.
 export const EVENT_TYPES = [
-  item('team_session', 'Team Session', { attendance: true, group: false }),
+  item('team_session', 'Kadr Session', { attendance: true, group: false }),
   item('preparation_meeting', 'Preparation Meeting', { attendance: true, group: false }),
   item('gawala_session', 'Gawala Session', { attendance: true, group: true }),
   item('other', 'Others', { attendance: false, group: false }),

@@ -119,7 +119,7 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
 
         {typeInfo.group ? null : (
           <div className="field">
-            <span className="field-label">{tr('Team')}</span>
+            <span className="field-label">{tr('Kadr')}</span>
             <div className="team-picker">
               {allowWholeGroup && (
                 <button
@@ -156,7 +156,7 @@ export default function EventForm({ event, defaultTeam, onClose, onSaved }) {
             </div>
           </div>
         )}
-        {locked && <p className="field-hint">{tr("Attendance was already taken, so the type and team can't change.")}</p>}
+        {locked && <p className="field-hint">{tr("Attendance was already taken, so the type and kadr can't change.")}</p>}
 
         <div className="form-row">
           <Field label={tr('Starts')}>

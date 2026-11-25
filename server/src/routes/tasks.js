@@ -50,7 +50,7 @@ async function checkAssignee(assigneeId, event) {
   const assignee = await User.findOne({ _id: assigneeId, isActive: true });
   if (!assignee) throw badRequest('This member was not found or is not active');
   if (event.team && assignee.team !== event.team) {
-    throw badRequest(`Tasks of this event can only be assigned to members of the ${event.team} team`);
+    throw badRequest('Tasks of this event can only be assigned to members of its kadr');
   }
   return assignee;
 }
@@ -145,7 +145,7 @@ router.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     const task = await loadTask(req.params.id);
-    if (!canManageTeam(req.user, task.team)) throw forbidden('You can only delete tasks of your own team');
+    if (!canManageTeam(req.user, task.team)) throw forbidden('You can only delete tasks of your own kadr');
     // Uploaded materials stay in Google Drive as an archive.
     await task.deleteOne();
     res.json({ ok: true });

@@ -137,6 +137,29 @@ async function repairMaterialNames() {
   if (fixed) console.log(`Fixed ${fixed} uploaded file name(s) with Arabic text`);
 }
 
+/**
+ * The word "team" became "kadr" (كدر). Renames it in member names (Ashbal Team Leader -> Ashbal Kadr Leader)
+ * and usernames (ashbal.team -> ashbal.kadr). Safe to run on every start: renamed accounts no longer match.
+ */
+async function renameTeamToKadr() {
+  const users = await User.find({ $or: [{ name: /team/i }, { username: /team/i }] }).select('name username');
+  const renamed = [];
+  for (const u of users) {
+    const name = u.name.replace(/TEAM/g, 'KADR').replace(/Team/g, 'Kadr').replace(/team/gi, 'kadr');
+    let username = u.username.replace(/team/g, 'kadr');
+    if (username !== u.username && (ATTENDANCE_ASSIGNMENTS[u.username] || (await User.exists({ username })))) {
+      console.warn(`Warning: kept the username "${u.username}" (renaming it to "${username}" would clash)`);
+      username = u.username;
+    }
+    if (name === u.name && username === u.username) continue;
+    if (username !== u.username) renamed.push(`${u.username} -> ${username}`);
+    u.name = name;
+    u.username = username;
+    await u.save();
+  }
+  if (renamed.length) console.log(`Renamed username(s) from team to kadr: ${renamed.join(', ')}`);
+}
+
 async function start() {
   try {
     await mongoose.connect(config.mongoUri, { serverSelectionTimeoutMS: 8000 });
@@ -149,7 +172,8 @@ async function start() {
   // Everyone belongs to a team now (it decides attendance sheets). Accounts created before
   // that rule had no team only for group roles, which belong to the Gawala team.
   const moved = await User.updateMany({ $or: [{ team: null }, { team: { $exists: false } }] }, { team: 'Gawala' });
-  if (moved.modifiedCount) console.log(`Moved ${moved.modifiedCount} member(s) without a team into the Gawala team`);
+  if (moved.modifiedCount) console.log(`Moved ${moved.modifiedCount} member(s) without a kadr into the Gawala kadr`);
+  await renameTeamToKadr();
   await checkAttendanceAssignments();
   await repairMaterialNames();
   app.listen(config.port, () => {

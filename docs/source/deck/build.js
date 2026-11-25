@@ -35,7 +35,7 @@ async function icon(name, color = 'FFFFFF') {
   const pres = new pptxgen();
   pres.layout = 'LAYOUT_WIDE'; // 13.333 x 7.5
   pres.title = 'Scouts Management System — Project Report and User Guide';
-  pres.author = 'Gawala team';
+  pres.author = 'Gawala kadr';
   pres.subject = 'Light of the World scouts app';
   pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
   const C = pres.SchemeColor;
@@ -107,7 +107,7 @@ async function icon(name, color = 'FFFFFF') {
   // ===== 1. Title =====
   pres.addSection({ title: 'Overview' });
   let s = pres.addSlide({ masterName: 'Title Dark', sectionTitle: 'Overview' });
-  s.addImage({ path: path.join(IMG, 'group.jpg'), x: 0, y: 0, w: W, h: W * (554 / 974), altText: 'The Gawala team together at St. Mary Church', objectName: 'group photo', sizing: { type: 'cover', w: W, h: 7.5 } });
+  s.addImage({ path: path.join(IMG, 'group.jpg'), x: 0, y: 0, w: W, h: W * (554 / 974), altText: 'The Gawala kadr together at St. Mary Church', objectName: 'group photo', sizing: { type: 'cover', w: W, h: 7.5 } });
   s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: W, h: 7.5, fill: { color: HEX.forestDeep, transparency: 30 }, line: { color: HEX.forestDeep, width: 0 }, objectName: 'photo overlay' });
   s.addImage({ path: path.join(ASSETS, 'deckle.png'), x: 0, y: 7.0, w: W, h: 0.5, altText: '', objectName: 'torn paper edge' });
   s.addShape(pres.shapes.OVAL, { x: 0.72, y: 1.37, w: 1.76, h: 1.76, fill: { color: 'FFFFFF' }, line: { color: HEX.khaki, width: 3 }, objectName: 'logo ring' });
@@ -121,7 +121,7 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'Overview' });
   s.addText('One app for planning, tasks and attendance', { placeholder: 'title' });
   s.addText('The 60 Gawala leaders plan events, share out tasks, take attendance and keep task materials in Google Drive. Built for phones first, and it works on a computer too.', { x: 0.6, y: 1.35, w: 12.1, h: 0.8, fontSize: 17, color: HEX.ink, isTextBox: true, margin: 0 });
-  const stats = [['60', 'leaders using the app', HEX.navy], ['5', 'teams in the group', HEX.green], ['5', 'roles, each with its own rights', HEX.red], ['4', 'types of event', HEX.gold]];
+  const stats = [['60', 'leaders using the app', HEX.navy], ['5', 'kadrs in the group', HEX.green], ['5', 'roles, each with its own rights', HEX.red], ['4', 'types of event', HEX.gold]];
   stats.forEach(([n, l, c], i) => {
     const x = 0.6 + i * 3.1;
     card(s, x, 2.45, 2.85, 2.05, `stat ${l}`);
@@ -129,13 +129,13 @@ async function icon(name, color = 'FFFFFF') {
     s.addText(l, { x: x + 0.3, y: 3.7, w: 2.4, h: 0.6, fontSize: 14, color: HEX.muted, isTextBox: true, margin: 0, valign: 'top' });
   });
   const teams = [['Ashbal', 'أشبال', HEX.gold], ['Zahrat', 'زهرات', HEX.green], ['Kashafeen', 'كشافين', '2B2E8F'], ['Morshedat', 'مرشدات', HEX.red], ['Gawala', 'جوالة', HEX.teal]];
-  s.addText('The five teams', { x: 0.6, y: 4.95, w: 4, h: 0.4, fontSize: 16, bold: true, color: HEX.ink, isTextBox: true, margin: 0 });
+  s.addText('The five kadrs', { x: 0.6, y: 4.95, w: 4, h: 0.4, fontSize: 16, bold: true, color: HEX.ink, isTextBox: true, margin: 0 });
   teams.forEach(([en, ar, c], i) => {
     const x = 0.6 + i * 2.46;
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 5.45, w: 2.26, h: 0.95, rectRadius: 0.12, fill: { color: c }, line: { color: c, width: 0 }, objectName: `team ${en}` });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 5.45, w: 2.26, h: 0.95, rectRadius: 0.12, fill: { color: c }, line: { color: c, width: 0 }, objectName: `kadr ${en}` });
     s.addText([R(en, { bold: true, fontSize: 17, breakLine: true }), R(ar, { fontSize: 15, fontFace: 'Arial', rtlMode: true })], { x, y: 5.45, w: 2.26, h: 0.95, color: 'FFFFFF', align: 'center', valign: 'middle', isTextBox: true, margin: 0 });
   });
-  s.addNotes('Every member belongs to one team. The Scouts Leader, the Helpers and the Database / Attendance team belong to Gawala.');
+  s.addNotes('Every member belongs to one kadr. The Group Leader, the Helpers and the Database / Attendance team belong to Gawala.');
 
   // ===== 3. What has been built =====
   pres.addSection({ title: 'What has been built' });
@@ -144,7 +144,7 @@ async function icon(name, color = 'FFFFFF') {
   const feats = [
     ['LuLockKeyhole', 'Sign-in', 'Username and password, 7-day sessions', HEX.navy],
     ['LuSmartphone', 'First sign-in', 'Egyptian mobile number, optional photo', HEX.teal],
-    ['LuCalendarDays', 'Events', 'Upcoming and past, filter by team', HEX.navy],
+    ['LuCalendarDays', 'Events', 'Upcoming and past, filter by kadr', HEX.navy],
     ['LuShapes', 'Event types', 'Four types, each with its own rules', HEX.gold],
     ['LuListChecks', 'Tasks', 'Assign, set due dates, track progress', HEX.green],
     ['LuUpload', 'Materials', 'PDF, Word or photo saved to Google Drive', HEX.red],
@@ -173,24 +173,24 @@ async function icon(name, color = 'FFFFFF') {
   const b = (t) => ({ text: t, options: { bold: true } });
   const rows = [
     [hd('Role (count)'), hd('Events and tasks'), hd('Preparation Meetings'), hd('Attendance'), hd('Members page')],
-    [b('Scouts Leader (1)'), 'Every team and Gawala Sessions', yes('Any team'), no('View only'), 'View all'],
-    [b('Scouts Leader Helper (2)'), 'Every team and Gawala Sessions', yes('Any team'), no('View only'), 'View all'],
-    [b('Database / Attendance, privileged (2)'), 'Every team and Gawala Sessions', no('No'), yes('Takes it for one fixed team'), 'View, add, edit all'],
-    [b('Database / Attendance, others (3)'), 'Own team', no('No'), yes('Takes it for one fixed team'), 'View, add, edit their team'],
-    [b('Team Leader (5)'), 'Own team', yes('Own team'), no('View only'), no('No')],
-    [b('Team Leader Helper (about 47)'), 'Own team', no('No'), no('View only'), no('No')],
+    [b('Group Leader (1)'), 'Every kadr and Gawala Sessions', yes('Any kadr'), no('View only'), 'View all'],
+    [b('Group Leader Helper (2)'), 'Every kadr and Gawala Sessions', yes('Any kadr'), no('View only'), 'View all'],
+    [b('Database / Attendance, privileged (2)'), 'Every kadr and Gawala Sessions', no('No'), yes('Takes it for one fixed kadr'), 'View, add, edit all'],
+    [b('Database / Attendance, others (3)'), 'Own kadr', no('No'), yes('Takes it for one fixed kadr'), 'View, add, edit their kadr'],
+    [b('Kadr Leader (5)'), 'Own kadr', yes('Own kadr'), no('View only'), no('No')],
+    [b('Kadr Leader Helper (about 47)'), 'Own kadr', no('No'), no('View only'), no('No')],
   ];
   s.addTable(rows, { x: 0.6, y: 1.4, w: 12.1, colW: [3.0, 2.7, 2.0, 2.4, 2.0], fontSize: 13, color: HEX.ink, border: { type: 'solid', pt: 0.75, color: HEX.border }, fill: { color: 'FFFFFF' }, rowH: 0.56, valign: 'middle', margin: [0.04, 0.1, 0.04, 0.1], objectName: 'roles table' });
-  s.addText([R('Only the person a task is assigned to uploads its material and changes its status.', { bullet: true, breakLine: true }), R('Which team each Database member covers is fixed in the system, not chosen in the app.', { bullet: true })], { x: 0.6, y: 5.55, w: 12.1, h: 0.9, fontSize: 14, color: HEX.ink, paraSpaceAfter: 4, isTextBox: true, margin: 0 });
+  s.addText([R('Only the person a task is assigned to uploads its material and changes its status.', { bullet: true, breakLine: true }), R('Which kadr each Database member covers is fixed in the system, not chosen in the app.', { bullet: true })], { x: 0.6, y: 5.55, w: 12.1, h: 0.9, fontSize: 14, color: HEX.ink, paraSpaceAfter: 4, isTextBox: true, margin: 0 });
 
   // ===== 5. Event types =====
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'Roles and permissions' });
   s.addText('Four event types', { placeholder: 'title' });
   const types = [
-    ['LuUsers', 'Team Session', 'One team', "That team's members", 'Tasks: yes', HEX.green],
-    ['LuClipboardCheck', 'Preparation Meeting', 'One team', "That team's members", 'Tasks: no', HEX.gold],
-    ['LuGlobe', 'Gawala Session', 'The whole group', 'All teams, grouped by team', 'Tasks: yes', HEX.teal],
-    ['LuShapes', 'Others', 'One team or the whole group', 'No attendance', 'Tasks: yes', HEX.navy],
+    ['LuUsers', 'Kadr Session', 'One kadr', "That kadr's members", 'Tasks: yes', HEX.green],
+    ['LuClipboardCheck', 'Preparation Meeting', 'One kadr', "That kadr's members", 'Tasks: no', HEX.gold],
+    ['LuGlobe', 'Gawala Session', 'The whole group', 'All kadrs, grouped by kadr', 'Tasks: yes', HEX.teal],
+    ['LuShapes', 'Others', 'One kadr or the whole group', 'No attendance', 'Tasks: yes', HEX.navy],
   ];
   types.forEach(([icn, t, belongs, sheet, tasks, c], i) => {
     const x = 0.6 + i * 3.1;
@@ -199,7 +199,7 @@ async function icon(name, color = 'FFFFFF') {
     s.addText(t, { x: x + 0.3, y: 2.8, w: 2.4, h: 0.5, fontSize: 19, bold: true, color: HEX.ink, isTextBox: true, margin: 0 });
     s.addText([R('Belongs to', { fontSize: 11, color: HEX.muted, breakLine: true }), R(belongs, { fontSize: 14, bold: true, breakLine: true }), R(' ', { fontSize: 6, breakLine: true }), R('Attendance sheet', { fontSize: 11, color: HEX.muted, breakLine: true }), R(sheet, { fontSize: 14, bold: true, breakLine: true }), R(' ', { fontSize: 6, breakLine: true }), R(tasks, { fontSize: 14, color: c, bold: true })], { x: x + 0.3, y: 3.4, w: 2.4, h: 2.0, color: HEX.ink, valign: 'top', isTextBox: true, margin: 0 });
   });
-  s.addText('A Team Session or Preparation Meeting is taken by the Database member of that team; a Gawala Session only by the one assigned to Gawala.', { x: 0.6, y: 5.85, w: 12.1, h: 0.6, fontSize: 14, color: HEX.ink, isTextBox: true, margin: 0 });
+  s.addText('A Kadr Session or Preparation Meeting is taken by the Database member of that kadr; a Gawala Session only by the one assigned to Gawala.', { x: 0.6, y: 5.85, w: 12.1, h: 0.6, fontSize: 14, color: HEX.ink, isTextBox: true, margin: 0 });
 
   // ===== 6. Getting started =====
   pres.addSection({ title: 'User guide' });
@@ -222,19 +222,19 @@ async function icon(name, color = 'FFFFFF') {
     'Open My tasks, or Home, to see what is assigned to you.',
     'Tap To do, In progress or Done to update a task as you work.',
     'When the material is ready, tap Upload material and pick a PDF, Word file or photo.',
-    "It is saved to the group's Google Drive automatically, in the team and event folder.",
+    "It is saved to the group's Google Drive automatically, in the kadr and event folder.",
     'Tap a file to open it, or tap ✕ to remove it.',
   ], 0.6, 1.55, 8.4, HEX.green, 0.95);
   phone(s, 'home.png', 10.0, 1.3, 5.05, 'Home screen');
 
   // ===== 8. Scouts Leader and Helpers =====
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
-  s.addText('Scouts Leader and Scouts Leader Helpers', { placeholder: 'title' });
+  s.addText('Group Leader and Group Leader Helpers', { placeholder: 'title' });
   const sl = [
-    ['LuCalendarDays', 'Create events', 'Events → + New event: title, type, team, dates (today or later), place.'],
-    ['LuListChecks', 'Add tasks', "Open the event → Add task: a member of the event's team, optional due date."],
+    ['LuCalendarDays', 'Create events', 'Events → + New event: title, type, kadr, dates (today or later), place.'],
+    ['LuListChecks', 'Add tasks', "Open the event → Add task: a member of the event's kadr, optional due date."],
     ['LuPencil', 'Edit or delete', 'Pencil and bin buttons; uploaded files stay in Google Drive.'],
-    ['LuGlobe', 'Follow every team', 'Team chips and the Upcoming / Past tabs on Events.'],
+    ['LuGlobe', 'Follow every kadr', 'Kadr chips and the Upcoming / Past tabs on Events.'],
     ['LuEye', 'See attendance', 'Tap View on the Attendance card; you cannot take or change it.'],
     ['LuUsers', 'Members (view only)', 'Every member with attendance %; tap one for details.'],
   ];
@@ -249,10 +249,10 @@ async function icon(name, color = 'FFFFFF') {
 
   // ===== 9. Team Leader vs Helper =====
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
-  s.addText('Team Leader and Team Leader Helper', { placeholder: 'title' });
+  s.addText('Kadr Leader and Kadr Leader Helper', { placeholder: 'title' });
   const cols = [
-    ['LuFlag', 'Team Leader', HEX.gold, ['Create your team’s Team Sessions, Preparation Meetings and Others events', 'Add tasks and assign them to members of your team', 'Edit or delete your team’s events and tasks, including Preparation Meetings', 'See your team’s attendance (view only)']],
-    ['LuHandHelping', 'Team Leader Helper', HEX.green, ['Create, edit and delete your team’s Team Sessions and Others events', 'Add tasks and assign them to members of your team', 'See Preparation Meetings, but not create, edit or delete them', 'See your team’s attendance (view only)']],
+    ['LuFlag', 'Kadr Leader', HEX.gold, ['Create your kadr’s Kadr Sessions, Preparation Meetings and Others events', 'Add tasks and assign them to members of your kadr', 'Edit or delete your kadr’s events and tasks, including Preparation Meetings', 'See your kadr’s attendance (view only)']],
+    ['LuHandHelping', 'Kadr Leader Helper', HEX.green, ['Create, edit and delete your kadr’s Kadr Sessions and Others events', 'Add tasks and assign them to members of your kadr', 'See Preparation Meetings, but not create, edit or delete them', 'See your kadr’s attendance (view only)']],
   ];
   cols.forEach(([icn, t, c, items], i) => {
     const x = 0.6 + i * 6.15;
@@ -265,9 +265,9 @@ async function icon(name, color = 'FFFFFF') {
   // ===== 10. Database: taking attendance =====
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
   s.addText('Database / Attendance team: taking attendance', { placeholder: 'title' });
-  s.addText('Each of the five members covers one fixed team; your team is shown on your Profile.', { x: 0.6, y: 1.3, w: 9.0, h: 0.45, fontSize: 15, color: HEX.muted, isTextBox: true, margin: 0 });
+  s.addText('Each of the five members covers one fixed kadr; your kadr is shown on your Profile.', { x: 0.6, y: 1.3, w: 9.0, h: 0.45, fontSize: 15, color: HEX.muted, isTextBox: true, margin: 0 });
   steps(s, [
-    'Open Events and tap a Team Session or Preparation Meeting of your team (Gawala member: also Gawala Sessions).',
+    'Open Events and tap a Kadr Session or Preparation Meeting of your kadr (Gawala member: also Gawala Sessions).',
     'On the Attendance card, tap Take attendance.',
     'Tap P (Present), A (Absent) or E (Excused); Mark the rest present fills the others.',
     'Tap Save attendance; anyone left unmarked is saved as absent.',
@@ -279,7 +279,7 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
   s.addText('Database / Attendance team: managing members', { placeholder: 'title' });
   const mm = [
-    ['LuUserPlus', 'Add a member', 'Members → Add member: name, username, mobile, role, team and a starting password.'],
+    ['LuUserPlus', 'Add a member', 'Members → Add member: name, username, mobile, role, kadr and a starting password.'],
     ['LuKeyRound', 'Reset a password', 'Tap the member → Edit → new password → Save changes.'],
     ['LuBan', 'Deactivate a member', 'Tap the member → Edit → untick Active. Their past records stay.'],
   ];
@@ -290,7 +290,7 @@ async function icon(name, color = 'FFFFFF') {
     s.addText(t, { x: 1.85, y: y + 0.15, w: 7.1, h: 0.42, fontSize: 17, bold: true, color: HEX.ink, isTextBox: true, margin: 0 });
     s.addText(d, { x: 1.85, y: y + 0.57, w: 7.1, h: 0.55, fontSize: 14, color: HEX.muted, isTextBox: true, margin: 0, valign: 'top' });
   });
-  s.addText([R('Who manages whom: ', { bold: true }), R('the 2 privileged members manage everyone; the other 3 manage only their assigned team, as Team Leaders or Team Leader Helpers.')], { x: 0.6, y: 5.6, w: 8.6, h: 0.8, fontSize: 14, color: HEX.ink, isTextBox: true, margin: 0, valign: 'top' });
+  s.addText([R('Who manages whom: ', { bold: true }), R('the 2 privileged members manage everyone; the other 3 manage only their assigned kadr, as Kadr Leaders or Kadr Leader Helpers.')], { x: 0.6, y: 5.6, w: 8.6, h: 0.8, fontSize: 14, color: HEX.ink, isTextBox: true, margin: 0, valign: 'top' });
   phone(s, 'm2-detail.png', 10.0, 1.3, 5.05, 'Member details');
 
   // ===== 12. Running the system =====
@@ -330,7 +330,7 @@ async function icon(name, color = 'FFFFFF') {
     ['Clean out the demo data', 'Remove demo accounts and events'],
     ['Create the 60 accounts', 'From the Members page'],
     ['Put the app online', 'Over HTTPS, reachable from anywhere'],
-    ['Pilot, then launch', 'One team for a week, then everyone'],
+    ['Pilot, then launch', 'One kadr for a week, then everyone'],
   ];
   s.addShape(pres.shapes.LINE, { x: 1.1, y: 2.35, w: 11.1, h: 0, line: { color: HEX.border, width: 3 }, objectName: 'timeline line' });
   next.forEach(([t, d], i) => {
@@ -341,7 +341,7 @@ async function icon(name, color = 'FFFFFF') {
     s.addText(t, { x: x + 0.2, y: 3.35, w: 1.86, h: 0.95, fontSize: 16, bold: true, color: HEX.ink, isTextBox: true, margin: 0, valign: 'top' });
     s.addText(d, { x: x + 0.2, y: 4.3, w: 1.86, h: 0.9, fontSize: 13, color: HEX.muted, isTextBox: true, margin: 0, valign: 'top' });
   });
-  s.addText('Planned next: KPIs for members and teams, once the access rules for them are decided.', { x: 0.6, y: 5.75, w: 12.1, h: 0.5, fontSize: 15, italic: true, color: HEX.muted, isTextBox: true, margin: 0 });
+  s.addText('Planned next: KPIs for members and kadrs, once the access rules for them are decided.', { x: 0.6, y: 5.75, w: 12.1, h: 0.5, fontSize: 15, italic: true, color: HEX.muted, isTextBox: true, margin: 0 });
 
   // ===== 14. Closing =====
   s = pres.addSlide({ masterName: 'Closing Dark', sectionTitle: 'Running the system' });

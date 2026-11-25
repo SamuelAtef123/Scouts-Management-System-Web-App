@@ -33,7 +33,7 @@ function readEventFields(body, { partial }) {
   }
   if (!partial || body.team !== undefined) {
     out.team = body.team || null;
-    if (out.team && !TEAMS.includes(out.team)) throw badRequest('Choose a valid team');
+    if (out.team && !TEAMS.includes(out.team)) throw badRequest('Choose a valid kadr');
   }
   if (!partial || body.startDate !== undefined) out.startDate = parseDate(body.startDate, 'Start date', { required: true });
   if (body.endDate !== undefined) out.endDate = parseDate(body.endDate, 'End date', { required: false }) ?? null;
@@ -53,12 +53,12 @@ function checkTypeAndTeam(user, type, team) {
     if (!hasGlobalAccess(user)) throw forbidden('Only group leaders can create Gawala Sessions');
     return null;
   }
-  if ((type === 'team_session' || type === 'preparation_meeting') && !team) throw badRequest('Choose the team this event is for');
+  if ((type === 'team_session' || type === 'preparation_meeting') && !team) throw badRequest('Choose the kadr this event is for');
   if (!canManageEvent(user, { type, team })) {
     if (type === 'preparation_meeting') {
-      throw forbidden('Preparation Meetings are created only by the Scouts Leader, Scouts Leader Helpers, and a Team Leader for their own team');
+      throw forbidden('Preparation Meetings are created only by the Group Leader, Group Leader Helpers, and a Kadr Leader for their own kadr');
     }
-    throw forbidden(team ? 'You can only manage events of your own team' : 'Only group leaders can create whole-group events');
+    throw forbidden(team ? 'You can only manage events of your own kadr' : 'Only group leaders can create whole-group events');
   }
   return team;
 }
@@ -74,14 +74,14 @@ export async function loadEvent(id, user, { manage = false } = {}) {
   if (!event) throw notFound('Event not found');
   if (!canSeeEvent(user, event)) throw notFound('Event not found');
   if (manage === 'tasks' && !canManageTeam(user, event.team)) {
-    throw forbidden(event.team ? 'You can only manage tasks of your own team' : 'Only group leaders can manage tasks of whole-group events');
+    throw forbidden(event.team ? 'You can only manage tasks of your own kadr' : 'Only group leaders can manage tasks of whole-group events');
   }
   if (manage === true && !canManageEvent(user, event)) {
     throw forbidden(
       event.type === 'preparation_meeting'
-        ? 'Only the Scouts Leader, Scouts Leader Helpers and this team\'s Team Leader can change this Preparation Meeting'
+        ? "Only the Group Leader, Group Leader Helpers and this kadr's Kadr Leader can change this Preparation Meeting"
         : event.team
-          ? 'You can only manage events of your own team'
+          ? 'You can only manage events of your own kadr'
           : 'Only group leaders can manage whole-group events'
     );
   }
@@ -127,7 +127,7 @@ router.get(
     const filter = {};
     if (team === 'group') filter.team = null;
     else if (team) {
-      if (!allowed.includes(team)) throw forbidden('You can only view events of your own team');
+      if (!allowed.includes(team)) throw forbidden('You can only view events of your own kadr');
       filter.team = team;
     } else if (!canViewAllTeams(req.user)) {
       // Own team's events plus whole-group events.
@@ -202,7 +202,7 @@ router.put(
     const team = fields.team !== undefined ? fields.team : event.team;
 
     if (event.attendanceTeams.length && (type !== event.type || (team || null) !== (event.team || null))) {
-      throw badRequest('Attendance was already taken for this event, so its type and team cannot change');
+      throw badRequest('Attendance was already taken for this event, so its type and kadr cannot change');
     }
     fields.team = checkTypeAndTeam(req.user, type, team);
 
@@ -298,7 +298,7 @@ router.put(
       throw forbidden(
         event.type === 'gawala_session'
           ? 'Only the Database/Attendance member assigned to Gawala takes Gawala Session attendance'
-          : "Only the Database/Attendance member assigned to this team can take its attendance"
+          : 'Only the Database/Attendance member assigned to this kadr can take its attendance'
       );
     }
 

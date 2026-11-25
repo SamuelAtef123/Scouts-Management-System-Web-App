@@ -25,7 +25,7 @@ function readUserFields(body, { partial }) {
     out.role = body.role;
   }
   if (body.team !== undefined) out.team = body.team || null;
-  if (out.team && !TEAMS.includes(out.team)) throw badRequest('Choose a valid team');
+  if (out.team && !TEAMS.includes(out.team)) throw badRequest('Choose a valid kadr');
   if (body.isPrivileged !== undefined) out.isPrivileged = Boolean(body.isPrivileged);
   if (body.isActive !== undefined) out.isActive = Boolean(body.isActive);
   return out;
@@ -40,10 +40,10 @@ function checkManagerScope(manager, member, { before } = {}) {
   const teams = memberTeams(manager);
   if (before && !teams.includes(before.team)) throw notFound('Member not found');
   if (before && !TEAM_LEVEL_ROLES.includes(before.role)) {
-    throw forbidden('Only the Scouts Leader team and privileged Database members can edit this member');
+    throw forbidden('Only the Group Leaders and privileged Database members can edit this member');
   }
-  if (!teams.includes(member.team)) throw forbidden(`You can only manage members of the ${teams.join(', ')} team`);
-  if (!TEAM_LEVEL_ROLES.includes(member.role)) throw forbidden('You can only add Team Leaders and Team Leader Helpers');
+  if (!teams.includes(member.team)) throw forbidden('You can only manage members of the kadr assigned to you');
+  if (!TEAM_LEVEL_ROLES.includes(member.role)) throw forbidden('You can only add Kadr Leaders and Kadr Leader Helpers');
   if (member.isPrivileged) throw forbidden('You cannot make a member privileged');
 }
 
@@ -51,7 +51,7 @@ function checkRoleTeam(user) {
   if (user.role !== ROLES.DATABASE_TEAM) user.isPrivileged = false;
   // Everyone belongs to a team: it decides whose attendance sheet they appear on.
   // Scouts Leader, Helpers and the Database team are normally in the Gawala team.
-  if (!user.team) throw badRequest('Choose the team this member belongs to');
+  if (!user.team) throw badRequest('Choose the kadr this member belongs to');
 }
 
 /**

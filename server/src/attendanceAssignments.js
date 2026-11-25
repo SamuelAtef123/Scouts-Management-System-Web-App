@@ -5,7 +5,7 @@
  * and each team has exactly one such member. This is NOT editable from the app:
  * to change it, edit this list (by the member's username) and redeploy the server.
  *
- * - Team Sessions and Preparation Meetings: recorded by the member assigned to the event's team.
+ * - Kadr Sessions and Preparation Meetings: recorded by the member assigned to the event's kadr.
  * - Gawala Sessions (all teams on one sheet): recorded by the member assigned to Gawala.
  *
  * The usernames below are the demo accounts from `npm run seed:demo`.

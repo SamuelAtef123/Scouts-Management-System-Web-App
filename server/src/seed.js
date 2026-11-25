@@ -34,7 +34,7 @@ function daysFromNow(days, hour = 17) {
 }
 
 async function seedDemo(leader) {
-  // Scouts Leader, Helpers and the Database team belong to the Gawala team.
+  // The Group Leader, Helpers and the Database team belong to the Gawala kadr.
   const members = [
     { name: 'Mina Leader Helper', username: 'mina', role: ROLES.SCOUT_LEADER_HELPER, team: 'Gawala' },
     // The 5 Database/Attendance members (2 privileged). Whose attendance each takes is fixed in attendanceAssignments.js.
@@ -46,7 +46,7 @@ async function seedDemo(leader) {
   ];
   TEAMS.forEach((team) => {
     const t = team.toLowerCase();
-    members.push({ name: `${team} Team Leader`, username: `${t}.leader`, role: ROLES.TEAM_LEADER, team });
+    members.push({ name: `${team} Kadr Leader`, username: `${t}.leader`, role: ROLES.TEAM_LEADER, team });
     members.push({ name: `${team} Helper One`, username: `${t}.helper1`, role: ROLES.TEAM_LEADER_HELPER, team });
     members.push({ name: `${team} Helper Two`, username: `${t}.helper2`, role: ROLES.TEAM_LEADER_HELPER, team });
   });
@@ -68,7 +68,7 @@ async function seedDemo(leader) {
     { type: 'team_session', team: 'Zahrat', title: 'Saint Mary celebration rehearsal', start: 5, location: 'Main hall', tasks: ['Hymns booklet', 'Costumes list'] },
     { type: 'other', team: 'Kashafeen', title: 'Camping trip', start: 12, end: 14, location: 'Wadi Degla', tasks: ['Camp schedule', 'Equipment list', 'Permission forms'] },
     { type: 'team_session', team: 'Morshedat', title: 'Leadership workshop', start: 8, location: 'Room 3', tasks: ['Workshop slides'] },
-    { type: 'team_session', team: 'Gawala', title: 'Gawala team session', start: 6, location: 'Room 1', tasks: [] },
+    { type: 'team_session', team: 'Gawala', title: 'Gawala kadr session', start: 6, location: 'Room 1', tasks: [] },
     { type: 'gawala_session', team: null, title: 'Gawala monthly gathering', start: 3, location: 'Church yard', tasks: ['Agenda', 'Photos of last month'] },
     { type: 'preparation_meeting', team: 'Kashafeen', title: 'Preparation meeting for the camp', start: 1, location: 'Main hall', tasks: [] },
     { type: 'team_session', team: 'Ashbal', title: 'Bible competition', start: -10, location: 'Main hall', tasks: ['Questions sheet'], attendance: true },
@@ -83,7 +83,7 @@ async function seedDemo(leader) {
       type: p.type,
       title: p.title,
       team: p.team,
-      description: p.team ? `Demo event for the ${p.team} team.` : 'Demo event for the whole group.',
+      description: p.team ? `Demo event for the ${p.team} kadr.` : 'Demo event for the whole group.',
       location: p.location,
       startDate: daysFromNow(p.start),
       endDate: p.end ? daysFromNow(p.end) : undefined,

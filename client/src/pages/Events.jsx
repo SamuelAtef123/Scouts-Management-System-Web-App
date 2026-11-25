@@ -49,10 +49,10 @@ export default function Events() {
         <div>
           <h1>{tr('Events')}</h1>
           <p className="muted">{user.permissions.viewAllTeams
-              ? tr('All teams of the group')
+              ? tr('All kadrs of the group')
               : myTeams.length > 1
-                ? tr('{teams} teams, and whole-group events', { teams: myTeams.map(teamName).join(tr(' and ')) })
-                : tr('{team} team, and whole-group events', { team: teamName(myTeams[0]) })}</p>
+                ? tr('{teams} kadrs, and whole-group events', { teams: myTeams.map(teamName).join(tr(' and ')) })
+                : tr('{team} kadr, and whole-group events', { team: teamName(myTeams[0]) })}</p>
         </div>
         <button className="btn btn-primary desktop-only" onClick={() => setCreating(true)}>
           <Plus size={18} /> {tr('New event')}
@@ -68,9 +68,9 @@ export default function Events() {
       </div>
 
       {filterTeams.length > 1 && (
-        <div className="chips" role="group" aria-label={tr('Filter by team')}>
+        <div className="chips" role="group" aria-label={tr('Filter by kadr')}>
           <button className={`chip ${!team ? 'active' : ''}`} onClick={() => setParam('team', '')}>
-            {user.permissions.viewAllTeams ? tr('All teams') : tr('All')}
+            {user.permissions.viewAllTeams ? tr('All kadrs') : tr('All')}
           </button>
           <button
             className={`chip ${team === 'group' ? 'active' : ''}`}
@@ -102,7 +102,7 @@ export default function Events() {
         <EmptyState
           icon={CalendarDays}
           title={when === 'past' ? tr('No past events') : tr('No upcoming events')}
-          text={when === 'past' ? tr('Events appear here after they end.') : tr('Plan the next activity for your team.')}
+          text={when === 'past' ? tr('Events appear here after they end.') : tr('Plan the next activity for your kadr.')}
           action={
             when === 'upcoming' && (
               <button className="btn btn-primary" onClick={() => setCreating(true)}>

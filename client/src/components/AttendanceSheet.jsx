@@ -97,7 +97,7 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
           <Lock size={14} />
           {event.type === 'gawala_session'
             ? tr('Gawala Session attendance is taken by the Database/Attendance member assigned to Gawala.')
-            : tr("This team's attendance is taken by its Database/Attendance member.")}{' '}
+            : tr("This kadr's attendance is taken by its Database/Attendance member.")}{' '}
           {tr('You can view it here.')}
         </p>
       )}
@@ -129,7 +129,7 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
             </div>
           )}
           {mySections.some((s) => !s.taken) && (
-            <p className="field-hint">{tr('The list comes from current team membership and is fixed when you first save.')}</p>
+            <p className="field-hint">{tr('The list comes from current kadr membership and is fixed when you first save.')}</p>
           )}
         </>
       )}
@@ -152,7 +152,7 @@ export default function AttendanceSheet({ event, onClose, onSaved }) {
           </h3>
 
           {section.rows.length === 0 ? (
-            <p className="field-hint">{tr('No active members belong to this team.')}</p>
+            <p className="field-hint">{tr('No active members belong to this kadr.')}</p>
           ) : !section.canRecord && !section.taken ? null : (
             <div className="attend-list">
               {section.rows.map((r) => {

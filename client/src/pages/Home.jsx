@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { CalendarDays, CircleAlert, CircleCheck, ListChecks, Sparkles } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
-import { ROLE_LABEL, TEAM_BY_ID, teamName } from '../constants.js';
+import { roleLabel, TEAM_BY_ID, teamName } from '../constants.js';
 import { t as tr } from '../i18n.jsx';
 import { firstName, greeting } from '../format.js';
 import EventCard from '../components/EventCard.jsx';
@@ -30,7 +30,7 @@ export default function Home() {
   const s = stats.data;
   const openTasks = tasks.data?.tasks || [];
   const myTeams = user.permissions.teams || [user.team];
-  const scope = user.permissions.viewAllTeams ? tr('All teams') : myTeams.map(teamName).join(' · ');
+  const scope = user.permissions.viewAllTeams ? tr('All kadrs') : myTeams.map(teamName).join(' · ');
 
   const updateTask = (t) =>
     tasks.setData((d) => ({ tasks: t.status === 'done' ? d.tasks.filter((x) => x._id !== t._id) : d.tasks.map((x) => (x._id === t._id ? t : x)) }));
@@ -43,7 +43,7 @@ export default function Home() {
           <p className="eyebrow">{greeting()}</p>
           <h1>{firstName(user.name)}</h1>
           <div className="hero-tags">
-            <span className="hero-tag">{ROLE_LABEL[user.role]}</span>
+            <span className="hero-tag">{roleLabel(user)}</span>
             {user.team && (
               <span className="hero-tag" style={{ '--team': TEAM_BY_ID[user.team]?.color }}>
                 <span className="team-dot" /> <span lang="ar">{TEAM_BY_ID[user.team]?.arabic}</span>

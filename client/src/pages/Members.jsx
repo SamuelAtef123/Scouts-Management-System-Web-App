@@ -3,7 +3,7 @@ import { ClipboardCheck, Pencil, Plus, Search, Shield, Users } from 'lucide-reac
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
-import { EVENT_TYPES, ROLES, ROLE_LABEL, TEAMS, teamName } from '../constants.js';
+import { EVENT_TYPES, ROLES, roleLabel, TEAMS, teamName } from '../constants.js';
 import { t as tr } from '../i18n.jsx';
 import { displayPhone, localPhone } from '../format.js';
 import PhoneInput from '../components/PhoneInput.jsx';
@@ -92,9 +92,9 @@ function MemberForm({ member, onClose, onSaved }) {
               ))}
             </select>
           </Field>
-          <Field label={tr('Team')} hint={tr('Decides whose attendance sheet they appear on')}>
+          <Field label={tr('Kadr')} hint={tr('Decides whose attendance sheet they appear on')}>
             <select value={form.team} onChange={set('team')} required>
-              <option value="">{tr('Choose a team')}</option>
+              <option value="">{tr('Choose a kadr')}</option>
               {teamOptions.map((t) => (
                 <option key={t.id} value={t.id}>
                   {teamName(t.id)}
@@ -107,10 +107,10 @@ function MemberForm({ member, onClose, onSaved }) {
           <p className="form-context">
             {member?.attendanceTeam ? (
               <>
-                {tr('Takes attendance for the')} <strong>{teamName(member.attendanceTeam)}</strong> {tr('team.')}
+                {tr('Takes attendance for the')} <strong>{teamName(member.attendanceTeam)}</strong> {tr('kadr.')}
               </>
             ) : (
-              tr("Not assigned to take any team's attendance.")
+              tr("Not assigned to take any kadr's attendance.")
             )}{' '}
             {tr("This is fixed by the system and can't be changed here.")}
           </p>
@@ -120,7 +120,7 @@ function MemberForm({ member, onClose, onSaved }) {
             <input type="checkbox" checked={form.isPrivileged} onChange={set('isPrivileged')} />
             <span>
               <strong>{tr('Privileged member')}</strong>
-              <small>{tr('Can manage events and tasks of every team')}</small>
+              <small>{tr('Can manage events and tasks of every kadr')}</small>
             </span>
           </label>
         )}
@@ -176,12 +176,12 @@ function MemberDetails({ member, onClose, onEdit }) {
         <div>
           <dt>{tr('Role')}</dt>
           <dd>
-            {ROLE_LABEL[member.role]}
+            {roleLabel(member)}
             {member.isPrivileged && ` (${tr('privileged')})`}
           </dd>
         </div>
         <div>
-          <dt>{tr('Team')}</dt>
+          <dt>{tr('Kadr')}</dt>
           <dd>{member.team ? <TeamChip team={member.team} size="sm" /> : '–'}</dd>
         </div>
         {member.attendanceTeam && (
@@ -283,7 +283,7 @@ export default function Members() {
         <div>
           <h1>{tr('Members')}</h1>
           <p className="muted">
-            {filterTeams.length === 1 && `${tr('{team} team', { team: teamName(filterTeams[0].id) })} · `}
+            {filterTeams.length === 1 && `${tr('{team} kadr', { team: teamName(filterTeams[0].id) })} · `}
             {data ? tr('{n} active members', { n: data.users.filter((u) => u.isActive).length }) : tr('Loading…')}
             {!canEdit && ` · ${tr('view only')}`}
           </p>
@@ -331,7 +331,7 @@ export default function Members() {
                   {u.isPrivileged && <Shield size={14} className="privileged" aria-label={tr('Privileged')} />}
                 </strong>
                 <span>
-                  {ROLE_LABEL[u.role]}
+                  {roleLabel(u)}
                   {u.attendanceTeam && ` · ${tr('attendance: {team}', { team: teamName(u.attendanceTeam) })}`} · <bdi dir="ltr">@{u.username}</bdi>
                   {!u.isActive && ` · ${tr('Inactive')}`}
                 </span>

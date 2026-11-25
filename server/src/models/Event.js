@@ -50,7 +50,7 @@ eventSchema.pre('validate', function checkEvent() {
   }
   if (GROUP_EVENT_TYPES.includes(this.type)) this.team = null;
   if ((this.type === 'team_session' || this.type === 'preparation_meeting') && !this.team) {
-    this.invalidate('team', 'Choose the team this event is for');
+    this.invalidate('team', 'Choose the kadr this event is for');
   }
 });
 

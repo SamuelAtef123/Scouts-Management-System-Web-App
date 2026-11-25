@@ -65,10 +65,10 @@ export default function TaskForm({ event, task, onClose, onSaved }) {
         <Field label={tr('Task')}>
           <input value={form.title} onChange={set('title')} placeholder={tr('e.g. Prepare the hymns booklet')} required maxLength={120} />
         </Field>
-        <Field label={tr('Assign to')} hint={event.team ? tr('Members of the {team} team', { team: teamName(event.team) }) : tr('Any member of the group')}>
+        <Field label={tr('Assign to')} hint={event.team ? tr('Members of the {team} kadr', { team: teamName(event.team) }) : tr('Any member of the group')}>
           <select value={form.assignee} onChange={set('assignee')} required disabled={loading}>
             <option value="" disabled>
-              {loading ? tr('Loading members…') : options.length ? tr('Choose a member') : tr('No members in this team yet')}
+              {loading ? tr('Loading members…') : options.length ? tr('Choose a member') : tr('No members in this kadr yet')}
             </option>
             {options.map((u) => (
               <option key={u._id} value={u._id}>

@@ -115,7 +115,7 @@ export default function EventDetail() {
             <div>
               <h2>{tr('Attendance')}</h2>
               <p className="muted">
-                {type.group ? tr('Members of all teams') : tr('Members of the {team} team', { team: teamName(event.team) })}
+                {type.group ? tr('Members of all kadrs') : tr('Members of the {team} kadr', { team: teamName(event.team) })}
               </p>
             </div>
             {(event.canRecordAttendance || attendance?.taken) && (
