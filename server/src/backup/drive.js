@@ -52,7 +52,7 @@ export const saveToDrive = (name, buffer) =>
     return data;
   });
 
-/** Backups in the folder, newest first: [{ id, name, size, createdTime }]. */
+/** Backups in the folder, most recently written first: [{ id, name, size, createdTime, modifiedTime }]. */
 export const listDriveBackups = () =>
   withDrive(async (drive) => {
     const parent = await backupFolder(drive);
@@ -61,8 +61,8 @@ export const listDriveBackups = () =>
     do {
       const { data } = await drive.files.list({
         q: `'${parent}' in parents and trashed = false and name contains '.json.gz'`,
-        fields: 'nextPageToken, files(id, name, size, createdTime)',
-        orderBy: 'createdTime desc',
+        fields: 'nextPageToken, files(id, name, size, createdTime, modifiedTime)',
+        orderBy: 'modifiedTime desc',
         pageSize: 100,
         pageToken,
         includeItemsFromAllDrives: true,
@@ -79,3 +79,23 @@ export const downloadFromDrive = (fileId) =>
     const res = await drive.files.get({ fileId, alt: 'media', ...ALL_DRIVES }, { responseType: 'arraybuffer' });
     return Buffer.from(res.data);
   });
+
+/** The file with this exact name in the backups folder, or null: { id, name, modifiedTime }. */
+export const findDriveBackup = (name) =>
+  withDrive(async (drive) => {
+    const parent = await backupFolder(drive);
+    const { data } = await drive.files.list({
+      q: `'${parent}' in parents and trashed = false and name = '${name.replace(/'/g, "\\'")}'`,
+      fields: 'files(id, name, modifiedTime)',
+      pageSize: 1,
+      includeItemsFromAllDrives: true,
+      ...ALL_DRIVES,
+    });
+    return data.files[0] || null;
+  });
+
+/** Replaces the contents of an existing backup file (same name, same place). */
+export const replaceDriveBackup = (fileId, buffer) =>
+  withDrive((drive) =>
+    drive.files.update({ fileId, media: { mimeType: 'application/gzip', body: Readable.from(buffer) }, fields: 'id', ...ALL_DRIVES })
+  );

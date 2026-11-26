@@ -315,7 +315,7 @@ async function icon(name, color = 'FFFFFF') {
     ['LuFileCode', 'Attendance assignments are set by username in attendanceAssignments.js; change them there and restart.'],
     ['LuHardDrive', 'Google Drive keeps working while the Google app stays published and its token is in use.'],
     ['LuShieldCheck', 'Security reviewed (SECURITY.md); secrets stay in server/.env; serve over HTTPS and follow the security checklist.'],
-    ['LuDatabaseBackup', 'Back up the database regularly: npm run backup saves to a private Google Drive folder; npm run restore puts one back.'],
+    ['LuDatabaseBackup', 'The server backs up the database monthly to a private Google Drive folder; npm run restore puts it back.'],
   ];
   notes.forEach(([icn, t], i) => {
     const y = 4.25 + i * 0.64;

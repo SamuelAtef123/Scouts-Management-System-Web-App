@@ -197,6 +197,8 @@ npm run restore -- scouts-backup-2026-11-26_20-15-03.json.gz
 
 The first lists the backups, the second restores the newest, the third restores the one you name. It shows what the backup holds and asks you to type `RESTORE`. Before replacing anything it saves a safety copy of the current data (`scouts-before-restore-…`), so a wrong restore can be undone by restoring that copy.
 
+**Automatic monthly backup.** The live server also keeps one automatic backup, `scouts-backup-automatic.json.gz`, in the same folder. It checks soon after starting and then once a day, and replaces that file whenever it is older than 30 days (`AUTO_BACKUP_DAYS`). On the free host the server sleeps when nobody uses the app, but it checks again each time it wakes, so the backup is made within about a day of being due. It is on by default when `NODE_ENV=production` and off on computers used for testing (`AUTO_BACKUP=on` or `off` changes that). Because it is one file that gets replaced, also make a dated backup by hand before big changes. `npm run restore -- scouts-backup-automatic.json.gz` restores it.
+
 Without Google Drive, use a folder or a file on the computer instead: `npm run backup -- --to <folder>` and `npm run restore -- <path to the file>`.
 
 ## API overview

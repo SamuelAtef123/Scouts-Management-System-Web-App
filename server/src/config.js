@@ -37,6 +37,12 @@ export const config = {
   // Number of reverse proxies in front of the app (0 = none). See index.js.
   trustProxy: Number(process.env.TRUST_PROXY) || 0,
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB) || 25,
+  // Automatic backup: one file in Google Drive, replaced when it is older than `days`.
+  // On by default on the live site only, so a computer used for testing never overwrites it.
+  autoBackup: {
+    enabled: process.env.AUTO_BACKUP ? process.env.AUTO_BACKUP === 'on' : isProduction,
+    days: Number(process.env.AUTO_BACKUP_DAYS) || 30,
+  },
   drive: {
     rootFolderId: process.env.GOOGLE_DRIVE_FOLDER_ID || '',
     // Where uploads wait until they are reviewed. Optional: by default a private folder in the Google

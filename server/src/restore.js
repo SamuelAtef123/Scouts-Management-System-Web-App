@@ -31,11 +31,12 @@ async function pickBackup() {
     if (!all.length) console.log('No backups found in Google Drive / Scouts - backups. Make one with: npm run backup');
     else {
       console.log('Backups in Google Drive / Scouts - backups (newest first):');
-      for (const f of all) console.log(`  ${f.name}   (${Math.ceil(Number(f.size) / 1024)} KB)`);
+      for (const f of all) console.log(`  ${f.name}   (${Math.ceil(Number(f.size) / 1024)} KB, saved ${new Date(f.modifiedTime).toLocaleString()})`);
       console.log('\nTo restore one:  npm run restore -- <name>    or    npm run restore -- latest');
     }
     return null;
   }
+  // latest = the most recently written backup (by hand or automatic), not a safety copy taken before a restore.
   const found = which === 'latest' ? all.find((f) => f.name.startsWith('scouts-backup-')) ?? all[0] : all.find((f) => f.name === which);
   if (!found) throw new Error(`No backup named "${which}" in Google Drive / Scouts - backups. Run "npm run restore" to list them.`);
   return { name: found.name, buffer: await downloadFromDrive(found.id) };
