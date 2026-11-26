@@ -42,6 +42,8 @@ export const config = {
     // Where uploads wait until they are reviewed. Optional: by default a private folder in the Google
     // account's own Drive (OAuth), or a "_Waiting for review" folder inside the root folder (service account).
     reviewFolderId: process.env.GOOGLE_DRIVE_REVIEW_FOLDER_ID || '',
+    // Where `npm run backup` saves database backups. Optional, chosen like the review folder above.
+    backupFolderId: process.env.GOOGLE_DRIVE_BACKUP_FOLDER_ID || '',
     // Option A: OAuth client + refresh token of a normal Google account (files count against that account).
     oauthClientId: process.env.GOOGLE_OAUTH_CLIENT_ID || '',
     oauthClientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET || '',

@@ -165,9 +165,39 @@ The Express server serves the built React app from `client/dist`, so one Node pr
 - [ ] MongoDB Atlas: a database user with a strong password, and Network Access limited to the host's address where possible.
 - [ ] Remove the demo accounts and events (`seed --demo` is refused in production).
 - [ ] Put the real usernames in `server/src/attendanceAssignments.js`.
+- [ ] Make a first backup with `npm run backup` and check it appears in Google Drive (see [Backups](#backups)).
 - [ ] Google Drive is configured, so materials do not use the local `uploads/` folder.
 
 See [SECURITY.md](SECURITY.md) for the security assessment and the protections in place.
+
+## Backups
+
+The free MongoDB Atlas plan keeps no backups, so make your own copy regularly (for example every week, and always before a big change). Run these on a computer that has the project and `server/.env`:
+
+```bash
+cd server
+npm run backup
+```
+
+This saves one file, such as `scouts-backup-2026-11-26_20-15-03.json.gz`, in a private **Scouts - backups** folder in the Google Drive the app already uses (the account of `GOOGLE_OAUTH_REFRESH_TOKEN`), outside the folder shared with the group. It holds every member (with photos and password hashes), event, attendance record and task. Uploaded task files are not in it, because they are already in Google Drive. Keep the folder private. `GOOGLE_DRIVE_BACKUP_FOLDER_ID` can name another folder.
+
+To put a backup back (this **replaces** all current data; stop the server first, then start it again afterwards):
+
+```bash
+npm run restore
+```
+
+```bash
+npm run restore -- latest
+```
+
+```bash
+npm run restore -- scouts-backup-2026-11-26_20-15-03.json.gz
+```
+
+The first lists the backups, the second restores the newest, the third restores the one you name. It shows what the backup holds and asks you to type `RESTORE`. Before replacing anything it saves a safety copy of the current data (`scouts-before-restore-…`), so a wrong restore can be undone by restoring that copy.
+
+Without Google Drive, use a folder or a file on the computer instead: `npm run backup -- --to <folder>` and `npm run restore -- <path to the file>`.
 
 ## API overview
 

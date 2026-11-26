@@ -24,7 +24,7 @@ export const LOCAL_UPLOAD_DIR = path.resolve(path.dirname(fileURLToPath(import.m
 
 let driveClient;
 
-function getDrive() {
+export function getDrive() {
   if (driveClient !== undefined) return driveClient;
   const d = config.drive;
   let auth = null;
@@ -45,7 +45,7 @@ function getDrive() {
 }
 
 /** Logs a Google Drive failure with a hint for whoever runs the server; users only see a plain message. */
-function logDriveError(err) {
+export function logDriveError(err) {
   const code = err?.response?.data?.error || err?.code || '';
   const hints = {
     unauthorized_client:
@@ -72,7 +72,7 @@ function escapeQuery(value) {
   return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
-async function findOrCreateFolder(drive, name, parentId) {
+export async function findOrCreateFolder(drive, name, parentId) {
   const q = `name = '${escapeQuery(name)}' and '${parentId}' in parents and mimeType = '${FOLDER_MIME}' and trashed = false`;
   const { data } = await drive.files.list({
     q,

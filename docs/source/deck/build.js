@@ -71,7 +71,7 @@ async function icon(name, color = 'FFFFFF') {
   });
 
   const ic = {};
-  for (const n of ['LuLockKeyhole', 'LuSmartphone', 'LuCalendarDays', 'LuShapes', 'LuListChecks', 'LuUpload', 'LuClipboardCheck', 'LuUsers', 'LuHouse', 'LuUserRound', 'LuCrown', 'LuFlag', 'LuHandHelping', 'LuDatabase', 'LuServer', 'LuLayoutDashboard', 'LuFolderOpen', 'LuRocket', 'LuKeyRound', 'LuFileCode', 'LuHardDrive', 'LuGlobe', 'LuBan', 'LuUserPlus', 'LuEye', 'LuPencil', 'LuShieldCheck', 'LuFileCheck2']) {
+  for (const n of ['LuLockKeyhole', 'LuSmartphone', 'LuCalendarDays', 'LuShapes', 'LuListChecks', 'LuUpload', 'LuClipboardCheck', 'LuUsers', 'LuHouse', 'LuUserRound', 'LuCrown', 'LuFlag', 'LuHandHelping', 'LuDatabase', 'LuServer', 'LuLayoutDashboard', 'LuFolderOpen', 'LuRocket', 'LuKeyRound', 'LuFileCode', 'LuHardDrive', 'LuGlobe', 'LuBan', 'LuUserPlus', 'LuEye', 'LuPencil', 'LuShieldCheck', 'LuFileCheck2', 'LuDatabaseBackup']) {
     ic[n] = await icon(n);
   }
 
@@ -315,9 +315,10 @@ async function icon(name, color = 'FFFFFF') {
     ['LuFileCode', 'Attendance assignments are set by username in attendanceAssignments.js; change them there and restart.'],
     ['LuHardDrive', 'Google Drive keeps working while the Google app stays published and its token is in use.'],
     ['LuShieldCheck', 'Security reviewed (SECURITY.md); secrets stay in server/.env; serve over HTTPS and follow the security checklist.'],
+    ['LuDatabaseBackup', 'Back up the database regularly: npm run backup saves to a private Google Drive folder; npm run restore puts one back.'],
   ];
   notes.forEach(([icn, t], i) => {
-    const y = 4.35 + i * 0.75;
+    const y = 4.25 + i * 0.64;
     badge(s, icn, 0.6, y, 0.55, HEX.teal);
     s.addText(t, { x: 1.35, y, w: 11.3, h: 0.55, fontSize: 15, color: HEX.ink, valign: 'middle', isTextBox: true, margin: 0 });
   });

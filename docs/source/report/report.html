@@ -432,6 +432,7 @@
   <div class="rules" style="grid-template-columns:1fr;margin-top:0">
     <div class="rule"><i data-lucide="file-code"></i>Attendance assignments (which Database member covers which kadr) are set by username in server/src/attendanceAssignments.js. Changing them means editing that file and restarting the server.</div>
     <div class="rule"><i data-lucide="hard-drive"></i>Google Drive keeps working while the Google app stays published (In production) and its token is not revoked or left unused for 6 months. If uploads fail, the server log explains why.</div>
+    <div class="rule"><i data-lucide="database-backup"></i><span>The free database plan keeps no backups: run <b>npm run backup</b> regularly (it saves to a private “Scouts - backups” folder in Google Drive). <b>npm run restore</b> puts a backup back. See the README.</span></div>
     <div class="rule"><i data-lucide="key-round"></i>Secrets (database address, Google keys) live only in server/.env, which is never uploaded to GitHub.</div>
     <div class="rule"><i data-lucide="shield-check"></i>Security was reviewed before going live (see SECURITY.md): uploads are checked by their real content, password guessing is limited per account, passwords have at least 8 characters, and a password change signs out other devices. Serve the site over HTTPS and follow the README’s security checklist.</div>
   </div>
