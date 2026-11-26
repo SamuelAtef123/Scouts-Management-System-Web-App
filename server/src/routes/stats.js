@@ -11,21 +11,33 @@ const router = Router();
 /**
  * A member's attendance across every sheet they are on.
  * Rate = present / (present + absent); excused sessions are not counted against them.
+ *
+ * For members of the Gawala kadr, a Gawala Session is also their kadr's meeting: their mark there
+ * counts in both the Gawala Session and the Kadr Session figures. The overall rate counts it once.
  */
 export async function attendanceStats(userId) {
   const rows = await Event.aggregate([
     { $match: { 'attendance.user': userId } },
     { $unwind: '$attendance' },
     { $match: { 'attendance.user': userId } },
-    { $group: { _id: { type: '$type', status: '$attendance.status' }, n: { $sum: 1 } } },
+    {
+      $group: {
+        _id: { type: '$type', status: '$attendance.status', gawala: { $eq: ['$attendance.team', 'Gawala'] } },
+        n: { $sum: 1 },
+      },
+    },
   ]);
   const empty = () => ({ present: 0, absent: 0, excused: 0 });
   const total = empty();
   const byType = {};
+  const add = (type, status, n) => {
+    byType[type] ??= empty();
+    byType[type][status] += n;
+  };
   for (const r of rows) {
     total[r._id.status] += r.n;
-    byType[r._id.type] ??= empty();
-    byType[r._id.type][r._id.status] += r.n;
+    add(r._id.type, r._id.status, r.n);
+    if (r._id.type === 'gawala_session' && r._id.gawala) add('team_session', r._id.status, r.n);
   }
   const counted = total.present + total.absent;
   return { ...total, sessions: counted + total.excused, rate: counted ? Math.round((total.present / counted) * 100) : null, byType };

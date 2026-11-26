@@ -199,7 +199,7 @@ async function icon(name, color = 'FFFFFF') {
     s.addText(t, { x: x + 0.3, y: 2.8, w: 2.4, h: 0.5, fontSize: 19, bold: true, color: HEX.ink, isTextBox: true, margin: 0 });
     s.addText([R('Belongs to', { fontSize: 11, color: HEX.muted, breakLine: true }), R(belongs, { fontSize: 14, bold: true, breakLine: true }), R(' ', { fontSize: 6, breakLine: true }), R('Attendance sheet', { fontSize: 11, color: HEX.muted, breakLine: true }), R(sheet, { fontSize: 14, bold: true, breakLine: true }), R(' ', { fontSize: 6, breakLine: true }), R(tasks, { fontSize: 14, color: c, bold: true })], { x: x + 0.3, y: 3.4, w: 2.4, h: 2.0, color: HEX.ink, valign: 'top', isTextBox: true, margin: 0 });
   });
-  s.addText('A Kadr Session or Preparation Meeting is taken by the Database member of that kadr; a Gawala Session only by the one assigned to Gawala.', { x: 0.6, y: 5.85, w: 12.1, h: 0.6, fontSize: 14, color: HEX.ink, isTextBox: true, margin: 0 });
+  s.addText('A Kadr Session or Preparation Meeting is taken by the Database member of that kadr; a Gawala Session only by the one assigned to Gawala, and for Gawala members it also counts as their Kadr Session.', { x: 0.6, y: 5.85, w: 12.1, h: 0.6, fontSize: 14, color: HEX.ink, isTextBox: true, margin: 0 });
 
   // ===== 6. Getting started =====
   pres.addSection({ title: 'User guide' });
