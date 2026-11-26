@@ -96,8 +96,8 @@ function MemberForm({ member, onClose, onSaved }) {
             <select value={form.team} onChange={set('team')} required>
               <option value="">{tr('Choose a kadr')}</option>
               {teamOptions.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {teamName(t.id)}
+                <option key={t.id} value={t.id} lang="ar">
+                  {t.arabic}
                 </option>
               ))}
             </select>
