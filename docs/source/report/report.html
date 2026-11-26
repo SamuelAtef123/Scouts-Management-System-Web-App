@@ -124,11 +124,13 @@
 
   /* ================= Scout field-kit theme (matches the app) ================= */
   :root {
-    --forest: #2d5a3e; --forest-deep: #1f4430; --forest-soft: #e4ece3;
-    --khaki: #cfc09a; --khaki-deep: #8a7a4e; --khaki-soft: #efe8d5; --canvas: #f2ecdd; --paper: #fffdf7;
-    --stitch: #c9b98e; --bark: #2b2418;
+    --forest: #1f2a5e; --forest-deep: #141c44; --forest-soft: #e9ecf6;
+    --khaki: #b9a3e0; --khaki-deep: #6d3fb5; --khaki-soft: #f1ebfa; --canvas: #f8f9fc; --paper: #ffffff;
+    --stitch: #cfc6ea; --bark: #1a1f36;
+    /* Accents follow the app: navy and purple (kadr colours only where a kadr is meant) */
+    --teal: #6d3fb5; --green: #3b4a8f; --gold: #8a5cd0; --red: #52298f; --yellow: #c9b6f2;
     --navy: var(--forest); --navy-deep: var(--forest-deep);
-    --ink: var(--bark); --ink2: #4d4433; --muted: #7a6f5a; --border: #dccfae; --soft: var(--khaki-soft);
+    --ink: var(--bark); --ink2: #3d4466; --muted: #6b7190; --border: #e1e4ef; --soft: var(--khaki-soft);
     --rope: repeating-linear-gradient(135deg, var(--khaki-deep) 0 3px, var(--khaki) 3px 6px);
   }
   body { font-family: 'Source Sans 3', sans-serif; font-size: 10.5pt; }
@@ -136,7 +138,7 @@
 
   /* Cover: forest-tinted photo with a torn-paper edge, round stitched logo badge, canvas lower half */
   .cover { background: var(--canvas) url('topo.svg') center 60% / 260mm auto no-repeat; }
-  .cover-photo::after { background: linear-gradient(180deg, rgba(31,68,48,.15) 0%, rgba(31,68,48,.5) 50%, rgba(24,52,37,.95) 100%); }
+  .cover-photo::after { background: linear-gradient(180deg, rgba(20,28,68,.15) 0%, rgba(20,28,68,.5) 50%, rgba(20,28,68,.95) 100%); }
   .cover-stripe { height: 9mm; top: 162mm; background: url('deckle.svg') bottom / 100% 100% no-repeat; }
   .cover-logo { border-radius: 50%; border: 2mm solid #fff; box-shadow: 0 0 0 1.4mm var(--khaki), 0 6px 24px rgba(0,0,0,.25); }
   .cover-title h1 { font-size: 38pt; font-weight: 700; }
@@ -144,7 +146,7 @@
   .contents div { border-bottom: 1.5px dashed var(--stitch); font-weight: 600; font-size: 11pt; }
   .contents span { color: var(--forest); }
   .cover-verse { color: var(--forest-deep); }
-  .cover-verse small { color: #b5781a; }
+  .cover-verse small { color: #6d3fb5; }
 
   /* Section heads: round stitched badge + rope underline */
   .sec-head { position: relative; padding-bottom: 3mm; margin-bottom: 4mm; }
@@ -174,30 +176,30 @@
   /* Tables: forest header, canvas stripes */
   table { border-radius: 8px; border-color: var(--border); }
   th { background: var(--forest); font-family: 'Source Sans 3', sans-serif; letter-spacing: .04em; text-transform: uppercase; font-size: 7.6pt; }
-  tr:nth-child(even) td { background: #f7f2e6; }
+  tr:nth-child(even) td { background: #f5f6fb; }
   td { border-top-color: var(--border); }
   .yes { color: #1e7a3c; }
 
-  .rule { background: var(--forest-soft); color: var(--forest-deep); border-radius: 8px; border: 1px dashed #9fb7a3; }
+  .rule { background: var(--forest-soft); color: var(--forest-deep); border-radius: 8px; border: 1px dashed #c5cbe6; }
   .rule svg { color: var(--forest); }
   .note { background: var(--khaki-soft); border: 1px dashed var(--khaki); border-radius: 8px; }
   .note b { color: var(--khaki-deep); }
   .steps li::before { background: var(--c, var(--forest)); box-shadow: 0 0 0 1.5px #fff, 0 0 0 2.5px var(--c, var(--forest)); font-family: 'Zilla Slab', serif; }
-  .phone { border-color: #2b2418; border-radius: 16px; }
+  .phone { border-color: #1a1f36; border-radius: 16px; }
   .tech svg { color: var(--forest); }
   .tech em { border-radius: 4px; text-transform: uppercase; letter-spacing: .06em; font-size: 7pt; background: transparent; border: 1.2px solid currentColor; }
 
   /* Go-live steps as luggage tags */
   .next li { background: var(--paper); border: 1px solid var(--border); outline: 1.2px dashed var(--stitch); outline-offset: -5px; border-radius: 10px; }
   .next li::before { background: var(--forest); font-family: 'Zilla Slab', serif; box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--khaki); }
-  .final-mark img { border-radius: 50%; box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--khaki), 0 4px 14px rgba(43,36,24,.2); }
+  .final-mark img { border-radius: 50%; box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--khaki), 0 4px 14px rgba(20,28,68,.2); }
   .final-mark b { color: var(--forest-deep); }
 
   /* Verse as a stitched forest patch */
   .closing { background: var(--forest); border-radius: 12px; outline: 1.5px dashed rgba(255,255,255,.35); outline-offset: -6px; }
   .closing .bar { display: none; }
   .closing p { padding-top: 6mm; }
-  .closing small { color: #f3c84b; }
+  .closing small { color: #c9b6f2; }
 </style>
 </head>
 <body>
@@ -255,16 +257,16 @@
   <div class="sec-head"><div class="sec-num" style="background:var(--green)">2</div><h2>What has been built</h2></div>
   <p class="lead">All the basic operations planned for the first version are built, plus attendance, file review and member profiles.</p>
   <div class="features">
-    <div class="feature"><div class="fi" style="background:#e7e8f8;color:var(--navy)"><i data-lucide="lock-keyhole"></i></div><div><b>Sign-in</b><p>Username and password, stays signed in for 7 days, blocks repeated wrong guesses.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#dff3f4;color:var(--teal)"><i data-lucide="smartphone"></i></div><div><b>First sign-in</b><p>Asks for an Egyptian (+20) mobile number before the app opens.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#e7e8f8;color:var(--navy)"><i data-lucide="calendar-days"></i></div><div><b>Events</b><p>Create, edit and delete; Upcoming and Past tabs; grouped by month; filter by kadr.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#fff4cc;color:#b07d00"><i data-lucide="shapes"></i></div><div><b>Event types</b><p>Kadr Session, Preparation Meeting, Gawala Session and Others, each with its own rules.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#e3f6ea;color:var(--green)"><i data-lucide="list-checks"></i></div><div><b>Tasks</b><p>Assigned to a leader with a due date; To do, In progress, Done; overdue tasks in red.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#fde7e8;color:var(--red)"><i data-lucide="upload"></i></div><div><b>Materials</b><p>PDF, Word or image up to 25 MB. A leader reviews it, then it is saved to Google Drive by kadr and event.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#e3f6ea;color:var(--green)"><i data-lucide="clipboard-check"></i></div><div><b>Attendance</b><p>Present, Absent or Excused per member, taken only by the assigned Database member.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#dff3f4;color:var(--teal)"><i data-lucide="users"></i></div><div><b>Members</b><p>List with attendance %, details view, and account management for the Database team.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#fff4cc;color:#b07d00"><i data-lucide="house"></i></div><div><b>Home</b><p>Open, done and overdue counts, your next tasks and the upcoming events.</p></div></div>
-    <div class="feature"><div class="fi" style="background:#e7e8f8;color:var(--navy)"><i data-lucide="user-round"></i></div><div><b>Profile and language</b><p>Mobile number, attendance rate, password, and English or Arabic.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e9ecf6;color:var(--navy)"><i data-lucide="lock-keyhole"></i></div><div><b>Sign-in</b><p>Username and password, stays signed in for 7 days, blocks repeated wrong guesses.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#f1ebfa;color:var(--teal)"><i data-lucide="smartphone"></i></div><div><b>First sign-in</b><p>Asks for an Egyptian (+20) mobile number before the app opens.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e9ecf6;color:var(--navy)"><i data-lucide="calendar-days"></i></div><div><b>Events</b><p>Create, edit and delete; Upcoming and Past tabs; grouped by month; filter by kadr.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#f1ebfa;color:#6d3fb5"><i data-lucide="shapes"></i></div><div><b>Event types</b><p>Kadr Session, Preparation Meeting, Gawala Session and Others, each with its own rules.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e9ecf6;color:var(--green)"><i data-lucide="list-checks"></i></div><div><b>Tasks</b><p>Assigned to a leader with a due date; To do, In progress, Done; overdue tasks in red.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#f1ebfa;color:var(--red)"><i data-lucide="upload"></i></div><div><b>Materials</b><p>PDF, Word or image up to 25 MB. A leader reviews it, then it is saved to Google Drive by kadr and event.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e9ecf6;color:var(--green)"><i data-lucide="clipboard-check"></i></div><div><b>Attendance</b><p>Present, Absent or Excused per member, taken only by the assigned Database member.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#f1ebfa;color:var(--teal)"><i data-lucide="users"></i></div><div><b>Members</b><p>List with attendance %, details view, and account management for the Database team.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#f1ebfa;color:#6d3fb5"><i data-lucide="house"></i></div><div><b>Home</b><p>Open, done and overdue counts, your next tasks and the upcoming events.</p></div></div>
+    <div class="feature"><div class="fi" style="background:#e9ecf6;color:var(--navy)"><i data-lucide="user-round"></i></div><div><b>Profile and language</b><p>Mobile number, attendance rate, password, and English or Arabic.</p></div></div>
   </div>
 </section>
 

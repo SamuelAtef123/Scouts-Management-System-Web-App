@@ -22,7 +22,9 @@ const THEME = {
   },
 };
 // Scout field-kit palette (matches the app): forest green and khaki on canvas, logo colours as accents.
-const HEX = { navy: '2D5A3E', forestDeep: '1F4430', green: '1E8A43', red: 'C8352B', gold: 'D99A16', teal: '0F7C86', yellow: 'F3C84B', ink: '2B2418', muted: '7A6F5A', border: 'DCCFAE', tint: 'FFFDF7', canvas: 'F2ECDD', khaki: 'CFC09A', stitch: 'C9B98E' };
+// Palette of the app: white, navy and purple. ok/wait are meaning colours; KADR are the logo's kadr colours.
+const HEX = { navy: '1F2A5E', forestDeep: '141C44', green: '3B4A8F', red: '52298F', gold: '8A5CD0', teal: '6D3FB5', yellow: 'C9B6F2', ink: '1A1F36', muted: '6B7190', border: 'E1E4EF', tint: 'FFFFFF', canvas: 'F8F9FC', khaki: 'B9A3E0', stitch: 'CFC6EA', ok: '1E7A3C', wait: 'B07800' };
+const KADR = { Ashbal: 'E3A400', Zahrat: '1E9E4A', Kashafeen: '2B2E8F', Morshedat: 'D7262E', Gawala: '0F7C86' };
 const ASSETS = path.resolve(__dirname, 'assets');
 
 async function icon(name, color = 'FFFFFF') {
@@ -128,7 +130,7 @@ async function icon(name, color = 'FFFFFF') {
     s.addText(n, { x: x + 0.3, y: 2.6, w: 2.3, h: 1.1, fontSize: 60, bold: true, color: c, isTextBox: true, margin: 0, valign: 'middle' });
     s.addText(l, { x: x + 0.3, y: 3.7, w: 2.4, h: 0.6, fontSize: 14, color: HEX.muted, isTextBox: true, margin: 0, valign: 'top' });
   });
-  const teams = [['Ashbal', 'أشبال', HEX.gold], ['Zahrat', 'زهرات', HEX.green], ['Kashafeen', 'كشافين', '2B2E8F'], ['Morshedat', 'مرشدات', HEX.red], ['Gawala', 'جوالة', HEX.teal]];
+  const teams = [['Ashbal', 'أشبال', KADR.Ashbal], ['Zahrat', 'زهرات', KADR.Zahrat], ['Kashafeen', 'كشافين', KADR.Kashafeen], ['Morshedat', 'مرشدات', KADR.Morshedat], ['Gawala', 'جوالة', KADR.Gawala]];
   s.addText('The five kadrs', { x: 0.6, y: 4.95, w: 4, h: 0.4, fontSize: 16, bold: true, color: HEX.ink, isTextBox: true, margin: 0 });
   teams.forEach(([en, ar, c], i) => {
     const x = 0.6 + i * 2.46;
@@ -168,7 +170,7 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'Roles and permissions' });
   s.addText('Five roles, each with clear rights', { placeholder: 'title' });
   const hd = (t) => ({ text: t, options: { bold: true, color: 'FFFFFF', fill: { color: HEX.navy } } });
-  const yes = (t) => ({ text: t, options: { color: HEX.green, bold: true } });
+  const yes = (t) => ({ text: t, options: { color: HEX.ok, bold: true } });
   const no = (t) => ({ text: t, options: { color: HEX.muted } });
   const b = (t) => ({ text: t, options: { bold: true } });
   const rows = [
@@ -297,10 +299,10 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'Running the system' });
   s.addText('How it runs', { placeholder: 'title' });
   const tech = [
-    ['LuDatabase', 'Database', 'MongoDB Atlas, free cluster', 'Connected', HEX.green],
-    ['LuServer', 'Server and API', 'Node.js and Express', 'Not online yet', HEX.gold],
-    ['LuLayoutDashboard', 'Website', 'React, served by the same server', 'Built', HEX.green],
-    ['LuFolderOpen', 'Materials', 'Google Drive through a Google Cloud OAuth client', 'Uploading', HEX.green],
+    ['LuDatabase', 'Database', 'MongoDB Atlas, free cluster', 'Connected', HEX.ok],
+    ['LuServer', 'Server and API', 'Node.js and Express', 'Not online yet', HEX.wait],
+    ['LuLayoutDashboard', 'Website', 'React, served by the same server', 'Built', HEX.ok],
+    ['LuFolderOpen', 'Materials', 'Google Drive through a Google Cloud OAuth client', 'Uploading', HEX.ok],
   ];
   tech.forEach(([icn, t, d, st, c], i) => {
     const x = 0.6 + i * 3.1;
