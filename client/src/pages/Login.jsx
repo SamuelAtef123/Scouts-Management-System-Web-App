@@ -83,7 +83,7 @@ export default function Login() {
             {busy ? tr('Signing in…') : tr('Sign in')}
           </button>
         </form>
-        <p className="login-help">{tr('Forgot your password? Ask the Group Leader or the Database team to reset it.')}</p>
+        <p className="login-help">{tr('Forgot your password? Ask a Database / Attendance member to reset it.')}</p>
       </section>
     </div>
   );

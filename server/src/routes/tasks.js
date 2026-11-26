@@ -252,7 +252,8 @@ router.delete(
     const task = await loadTask(req.params.id);
     const material = task.materials.id(req.params.materialId);
     if (!material) throw notFound('File not found');
-    if (!isAssignee(task, req.user) && !canManageTeam(req.user, task.team)) throw forbidden('You cannot remove this file');
+    // Only the person who uploaded a file can remove it (reviewers send it back instead).
+    if (!material.uploadedBy.equals(req.user._id)) throw forbidden('Only the person who uploaded this file can remove it');
 
     await removeMaterial(material);
     material.deleteOne();

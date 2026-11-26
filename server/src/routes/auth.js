@@ -9,14 +9,18 @@ import { normalizePhone } from '../utils/phone.js';
 import { detectFileType } from '../utils/fileType.js';
 import { hasGlobalAccess, isReviewer, canManageUsers, canViewAllTeams, canViewMembers, memberTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
+import { config } from '../config.js';
 
 const router = Router();
 
+// Per internet address. Only failed attempts count: leaders on the same church Wi-Fi share one
+// address, so counting successful sign-ins would lock people out at a meeting.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 20,
+  limit: 50,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
   message: { message: 'Too many sign-in attempts, please try again in a few minutes' },
 });
 
@@ -24,6 +28,7 @@ const loginLimiter = rateLimit({
 export function publicUser(user) {
   return {
     ...user.toJSON(),
+    maxUploadMb: config.maxUploadMb, // checked in the browser before a file is uploaded
     permissions: {
       allTeams: hasGlobalAccess(user), // manage events and tasks of every team
       viewAllTeams: canViewAllTeams(user), // see every team's events

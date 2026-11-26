@@ -1,11 +1,11 @@
 /*
- * Creates the first account (the Scouts Leader) so someone can sign in
+ * Creates the first account (the Group Leader) so someone can sign in
  * and add the other members from the Members page.
  *
- *   npm run seed                 -> creates the Scouts Leader account
+ *   npm run seed                 -> creates the Group Leader account
  *   npm run seed -- --demo       -> also adds demo members, events and tasks (for trying the app)
  *
- * The Scouts Leader login is read from SEED_ADMIN_USERNAME / SEED_ADMIN_PASSWORD / SEED_ADMIN_NAME.
+ * The Group Leader login is read from SEED_ADMIN_USERNAME / SEED_ADMIN_PASSWORD / SEED_ADMIN_NAME.
  */
 import mongoose from 'mongoose';
 import { config } from './config.js';
@@ -115,7 +115,7 @@ async function seedDemo(leader) {
       });
     }
   }
-  // Give the Scouts Leader one task too, so their home screen is not empty.
+  // Give the Group Leader one task too, so their home screen is not empty.
   const gathering = await Event.findOne({ type: 'gawala_session' });
   await Task.create({
     title: 'Opening word for the gathering',
@@ -135,17 +135,17 @@ async function main() {
   });
 
   const username = (process.env.SEED_ADMIN_USERNAME || 'leader').toLowerCase();
-  const password = process.env.SEED_ADMIN_PASSWORD || (config.isProduction ? '' : 'leader123');
-  if (password.length < 6) throw new Error('Set SEED_ADMIN_PASSWORD (at least 6 characters)');
+  const password = process.env.SEED_ADMIN_PASSWORD || (config.isProduction ? '' : 'leader1234');
+  if (password.length < 8) throw new Error('Set SEED_ADMIN_PASSWORD (at least 8 characters)');
 
   const { user: leader, created } = await upsertUser({
-    name: process.env.SEED_ADMIN_NAME || 'Scouts Leader',
+    name: process.env.SEED_ADMIN_NAME || 'Group Leader',
     username,
     password,
     role: ROLES.SCOUT_LEADER,
     team: 'Gawala',
   });
-  console.log(created ? `Created the Scouts Leader account "${username}".` : `Account "${username}" already exists, left unchanged.`);
+  console.log(created ? `Created the Group Leader account "${username}" (name: "${leader.name}"; set SEED_ADMIN_NAME to use the real name).` : `Account "${username}" already exists, left unchanged.`);
 
   if (process.argv.includes('--demo')) {
     // Demo accounts share a known password; never create them on the live system.

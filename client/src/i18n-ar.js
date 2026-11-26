@@ -90,7 +90,7 @@ export const AR = {
   'Hide password': 'إخفاء كلمة المرور',
   'Sign in': 'تسجيل الدخول',
   'Signing in…': 'جارٍ تسجيل الدخول…',
-  'Forgot your password? Ask the Group Leader or the Database team to reset it.': 'نسيت كلمة المرور؟ اطلب من قائد المجموعة أو فريق البيانات إعادة تعيينها.',
+  'Forgot your password? Ask a Database / Attendance member to reset it.': 'نسيت كلمة المرور؟ اطلب من أحد أعضاء فريق البيانات / الحضور إعادة تعيينها.',
   'Welcome, {name}': 'أهلًا يا {name}',
   'Complete your profile to continue.': 'أكمل ملفك الشخصي للمتابعة.',
   'A photo is optional. You can add or change it later from your Profile.':
@@ -315,6 +315,8 @@ export const AR = {
   'You can only manage events of your own kadr': 'يمكنك إدارة أحداث كدرك فقط',
   'You can only manage tasks of your own kadr': 'يمكنك إدارة مهام كدرك فقط',
   'You can only move events to your own kadr': 'يمكنك نقل الأحداث إلى كدرك فقط',
+  'This event has tasks assigned to members of another kadr. Reassign or delete those tasks first, then change the kadr.': 'في هذا الحدث مهام مُسندة لأعضاء كدر آخر. أعد إسنادها أو احذفها أولًا، ثم غيّر الكدر.',
+  'Only the person who uploaded this file can remove it': 'من رفع هذا الملف فقط يمكنه حذفه',
   'Tasks of this event can only be assigned to members of its kadr': 'مهام هذا الحدث تُسند فقط لأعضاء كدره',
   'You can only manage members of the kadr assigned to you': 'يمكنك إدارة أعضاء الكدر المسؤول عنه فقط',
   'Only the Database/Attendance team can add or edit members': 'فريق البيانات / الحضور فقط يمكنه إضافة الأعضاء أو تعديلهم',

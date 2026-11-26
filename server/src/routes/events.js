@@ -214,6 +214,15 @@ router.put(
     }
 
     const teamChanged = fields.team !== event.team;
+    // Tasks only go to members of the event's kadr, so a move must not leave them with another kadr.
+    if (teamChanged && fields.team) {
+      const tasks = await Task.find({ event: event._id }).populate('assignee', 'team');
+      if (tasks.some((t) => t.assignee?.team !== fields.team)) {
+        throw badRequest('This event has tasks assigned to members of another kadr. Reassign or delete those tasks first, then change the kadr.');
+      }
+    }
+    // New files go to the new kadr's Drive folder.
+    if (teamChanged) event.driveFolderId = undefined;
     // A changed start date cannot be in the past; other details of past events can still be edited.
     if (fields.startDate && fields.startDate.getTime() !== event.startDate.getTime()) checkNotInPast(fields.startDate);
     Object.assign(event, fields);

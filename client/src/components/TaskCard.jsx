@@ -50,6 +50,9 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent, 
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
+    // Checked before uploading, so a big file is refused at once instead of after the whole upload.
+    const maxMb = user.maxUploadMb || 25;
+    if (file.size > maxMb * 1024 * 1024) return toast(`Files must be smaller than ${maxMb} MB`, 'error');
     setProgress(0);
     try {
       const res = await api.upload(`/tasks/${task._id}/materials`, file, setProgress);
@@ -170,7 +173,7 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent, 
             <MaterialItem
               key={m._id}
               m={m}
-              canRemove={mine || manager}
+              canRemove={m.uploadedBy?._id === user._id}
               canReview={task.canReview}
               onOpen={() => open(m)}
               onRemove={() => askRemove(m)}

@@ -142,11 +142,13 @@ async function repairMaterialNames() {
  * and usernames (ashbal.team -> ashbal.kadr). Safe to run on every start: renamed accounts no longer match.
  */
 async function renameTeamToKadr() {
-  const users = await User.find({ $or: [{ name: /team/i }, { username: /team/i }] }).select('name username');
+  // Whole words only: "Ashbal Team Leader" and "ashbal.team" change, "Steam" and "steamer" do not.
+  const users = await User.find({ $or: [{ name: /\bteam\b/i }, { username: /(^|[^a-z])team(?![a-z])/ }] }).select('name username');
   const renamed = [];
+  const word = (w) => (w === w.toUpperCase() ? 'KADR' : w[0] === 'T' ? 'Kadr' : 'kadr');
   for (const u of users) {
-    const name = u.name.replace(/TEAM/g, 'KADR').replace(/Team/g, 'Kadr').replace(/team/gi, 'kadr');
-    let username = u.username.replace(/team/g, 'kadr');
+    const name = u.name.replace(/\bteam\b/gi, word);
+    let username = u.username.replace(/(^|[^a-z])team(?![a-z])/g, '$1kadr');
     if (username !== u.username && (ATTENDANCE_ASSIGNMENTS[u.username] || (await User.exists({ username })))) {
       console.warn(`Warning: kept the username "${u.username}" (renaming it to "${username}" would clash)`);
       username = u.username;

@@ -29,13 +29,14 @@ The app is designed for phones first and also works on a computer.
 | Kadr Leader (5, one per kadr) | Their own kadr | Their own kadr |
 | Kadr Leader Helper (the rest) | Their own kadr | Their own kadr |
 
-- Only the person a task is assigned to can upload its material and change its status.
+- Only the person a task is assigned to can upload its material and change its status. Only the person who **uploaded** a file can remove it (waiting, approved or sent back); reviewers send a file back instead. Files over the upload limit (25 MB) are refused before they upload.
 - **Reviewing uploaded files.** A file uploaded for a task waits as *Waiting for review* in a private place and is not in the event's Drive folder yet. It can be reviewed by:
   - the Group Leader and the Group Leader Helpers, for every event;
   - the Kadr Leader of the event's kadr (the Gawala Kadr Leader for whole-group events).
 
   Reviewers find these files under **My tasks → To review**, with a count on Home and in the menu. **Approve** moves the file into the event's Drive folder. **Send back** deletes it and shows the uploader a note, so they can upload a new version. A reviewer's own upload is approved straight away. Until then, only the uploader and the reviewers can open the file, and the task cannot be marked Done.
 - A task can only be assigned to a member of its event's kadr, whoever creates it. Whole-group events (Gawala Sessions, and whole-group Others events) can be assigned to any member.
+- An event can move to another kadr only if none of its tasks are assigned to members of a different kadr (reassign or delete them first).
 - Events cannot start in the past. Past events can still be edited, as long as their date is not moved.
 - **Members page** (details and attendance percentage):
   - Group Leader and Group Leader Helpers: **view** all members.
@@ -107,7 +108,7 @@ You need Node.js 20 or later and MongoDB. MongoDB can run on your machine, or yo
    cp server/.env.example server/.env
    ```
 
-   Edit `server/.env`. At minimum, set `MONGO_URI`, `JWT_SECRET` and `SEED_ADMIN_PASSWORD`.
+   Edit `server/.env`. At minimum, set `MONGO_URI`, `JWT_SECRET` and `SEED_ADMIN_PASSWORD` (at least 8 characters). Set `SEED_ADMIN_NAME` to the Group Leader's real full name: Home greets them by first name.
 
 3. Create the first account (the Group Leader). Add `:demo` to also add sample members, events and tasks, which is useful for trying the app:
 
@@ -141,7 +142,7 @@ If Google Drive is not configured, uploaded files are saved in `server/uploads/`
 4. Restart the server. It prints `Uploads go to Google Drive`, and `GET /api/health` returns `"drive": true`.
 5. Files waiting for review are kept out of the shared folder. With Option A they wait in a private folder, **Scouts - waiting for review**, in the signed-in account's own Drive. With Option B they wait in a **_Waiting for review** folder inside the main folder; restrict who can open it, or set `GOOGLE_DRIVE_REVIEW_FOLDER_ID` to a private folder. Without Google Drive (local development) they wait in `server/uploads-pending`, which is never served publicly.
 
-When an event or task is deleted, its approved files **stay in Drive** as an archive; files still waiting for review are deleted. Removing a single file from a task deletes it from Drive.
+When an event or task is deleted, its approved files **stay in Drive** as an archive; files still waiting for review are deleted. When the uploader removes a file, it is deleted from Drive.
 
 ## Production
 
@@ -160,7 +161,7 @@ The Express server serves the built React app from `client/dist`, so one Node pr
 - [ ] Serve the site **only over HTTPS**.
 - [ ] `NODE_ENV=production`, `TZ=Africa/Cairo`, `MONGO_URI` and `CLIENT_ORIGIN` (the site's own https address).
 - [ ] `JWT_SECRET`: a random string of at least 32 characters (the server refuses to start with a weak one).
-- [ ] `TRUST_PROXY`: `1` on hosts such as Render or Railway that put one proxy in front of the app; `0` if Node is reached directly.
+- [ ] `TRUST_PROXY`: `1` on hosts such as Render or Railway that put one proxy in front of the app; `0` if Node is reached directly. Sign-in limits only count wrong passwords (50 per address and 8 per account every 15 minutes), so many leaders can sign in from the same church Wi-Fi.
 - [ ] MongoDB Atlas: a database user with a strong password, and Network Access limited to the host's address where possible.
 - [ ] Remove the demo accounts and events (`seed --demo` is refused in production).
 - [ ] Put the real usernames in `server/src/attendanceAssignments.js`.

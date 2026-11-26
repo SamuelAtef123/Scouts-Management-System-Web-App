@@ -223,7 +223,7 @@ async function icon(name, color = 'FFFFFF') {
     'Tap To do, In progress or Done to update a task as you work.',
     'When the material is ready, tap Upload material and pick a PDF, Word file or photo.',
     "It waits for a leader's review, then goes to the group's Google Drive, in the kadr and event folder.",
-    'Sent back? Read the note and upload a new version. Tap a file to open it.',
+    'Sent back? Read the note and upload a new version. Only the uploader can remove a file.',
   ], 0.6, 1.55, 8.4, HEX.green, 0.95);
   phone(s, 'home.png', 10.0, 1.3, 5.05, 'Home screen');
 
