@@ -108,9 +108,11 @@ You need Node.js 20 or later and MongoDB. MongoDB can run on your machine, or yo
    cp server/.env.example server/.env
    ```
 
-   Edit `server/.env`. At minimum, set `MONGO_URI`, `JWT_SECRET` and `SEED_ADMIN_PASSWORD` (at least 8 characters). Set `SEED_ADMIN_NAME` to the Group Leader's real full name: Home greets them by first name.
+   Edit `server/.env`. At minimum, set `MONGO_URI` and `JWT_SECRET`. For a real database also set the first two accounts (passwords of at least 8 characters):
+   - `SEED_ADMIN_NAME`, `SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD`: the Group Leader (use the real full name: Home greets them by first name).
+   - `SEED_DB_NAME`, `SEED_DB_USERNAME`, `SEED_DB_PASSWORD`: the first privileged Database / Attendance member. Only Database members can add members, so this person adds everyone else from the Members page.
 
-3. Create the first account (the Group Leader). Add `:demo` to also add sample members, events and tasks, which is useful for trying the app:
+3. Create those first accounts. `seed:demo` instead adds sample members, events and tasks for trying the app (with built-in passwords; refused when `NODE_ENV=production`):
 
    ```bash
    npm run seed
@@ -155,6 +157,19 @@ NODE_ENV=production npm start
 ```
 
 The Express server serves the built React app from `client/dist`, so one Node process runs the whole site. You can host it on any Node host (Render, Railway, a VPS, …) with MongoDB Atlas.
+
+### Deploying on Render (free plan)
+
+1. **Database:** use a separate, empty database for the live site: change the name in the Atlas connection string (for example `…mongodb.net/scouts_live?…`). In Atlas → Network Access allow `0.0.0.0/0` (Render's free plan has no fixed address) and use a database user with a strong password.
+2. **Attendance:** put the real Database members' usernames in `server/src/attendanceAssignments.js` and push.
+3. **Web service:** on render.com → New → Web Service → this repository, branch `main`, region Frankfurt (closest to Egypt; ideally the Atlas cluster is in Frankfurt too), plan Free, health check path `/api/health`.
+   - Build command: `npm install --prefix server && npm install --prefix client --include=dev && npm run build` (`--include=dev` is needed: with `NODE_ENV=production` npm would skip the build tools).
+   - Start command: `npm start`
+   - Environment: `NODE_ENV=production`, `TZ=Africa/Cairo`, `MONGO_URI` (the live database), a **new** `JWT_SECRET`, `CLIENT_ORIGIN=https://<app-name>.onrender.com`, `TRUST_PROXY=1`, and the `GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_OAUTH_…` values. Not `PORT` (Render sets it) and not `DNS_SERVERS`.
+4. **First accounts:** on your computer, point `server/.env` at the live database, fill in the `SEED_ADMIN_…` and `SEED_DB_…` values, and run `npm run seed --prefix server`. Then point `.env` back at the test database.
+5. **Check:** `https://<app-name>.onrender.com/api/health` shows `"ok":true,"drive":true`; sign in, add a test member, upload and approve a file, take attendance, and a minute after start-up a `scouts-backup-automatic-…` file appears in Google Drive. Remove the test data, then share the link.
+
+Every push to `main` redeploys automatically. On the free plan the site sleeps after 15 minutes without visitors and takes 30–60 seconds to wake.
 
 ### Security checklist before going live
 

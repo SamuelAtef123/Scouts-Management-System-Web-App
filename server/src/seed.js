@@ -1,11 +1,11 @@
 /*
- * Creates the first account (the Group Leader) so someone can sign in
- * and add the other members from the Members page.
+ * Creates the first accounts on a new database:
+ * - the Group Leader (SEED_ADMIN_USERNAME / SEED_ADMIN_PASSWORD / SEED_ADMIN_NAME);
+ * - the first privileged Database / Attendance member (SEED_DB_USERNAME / SEED_DB_PASSWORD / SEED_DB_NAME),
+ *   because only Database members can add members: this person then adds everyone else from the Members page.
  *
- *   npm run seed                 -> creates the Group Leader account
+ *   npm run seed                 -> creates those accounts (existing ones are left unchanged)
  *   npm run seed -- --demo       -> also adds demo members, events and tasks (for trying the app)
- *
- * The Group Leader login is read from SEED_ADMIN_USERNAME / SEED_ADMIN_PASSWORD / SEED_ADMIN_NAME.
  */
 import mongoose from 'mongoose';
 import { config } from './config.js';
@@ -134,9 +134,24 @@ async function main() {
     throw new Error(`Could not connect to MongoDB (${err.message}). Make sure MongoDB is running, or set MONGO_URI in server/.env.`);
   });
 
-  const username = (process.env.SEED_ADMIN_USERNAME || 'leader').toLowerCase();
-  const password = process.env.SEED_ADMIN_PASSWORD || (config.isProduction ? '' : 'leader1234');
-  if (password.length < 8) throw new Error('Set SEED_ADMIN_PASSWORD (at least 8 characters)');
+  // A built-in password is only used for trying the app with demo data, never for a real database.
+  const demo = process.argv.includes('--demo');
+  const username = (process.env.SEED_ADMIN_USERNAME || 'leader').trim().toLowerCase();
+  const password = process.env.SEED_ADMIN_PASSWORD || (demo && !config.isProduction ? 'leader1234' : '');
+  if (password.length < 8) throw new Error('Set SEED_ADMIN_PASSWORD in server/.env (at least 8 characters)');
+
+  // The first Database member: required on a real database, since nobody else can add members.
+  const dbUsername = (process.env.SEED_DB_USERNAME || '').trim().toLowerCase();
+  const dbPassword = process.env.SEED_DB_PASSWORD || '';
+  if (dbUsername) {
+    if (dbUsername === username) throw new Error('SEED_DB_USERNAME must be different from SEED_ADMIN_USERNAME');
+    if (dbPassword.length < 8) throw new Error('Set SEED_DB_PASSWORD in server/.env (at least 8 characters)');
+  } else if (!demo && !(await User.exists({ role: ROLES.DATABASE_TEAM, isPrivileged: true, isActive: true }))) {
+    throw new Error(
+      'Set SEED_DB_USERNAME and SEED_DB_PASSWORD in server/.env: only Database members can add members, ' +
+        'so the first privileged Database member must be created here.'
+    );
+  }
 
   const { user: leader, created } = await upsertUser({
     name: process.env.SEED_ADMIN_NAME || 'Group Leader',
@@ -146,6 +161,24 @@ async function main() {
     team: 'Gawala',
   });
   console.log(created ? `Created the Group Leader account "${username}" (name: "${leader.name}"; set SEED_ADMIN_NAME to use the real name).` : `Account "${username}" already exists, left unchanged.`);
+
+  if (dbUsername) {
+    const { user: dbUser, created: dbCreated } = await upsertUser({
+      name: process.env.SEED_DB_NAME || 'Database Member',
+      username: dbUsername,
+      password: dbPassword,
+      role: ROLES.DATABASE_TEAM,
+      isPrivileged: true,
+      team: 'Gawala',
+    });
+    const takes = ATTENDANCE_ASSIGNMENTS[dbUsername];
+    console.log(
+      dbCreated
+        ? `Created the first Database / Attendance member "${dbUsername}" (privileged; name: "${dbUser.name}"). ` +
+            (takes ? `Takes attendance for ${takes}.` : 'Not in attendanceAssignments.js, so takes no attendance until added there.')
+        : `Account "${dbUsername}" already exists, left unchanged.`
+    );
+  }
 
   if (process.argv.includes('--demo')) {
     // Demo accounts share a known password; never create them on the live system.

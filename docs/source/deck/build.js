@@ -329,7 +329,7 @@ async function icon(name, color = 'FFFFFF') {
   const next = [
     ['Set the real attendance assignments', 'Put the real Database usernames in the assignments file'],
     ['Clean out the demo data', 'Remove demo accounts and events'],
-    ['Create the 60 accounts', 'From the Members page'],
+    ['Create the 60 accounts', 'Setup makes the first two; the rest from the Members page'],
     ['Put the app online', 'Over HTTPS, reachable from anywhere'],
     ['Pilot, then launch', 'One kadr for a week, then everyone'],
   ];
