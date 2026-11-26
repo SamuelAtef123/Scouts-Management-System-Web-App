@@ -27,7 +27,7 @@ const upload = multer({
 
 const populateTask = (query) =>
   query
-    .populate('assignee', 'name username team photoUpdatedAt')
+    .populate('assignee', 'name username team')
     .populate('createdBy', 'name')
     .populate('materials.uploadedBy', 'name')
     .populate('materials.reviewedBy', 'name')

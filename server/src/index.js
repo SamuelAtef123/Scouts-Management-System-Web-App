@@ -177,6 +177,12 @@ async function start() {
   const moved = await User.updateMany({ $or: [{ team: null }, { team: { $exists: false } }] }, { team: 'Gawala' });
   if (moved.modifiedCount) console.log(`Moved ${moved.modifiedCount} member(s) without a kadr into the Gawala kadr`);
   await renameTeamToKadr();
+  // Profile photos were removed from the app: delete any that were saved before.
+  const photos = await User.collection.updateMany(
+    { $or: [{ photo: { $exists: true } }, { photoType: { $exists: true } }, { photoUpdatedAt: { $exists: true } }] },
+    { $unset: { photo: '', photoType: '', photoUpdatedAt: '' } }
+  );
+  if (photos.modifiedCount) console.log(`Removed the profile photos of ${photos.modifiedCount} member(s)`);
   // Files uploaded before reviews existed are already in Google Drive: they count as approved.
   await Task.updateMany(
     { 'materials.reviewStatus': { $exists: false } },

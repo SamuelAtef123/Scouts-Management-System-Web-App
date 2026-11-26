@@ -3,11 +3,10 @@ import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { LanguageSwitch, t as tr } from '../i18n.jsx';
 import { firstName } from '../format.js';
-import PhotoPicker from '../components/PhotoPicker.jsx';
 import PhoneInput from '../components/PhoneInput.jsx';
-import { ErrorBox, Field } from '../components/ui.jsx';
+import { ErrorBox, Field, Avatar } from '../components/ui.jsx';
 
-/** Shown after signing in while the account has no mobile number: number required, photo optional. */
+/** Shown after signing in while the account has no mobile number: the number is required. */
 export default function CompleteProfile() {
   const { user, updateUser, logout } = useAuth();
   const [phone, setPhone] = useState('');
@@ -36,8 +35,7 @@ export default function CompleteProfile() {
         <p className="muted">{tr('Complete your profile to continue.')}</p>
         <LanguageSwitch className="login-lang" />
 
-        <PhotoPicker size={104} />
-        <p className="field-hint onboard-hint">{tr('A photo is optional. You can add or change it later from your Profile.')}</p>
+        <Avatar person={user} size={104} />
 
         <form className="form onboard-form" onSubmit={submit}>
           <Field label={tr('Mobile number')} hint={tr('Egyptian mobile, 11 digits. Shown on your profile so leaders can reach you')}>

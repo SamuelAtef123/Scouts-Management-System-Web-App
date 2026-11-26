@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useMemberPhoto } from '../photos.js';
 import { CircleAlert, CircleCheck, X } from 'lucide-react';
 import { TEAM_BY_ID, STATUS_LABEL, VERSE, eventType } from '../constants.js';
 import { t as tr } from '../i18n.jsx';
@@ -105,16 +104,12 @@ export function StatusPill({ status }) {
 }
 
 /**
- * A member's photo, or their initials on their team colour when they have none.
- * Pass `person` (any member object with _id, name, team, photoUpdatedAt), or `name` + `team`.
+ * A member's initials on their kadr's colour.
+ * Pass `person` (any member object with name and team), or `name` + `team`.
  */
 export function Avatar({ person, name = person?.name, team = person?.team, size = 40 }) {
   const color = TEAM_BY_ID[team]?.color || 'var(--navy)';
-  const photo = useMemberPhoto(person?._id, person?.photoUpdatedAt);
   const style = { width: size, height: size, fontSize: size * 0.38, background: color };
-  if (photo) {
-    return <img className="avatar avatar-photo" src={photo} alt="" style={style} aria-hidden="true" />;
-  }
   return (
     <span className="avatar" style={style} aria-hidden="true">
       {initials(name)}

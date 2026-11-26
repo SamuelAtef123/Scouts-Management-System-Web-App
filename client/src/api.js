@@ -94,13 +94,6 @@ export const api = {
   },
 };
 
-/** Loads a protected image (e.g. a member photo) with the sign-in token and returns an object URL. */
-export async function fetchImageUrl(path) {
-  const token = tokenStore.get();
-  const res = await fetch(`/api${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-  if (!res.ok) throw new ApiError(res.status, t('Image not found'));
-  return URL.createObjectURL(await res.blob());
-}
 
 /**
  * Opens a protected file (one waiting for review) in a new tab. The tab is opened first, while the

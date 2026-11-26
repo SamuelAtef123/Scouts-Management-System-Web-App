@@ -6,7 +6,7 @@ Pre-deployment review of the Scouts Management System, 24 November 2026.
 
 ## Scope and method
 
-- **Code review** of every server route (sign-in, members, events, tasks, attendance, uploads, photos), the access rules in `server/src/utils/access.js`, configuration, and the React client.
+- **Code review** of every server route (sign-in, members, events, tasks, attendance, uploads, photos; profile photos were later removed from the app), the access rules in `server/src/utils/access.js`, configuration, and the React client.
 - **Dependency audit:** `npm audit` on the server and the client: 0 known vulnerabilities.
 - **Attack tests** against the real code: disguised file uploads, password guessing with faked IP addresses, and the browser security policy loaded against the built app.
 - **Not tested here:** the live database and Google Drive (not reachable from the test environment), and the hosting set-up, which does not exist yet.

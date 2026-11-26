@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ClipboardCheck, KeyRound, Languages, LogOut, Phone } from 'lucide-react';
 import { LanguageSwitch, t as tr } from '../i18n.jsx';
-import PhotoPicker from '../components/PhotoPicker.jsx';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { displayPhone, localPhone } from '../format.js';
 import { api, tokenStore } from '../api.js';
@@ -116,7 +115,7 @@ export default function Profile() {
     <div className="page profile">
       <section className="profile-card">
         <div className="stripe" />
-        <PhotoPicker size={88} onChange={toast} />
+        <Avatar person={user} size={88} />
         <h1>{user.name}</h1>
         <p className="muted">
           <bdi dir="ltr">@{user.username}</bdi>

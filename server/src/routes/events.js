@@ -174,7 +174,7 @@ router.get(
     await event.populate('createdBy', 'name');
     const tasks = await Task.find({ event: event._id })
       .sort({ createdAt: 1 })
-      .populate('assignee', 'name username team photoUpdatedAt')
+      .populate('assignee', 'name username team')
       .populate('createdBy', 'name')
       .populate('materials.uploadedBy', 'name')
       .populate('materials.reviewedBy', 'name');
@@ -256,12 +256,12 @@ const teamOrder = (team) => TEAMS.indexOf(team);
 
 /** Current active members of a team, for a section that has not been taken yet. */
 function currentMembers(team) {
-  return User.find({ isActive: true, team }).select('name username team photoUpdatedAt').sort({ name: 1 }).lean();
+  return User.find({ isActive: true, team }).select('name username team').sort({ name: 1 }).lean();
 }
 
 async function attendanceSheet(event, user) {
   await event.populate([
-    { path: 'attendance.user', select: 'name username team photoUpdatedAt' },
+    { path: 'attendance.user', select: 'name username team' },
     { path: 'attendanceTeams.takenBy', select: 'name' },
   ]);
   const mine = recordableTeams(user, event, TEAMS);

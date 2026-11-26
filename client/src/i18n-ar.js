@@ -93,18 +93,11 @@ export const AR = {
   'Forgot your password? Ask a Database / Attendance member to reset it.': 'نسيت كلمة المرور؟ اطلب من أحد أعضاء فريق البيانات / الحضور إعادة تعيينها.',
   'Welcome, {name}': 'أهلًا يا {name}',
   'Complete your profile to continue.': 'أكمل ملفك الشخصي للمتابعة.',
-  'A photo is optional. You can add or change it later from your Profile.':
-    'الصورة اختيارية. يمكنك إضافتها أو تغييرها لاحقًا من ملفك الشخصي.',
   'Mobile number': 'رقم الموبايل',
   'Egyptian mobile, 11 digits. Shown on your profile so leaders can reach you':
     'رقم موبايل مصري من 11 رقمًا. يظهر في ملفك الشخصي ليتواصل معك القادة',
   'Egyptian mobile, 11 digits': 'رقم موبايل مصري من 11 رقمًا',
   'Egyptian mobile number of 11 digits, e.g. 01001234567': 'رقم موبايل مصري من 11 رقمًا، مثل 01001234567',
-  'Add a photo': 'أضف صورة',
-  'Change photo': 'تغيير الصورة',
-  'Choose a photo': 'اختر صورة',
-  'Photo saved': 'تم حفظ الصورة',
-  'Photo removed': 'تمت إزالة الصورة',
 
   // ---------- Home ----------
   'Open tasks': 'مهام مفتوحة',
@@ -327,7 +320,6 @@ export const AR = {
   'Only the Database/Attendance member assigned to this kadr can take its attendance': 'عضو فريق البيانات المسؤول عن هذا الكدر فقط يمكنه تسجيل حضوره',
   'Only the Database/Attendance member assigned to Gawala takes Gawala Session attendance': 'عضو فريق البيانات المسؤول عن الجوالة فقط يسجّل حضور جلسة الجوالة',
   "Only the Group Leader, Group Leader Helpers and this kadr's Kadr Leader can change this Preparation Meeting": 'قائد المجموعة ومساعدوه وقائد هذا الكدر فقط يمكنهم تعديل هذا الاجتماع التحضيري',
-  'Photo not found': 'الصورة غير موجودة',
   'Please sign in': 'برجاء تسجيل الدخول',
   'Preparation Meetings are created only by the Group Leader, Group Leader Helpers, and a Kadr Leader for their own kadr': 'الاجتماعات التحضيرية ينشئها قائد المجموعة ومساعدوه وقائد الكدر لكدره فقط',
   'Preparation Meetings do not have tasks': 'الاجتماعات التحضيرية ليس لها مهام',
@@ -337,7 +329,6 @@ export const AR = {
   'The file could not be saved to Google Drive. Please tell the Database team.': 'تعذّر حفظ الملف في Google Drive. برجاء إبلاغ فريق البيانات.',
   'The new password must be at least 8 characters': 'يجب أن تكون كلمة المرور الجديدة 8 أحرف على الأقل',
   'The password must be at least 8 characters': 'يجب أن تكون كلمة المرور 8 أحرف على الأقل',
-  'The photo must be a JPEG, PNG or WebP image': 'يجب أن تكون الصورة بصيغة JPEG أو PNG أو WebP',
   'This member was not found or is not active': 'هذا العضو غير موجود أو غير نشط',
   'This username is already taken': 'اسم المستخدم مستخدم بالفعل',
   'This username is used in the fixed attendance assignments, so it cannot be changed from the app': 'اسم المستخدم هذا مستخدم في توزيع الحضور الثابت، لذا لا يمكن تغييره من التطبيق',

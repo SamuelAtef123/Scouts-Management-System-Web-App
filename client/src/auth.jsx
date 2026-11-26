@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     return data.user;
   }, []);
 
-  // Replace the signed-in user after they edit their own profile (phone, photo).
+  // Replace the signed-in user after they edit their own profile (phone).
   const updateUser = useCallback((next) => setUser(next), []);
 
   const value = useMemo(() => ({ user, loading, login, logout, updateUser }), [user, loading, login, logout, updateUser]);

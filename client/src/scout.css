@@ -4,35 +4,39 @@
    ===================================================================== */
 
 :root {
-  /* Scout palette: forest green & khaki, with the logo's red, yellow and navy as accents */
-  --forest: #2d5a3e;
-  --forest-deep: #1f4430;
-  --forest-soft: #e4ece3;
-  --khaki: #cfc09a;
-  --khaki-deep: #8a7a4e;
-  --khaki-soft: #ece4cf;
-  --canvas: #f2ecdd;
-  --paper: #fffdf7;
-  --bark: #2b2418;
-  --bark-2: #4d4433;
-  --stitch: #c9b98e;
+  /* Palette: white (main), navy (secondary), purple (accent).
+     The old token names are kept so every component follows the new colours. */
+  --forest: #1f2a5e; /* navy */
+  --forest-deep: #141c44; /* deep navy */
+  --forest-soft: #e9ecf6; /* light navy tint */
+  --khaki: #b9a3e0; /* light purple */
+  --khaki-deep: #6d3fb5; /* purple */
+  --khaki-soft: #f1ebfa; /* purple tint */
+  --canvas: #f8f9fc; /* page: almost white */
+  --paper: #ffffff; /* cards: white */
+  --bark: #1a1f36; /* text */
+  --bark-2: #3d4466;
+  --stitch: #cfc6ea; /* dashed borders */
   --logo-navy: #23277d;
+  --purple: #6d3fb5;
+  --purple-deep: #52298f;
+  --purple-soft: #f1ebfa;
 
-  /* Existing tokens re-pointed to the scout palette */
+  /* Existing tokens re-pointed to the palette */
   --navy: var(--forest);
   --navy-deep: var(--forest-deep);
   --bg: var(--canvas);
   --surface: var(--paper);
-  --surface-2: #f8f3e6;
+  --surface-2: #f5f6fb;
   --ink: var(--bark);
   --ink-2: var(--bark-2);
-  --muted: #7a6f5a;
-  --border: #dccfae;
-  --focus: rgba(45, 90, 62, 0.28);
+  --muted: #6b7190;
+  --border: #e1e4ef;
+  --focus: rgba(109, 63, 181, 0.28);
   --radius: 10px;
   --radius-sm: 8px;
-  --shadow: 0 1px 0 rgba(43, 36, 24, 0.06), 0 2px 6px rgba(43, 36, 24, 0.06);
-  --shadow-lg: 0 14px 40px rgba(43, 36, 24, 0.22);
+  --shadow: 0 1px 0 rgba(20, 28, 68, 0.05), 0 2px 6px rgba(20, 28, 68, 0.06);
+  --shadow-lg: 0 14px 40px rgba(20, 28, 68, 0.2);
 
   --font: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-head: 'Zilla Slab', 'Rockwell', Georgia, serif;
@@ -145,11 +149,11 @@ h3,
 .bottom-nav {
   background: var(--paper);
   border-top: 1px solid var(--border);
-  box-shadow: 0 -1px 0 rgba(43, 36, 24, 0.04), 0 -6px 18px rgba(43, 36, 24, 0.08);
+  box-shadow: 0 -1px 0 rgba(20, 28, 68, 0.04), 0 -6px 18px rgba(20, 28, 68, 0.08);
 }
 
 .bottom-link {
-  color: #8f8470;
+  color: #8a8fae;
   font-weight: 700;
 }
 
@@ -180,7 +184,7 @@ h3,
 @media (min-width: 900px) {
   .sidebar {
     background-color: var(--forest);
-    background-image: linear-gradient(rgba(31, 68, 48, 0.55), rgba(31, 68, 48, 0.55)), url('/topo.svg');
+    background-image: linear-gradient(rgba(20, 28, 68, 0.55), rgba(20, 28, 68, 0.55)), url('/topo.svg');
     background-size: auto, 900px auto;
     border-right: none;
     color: #fff;
@@ -311,7 +315,7 @@ h3,
 
 .event-card:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 0 rgba(43, 36, 24, 0.06), 0 8px 18px rgba(43, 36, 24, 0.12);
+  box-shadow: 0 2px 0 rgba(20, 28, 68, 0.06), 0 8px 18px rgba(20, 28, 68, 0.12);
 }
 
 .event-title {
@@ -333,7 +337,7 @@ h3,
 }
 
 .task-card.is-done {
-  background-image: repeating-linear-gradient(-45deg, transparent 0 12px, rgba(45, 90, 62, 0.035) 12px 24px);
+  background-image: repeating-linear-gradient(-45deg, transparent 0 12px, rgba(31, 42, 94, 0.035) 12px 24px);
 }
 
 /* ---------- Date as a luggage tag ---------- */
@@ -431,8 +435,8 @@ h3,
 }
 
 .stat-yellow .stat-icon {
-  background: #d99a16;
-  color: #d99a16;
+  background: #6d3fb5;
+  color: #6d3fb5;
 }
 
 .stat-icon svg {
@@ -466,7 +470,7 @@ h3,
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #336847;
+  background: #2c3a7a;
 }
 
 .btn-primary:active:not(:disabled) {
@@ -488,7 +492,7 @@ h3,
 .fab {
   border-radius: 50%;
   background: var(--forest);
-  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--khaki), 0 10px 24px rgba(31, 68, 48, 0.45);
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--khaki), 0 10px 24px rgba(20, 28, 68, 0.45);
 }
 
 /* ---------- Chips, tags, stamps ---------- */
@@ -521,7 +525,7 @@ h3,
 }
 
 .status-todo {
-  color: #6f6754;
+  color: #5d6282;
 }
 
 .status-in_progress {
@@ -571,7 +575,7 @@ h3,
 
 .seg.active {
   background: var(--paper);
-  box-shadow: 0 1px 0 var(--border), 0 1px 3px rgba(43, 36, 24, 0.12);
+  box-shadow: 0 1px 0 var(--border), 0 1px 3px rgba(20, 28, 68, 0.12);
 }
 
 .seg.active.seg-done {
@@ -585,7 +589,7 @@ h3,
 }
 
 .bar > div {
-  background: repeating-linear-gradient(135deg, #1e7a3c 0 4px, #2d9a52 4px 8px);
+  background: repeating-linear-gradient(135deg, #6d3fb5 0 4px, #8a5cd0 4px 8px);
 }
 
 /* ---------- Forms ---------- */
@@ -635,7 +639,7 @@ h3,
 }
 
 .hero::after {
-  background: linear-gradient(180deg, rgba(31, 68, 48, 0) 20%, rgba(31, 68, 48, 0.6) 58%, rgba(24, 52, 37, 0.95) 100%);
+  background: linear-gradient(180deg, rgba(20, 28, 68, 0) 20%, rgba(20, 28, 68, 0.6) 58%, rgba(20, 28, 68, 0.95) 100%);
 }
 
 .hero-content {
@@ -677,7 +681,7 @@ h3,
 
 @media (min-width: 900px) {
   .hero::after {
-    background: linear-gradient(90deg, rgba(24, 52, 37, 0.95) 0%, rgba(31, 68, 48, 0.62) 42%, rgba(31, 68, 48, 0.05) 78%);
+    background: linear-gradient(90deg, rgba(20, 28, 68, 0.95) 0%, rgba(20, 28, 68, 0.62) 42%, rgba(20, 28, 68, 0.05) 78%);
   }
 
   .hero h1 {
@@ -723,12 +727,12 @@ h3,
 }
 
 .verse-card figcaption {
-  color: #f3c84b;
+  color: #c9b6f2;
 }
 
 /* ---------- Login ---------- */
 .login-photo::after {
-  background: linear-gradient(180deg, rgba(31, 68, 48, 0.1) 0%, rgba(31, 68, 48, 0.45) 45%, rgba(24, 52, 37, 0.94) 100%);
+  background: linear-gradient(180deg, rgba(20, 28, 68, 0.1) 0%, rgba(20, 28, 68, 0.45) 45%, rgba(20, 28, 68, 0.94) 100%);
 }
 
 .login-panel {
@@ -771,7 +775,7 @@ h3,
   }
 
   .login-photo::after {
-    background: linear-gradient(180deg, rgba(31, 68, 48, 0.05) 30%, rgba(24, 52, 37, 0.9) 100%);
+    background: linear-gradient(180deg, rgba(20, 28, 68, 0.05) 30%, rgba(20, 28, 68, 0.9) 100%);
   }
 
   .login-logo {
@@ -782,7 +786,7 @@ h3,
 
 /* ---------- First sign-in ---------- */
 .onboard {
-  background: linear-gradient(180deg, rgba(24, 52, 37, 0.9), rgba(31, 68, 48, 0.78)), url('/group.jpg') center 40% / cover;
+  background: linear-gradient(180deg, rgba(20, 28, 68, 0.9), rgba(20, 28, 68, 0.78)), url('/group.jpg') center 40% / cover;
 }
 
 .onboard-card {
@@ -815,25 +819,16 @@ h3,
   padding-top: 24px;
 }
 
-.photo-frame .avatar {
-  box-shadow: 0 0 0 4px var(--paper), 0 0 0 6px var(--khaki), 0 6px 18px rgba(43, 36, 24, 0.18);
-}
-
-.photo-badge {
-  background: var(--forest);
-  border-color: var(--paper);
-}
-
 /* ---------- Avatars become round badges ---------- */
 .avatar {
-  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px rgba(43, 36, 24, 0.12);
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px rgba(20, 28, 68, 0.12);
   font-family: var(--font-head);
 }
 
 /* ---------- Empty states ---------- */
 .empty {
   border: 1.5px dashed var(--khaki);
-  background: rgba(255, 253, 247, 0.75);
+  background: rgba(255, 255, 255, 0.75);
   box-shadow: none;
 }
 
@@ -893,7 +888,7 @@ h3,
 }
 
 .upload-btn:hover {
-  background: #d8e4d6;
+  background: #dde2f2;
 }
 
 .material {
@@ -926,7 +921,7 @@ h3,
 }
 
 .modal-backdrop {
-  background: rgba(24, 33, 22, 0.55);
+  background: rgba(15, 20, 45, 0.55);
 }
 
 /* ---------- Toasts ---------- */
@@ -1145,11 +1140,6 @@ html[dir='rtl'] .fab {
   left: 18px;
 }
 
-html[dir='rtl'] .photo-badge {
-  right: auto;
-  left: 0;
-}
-
 /* Sidebar tabs stick out on the other side */
 @media (min-width: 900px) {
   html[dir='rtl'] .sidebar {
@@ -1170,7 +1160,7 @@ html[dir='rtl'] .photo-badge {
   }
 
   html[dir='rtl'] .hero::after {
-    background: linear-gradient(270deg, rgba(24, 52, 37, 0.95) 0%, rgba(31, 68, 48, 0.62) 42%, rgba(31, 68, 48, 0.05) 78%);
+    background: linear-gradient(270deg, rgba(20, 28, 68, 0.95) 0%, rgba(20, 28, 68, 0.62) 42%, rgba(20, 28, 68, 0.05) 78%);
   }
 }
 

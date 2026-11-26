@@ -16,7 +16,7 @@ The app is designed for phones first and also works on a computer.
 - **Language**: English or Arabic, chosen on the sign-in screen or the Profile page and remembered on each phone. Arabic switches the whole app (texts, dates, server messages) to a right-to-left layout with Arabic fonts. Translations live in `client/src/i18n-ar.js`.
 - **Home**: a personal summary showing open, done and overdue tasks, your next tasks and upcoming events.
 - **Members**: every member's details and attendance percentage. The Group Leader and Helpers view everyone; all 5 Database / Attendance members can add accounts, edit them, reset passwords and deactivate members (the 3 non-privileged ones only for their assigned kadr).
-- **Profile**: your mobile number and photo (both editable), your attendance, and changing your password. On first sign-in, anyone without a mobile number must add one (a photo is optional) before using the app. Only Egyptian mobile numbers are accepted: 11 digits starting with 010, 011, 012 or 015, stored as +20.
+- **Profile**: your mobile number (editable), your attendance, and changing your password. Members are shown by their initials on their kadr's colour (there are no profile photos). On first sign-in, anyone without a mobile number must add one before using the app. Only Egyptian mobile numbers are accepted: 11 digits starting with 010, 011, 012 or 015, stored as +20.
 
 ## Who can do what
 
@@ -226,8 +226,6 @@ All routes except login need an `Authorization: Bearer <token>` header.
 | GET | `/api/auth/me` | The signed-in user and their permissions |
 | PUT | `/api/auth/me/password` | Change your own password |
 | PUT | `/api/auth/me/profile` | Set your own mobile number |
-| PUT/DELETE | `/api/auth/me/photo` | Set (`multipart/form-data`, field `file`) or remove your photo |
-| GET | `/api/users/:id/photo` | A member's photo |
 | GET | `/api/events?when=upcoming\|past\|all&team=` | List events you can see (`team=group` for whole-group events) |
 | POST/PUT/DELETE | `/api/events[/:id]` | Manage events |
 | GET | `/api/events/:id` | An event with its tasks |

@@ -77,22 +77,9 @@ router.get(
     }
 
     // For assigning tasks, only what the picker needs (no phone numbers or account details).
-    const fields = membersPage ? undefined : 'name username team role photoUpdatedAt';
+    const fields = membersPage ? undefined : 'name username team role';
     const users = await User.find(filter, fields).sort({ name: 1 });
     res.json({ users });
-  })
-);
-
-// A member's profile photo. Any signed-in member can see others' photos (shown on avatars).
-router.get(
-  '/:id/photo',
-  asyncHandler(async (req, res) => {
-    if (!mongoose.isValidObjectId(req.params.id)) throw notFound('Photo not found');
-    const user = await User.findById(req.params.id).select('+photo +photoType photoUpdatedAt');
-    if (!user?.photo?.length) throw notFound('Photo not found');
-    res.set('Content-Type', user.photoType || 'image/jpeg');
-    res.set('Cache-Control', 'private, max-age=86400');
-    res.send(user.photo);
   })
 );
 

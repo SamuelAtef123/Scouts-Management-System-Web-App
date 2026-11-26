@@ -3,8 +3,8 @@ import mongoose from 'mongoose';
 
 /*
  * A backup is one gzip-compressed JSON file holding every document of every collection
- * (members with their photos and password hashes, events with attendance, tasks with file records).
- * Extended JSON keeps ids, dates and photos exactly as they are stored.
+ * (members with their password hashes, events with attendance, tasks with file records).
+ * Extended JSON keeps ids and dates exactly as they are stored.
  * Uploaded task files are not in it: they live in Google Drive already.
  */
 const { EJSON } = mongoose.mongo.BSON;

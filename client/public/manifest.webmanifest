@@ -3,7 +3,7 @@
   "short_name": "Scouts",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f7f5f0",
-  "theme_color": "#23277d",
+  "background_color": "#ffffff",
+  "theme_color": "#1f2a5e",
   "icons": [{ "src": "/logo.jpg", "sizes": "586x587", "type": "image/jpeg", "purpose": "any" }]
 }
