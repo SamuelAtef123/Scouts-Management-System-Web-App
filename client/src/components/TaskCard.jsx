@@ -34,6 +34,8 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent, 
   const mine = task.assignee?._id === user._id;
   const manager = canManage(user, task.team);
   const overdue = task.dueDate && task.status !== 'done' && daysUntil(task.dueDate) < 0;
+  // Files waiting for review or sent back: the task cannot be Done yet.
+  const notApproved = task.materials?.some((m) => m.reviewStatus === 'pending' || m.reviewStatus === 'changes');
 
   const setStatus = async (status) => {
     if (status === task.status) return;
@@ -158,13 +160,21 @@ export default function TaskCard({ task, onChange, onEdit, onDelete, showEvent, 
       </div>
 
       {mine && (
-        <div className="segmented" role="group" aria-label={tr('Task status')}>
-          {STATUSES.map((s) => (
-            <button key={s.id} className={`seg ${task.status === s.id ? `active seg-${s.id}` : ''}`} onClick={() => setStatus(s.id)}>
-              {s.label}
-            </button>
-          ))}
-        </div>
+        <>
+          <div className="segmented" role="group" aria-label={tr('Task status')}>
+            {STATUSES.map((s) => (
+              <button
+                key={s.id}
+                className={`seg ${task.status === s.id ? `active seg-${s.id}` : ''}`}
+                disabled={s.id === 'done' && notApproved && task.status !== 'done'}
+                onClick={() => setStatus(s.id)}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          {notApproved && task.status !== 'done' && <p className="status-hint">{tr('You can mark it Done once your files are approved.')}</p>}
+        </>
       )}
 
       {(task.materials?.length > 0 || mine) && (

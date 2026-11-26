@@ -169,6 +169,9 @@ router.put(
     if (!manager && !isAssignee(task, req.user)) throw forbidden('You cannot edit this task');
 
     if (req.body.status !== undefined) {
+      // Only the person the task is assigned to changes its status, and never to Done while one of
+      // their uploaded files is not approved yet (waiting for review or sent back).
+      if (!isAssignee(task, req.user)) throw forbidden('Only the person this task is assigned to can change its status');
       if (!TASK_STATUSES.includes(req.body.status)) throw badRequest('Invalid status');
       if (req.body.status === 'done' && task.materials.some((m) => m.reviewStatus === 'pending' || m.reviewStatus === 'changes')) {
         throw badRequest('This task has files waiting for review or sent back, so it cannot be marked done yet');

@@ -316,6 +316,8 @@ export const AR = {
   'You can only manage tasks of your own kadr': 'يمكنك إدارة مهام كدرك فقط',
   'You can only move events to your own kadr': 'يمكنك نقل الأحداث إلى كدرك فقط',
   'This event has tasks assigned to members of another kadr. Reassign or delete those tasks first, then change the kadr.': 'في هذا الحدث مهام مُسندة لأعضاء كدر آخر. أعد إسنادها أو احذفها أولًا، ثم غيّر الكدر.',
+  'Only the person this task is assigned to can change its status': 'من أُسندت إليه المهمة فقط يمكنه تغيير حالتها',
+  'You can mark it Done once your files are approved.': 'يمكنك إنهاء المهمة بعد اعتماد ملفاتك.',
   'Only the person who uploaded this file can remove it': 'من رفع هذا الملف فقط يمكنه حذفه',
   'Tasks of this event can only be assigned to members of its kadr': 'مهام هذا الحدث تُسند فقط لأعضاء كدره',
   'You can only manage members of the kadr assigned to you': 'يمكنك إدارة أعضاء الكدر المسؤول عنه فقط',

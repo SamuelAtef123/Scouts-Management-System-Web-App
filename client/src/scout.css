@@ -1621,3 +1621,16 @@ html[lang='ar'] .done-stamp {
   font-weight: 700;
   color: var(--forest);
 }
+
+/* Under the status buttons while a file is not approved yet */
+.status-hint {
+  margin: -4px 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--khaki-deep);
+}
+
+.seg:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
