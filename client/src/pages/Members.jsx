@@ -3,11 +3,12 @@ import { ClipboardCheck, Pencil, Plus, Search, Shield, Users } from 'lucide-reac
 import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
-import { EVENT_TYPES, ROLES, roleLabel, TEAMS, teamName } from '../constants.js';
+import { ROLES, roleLabel, TEAMS, teamName } from '../constants.js';
 import { t as tr } from '../i18n.jsx';
 import { displayPhone, localPhone } from '../format.js';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast } from '../components/ui.jsx';
+import AttendanceByType from '../components/AttendanceByType.jsx';
 
 function MemberForm({ member, onClose, onSaved }) {
   const { user } = useAuth();
@@ -224,19 +225,7 @@ function MemberDetails({ member, onClose, onEdit }) {
               </p>
             </div>
           </div>
-          <div className="attend-types">
-            {EVENT_TYPES.filter((t) => t.attendance && a.byType[t.id]).map((t) => {
-              const c = a.byType[t.id];
-              return (
-                <div key={t.id} className="attend-type">
-                  <span>{t.label}</span>
-                  <b>
-                    {c.present}/{c.present + c.absent}
-                  </b>
-                </div>
-              );
-            })}
-          </div>
+          <AttendanceByType byType={a.byType} />
         </>
       )}
     </Modal>

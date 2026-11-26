@@ -236,7 +236,7 @@ async function icon(name, color = 'FFFFFF') {
     ['LuPencil', 'Edit or delete', 'Pencil and bin buttons; uploaded files stay in Google Drive.'],
     ['LuFileCheck2', 'Review files', 'My tasks → To review: open, then Approve (to Google Drive) or Send back with a note.'],
     ['LuEye', 'See attendance', 'Tap View on the Attendance card; you cannot take or change it.'],
-    ['LuUsers', 'Members (view only)', 'Every member with attendance %; tap one for details.'],
+    ['LuUsers', 'Members (view only)', 'Every member with attendance %; tap one for the % per event type.'],
   ];
   sl.forEach(([icn, t, d], i) => {
     const col = i % 2, row = Math.floor(i / 2);

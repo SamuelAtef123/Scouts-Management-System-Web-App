@@ -65,7 +65,7 @@ The app is designed for phones first and also works on a computer.
   - A Gawala Session (all kadrs) is recorded only by the member assigned to Gawala. The event page shows which kadrs' sections are done.
   - A Database / Attendance member sees the Gawala kadr's events, their assigned kadr's events, and whole-group events. The 2 privileged members still see and manage every kadr, but take attendance only for their own kadr.
   - Anyone who can see an event can view its sheet.
-- Profile: attendance rate = present ÷ (present + absent). Excused sessions don't count against the member.
+- Profile and member details: attendance rate = present ÷ (present + absent), overall and for each event type (Kadr Session, Preparation Meeting, Gawala Session). Excused sessions don't count against the member.
 
 Kadrs: Ashbal (أشبال), Zahrat (زهرات), Kashafeen (كشافين), Morshedat (مرشدات), Gawala (جوالة). Each kadr has a colour taken from the logo.
 

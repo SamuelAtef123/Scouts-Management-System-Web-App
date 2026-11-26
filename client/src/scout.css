@@ -1634,3 +1634,58 @@ html[lang='ar'] .done-stamp {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* Attendance rate per event type (Profile and member details) */
+.attend-types {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.attend-type {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 10px 11px;
+  border-radius: 8px;
+}
+
+.attend-type-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink-2);
+  min-height: 2.5em;
+}
+
+.attend-type-rate {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.attend-type-bar {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--khaki-soft);
+  overflow: hidden;
+}
+
+.attend-type-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: currentColor;
+}
+
+.attend-type-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.tone-good { color: #1e7a3c; }
+.tone-mid { color: #b07800; }
+.tone-low { color: #b52a20; }
+.tone-none { color: var(--muted); }
+.attend-type .attend-type-name { color: var(--ink-2); }

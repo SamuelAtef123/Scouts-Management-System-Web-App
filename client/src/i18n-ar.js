@@ -361,6 +361,8 @@ export const AR = {
   'Your current password is wrong': 'كلمة المرور الحالية غير صحيحة',
   'Your password was changed, please sign in again': 'تم تغيير كلمة المرور، برجاء تسجيل الدخول مرة أخرى',
   'Your session has expired, please sign in again': 'انتهت الجلسة، برجاء تسجيل الدخول مرة أخرى',
+  '{n} of {total} attended': 'حضر {n} من {total}',
+  'No sessions yet': 'لا توجد جلسات بعد',
   // ---------- Reviewing uploaded files ----------
   'Material uploaded. It goes to Google Drive after it is reviewed.': 'تم رفع الملف. سيُحفظ في Google Drive بعد مراجعته.',
   'Approved and saved to Google Drive': 'تم الاعتماد والحفظ في Google Drive',

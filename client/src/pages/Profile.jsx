@@ -6,9 +6,10 @@ import PhoneInput from '../components/PhoneInput.jsx';
 import { displayPhone, localPhone } from '../format.js';
 import { api, tokenStore } from '../api.js';
 import { useAuth } from '../auth.jsx';
-import { EVENT_TYPES, roleLabel, teamName } from '../constants.js';
+import { roleLabel, teamName } from '../constants.js';
 import { useApi } from '../hooks.js';
 import { Avatar, ErrorBox, Field, Spinner, TeamChip, VerseCard, useToast } from '../components/ui.jsx';
+import AttendanceByType from '../components/AttendanceByType.jsx';
 
 function PhoneCard() {
   const { user, updateUser } = useAuth();
@@ -80,19 +81,7 @@ function AttendanceCard() {
               </p>
             </div>
           </div>
-          <div className="attend-types">
-            {EVENT_TYPES.filter((t) => t.attendance && a.byType[t.id]).map((t) => {
-              const c = a.byType[t.id];
-              return (
-                <div key={t.id} className="attend-type">
-                  <span>{t.label}</span>
-                  <b>
-                    {c.present}/{c.present + c.absent}
-                  </b>
-                </div>
-              );
-            })}
-          </div>
+          <AttendanceByType byType={a.byType} />
         </>
       )}
     </section>
