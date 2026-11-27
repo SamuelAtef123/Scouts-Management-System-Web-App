@@ -16,7 +16,9 @@ The app is designed for phones first and also works on a computer.
 - **Language**: English or Arabic, chosen on the sign-in screen or the Profile page and remembered on each phone. Arabic switches the whole app (texts, dates, server messages) to a right-to-left layout with Arabic fonts. Translations live in `client/src/i18n-ar.js`.
 - **Home**: a personal summary showing open, done and overdue tasks, your next tasks and upcoming events.
 - **Members**: every member's details and attendance percentage. The Group Leader and Helpers view everyone; all 5 Database / Attendance members can add accounts, edit them, reset passwords and deactivate members (the 3 non-privileged ones only for their assigned kadr).
-- **Profile**: your mobile number (editable), your attendance, and changing your password. Members are shown by their initials on their kadr's colour (there are no profile photos). On first sign-in, anyone without a mobile number must add one before using the app. Only Egyptian mobile numbers are accepted: 11 digits starting with 010, 011, 012 or 015, stored as +20.
+- **Profile**: your mobile number and email (both editable), which automatic emails you get, your attendance, and changing your password. Members are shown by their initials on their kadr's colour (there are no profile photos). On first sign-in, anyone without a mobile number or email must add them before using the app.
+- **Emails** (in Arabic and English, sent through Brevo): a new event for your kadr (whole-group events: everyone, plus the Database member who takes that kadr's attendance), a task assigned to you, and your uploaded file approved or sent back (with the note). The person who did the action is not emailed, and each kind can be switched off on the Profile page.
+- **Forgot password?** on the sign-in screen emails a link to choose a new password. It works once, for 1 hour, and signs out other devices. Every member has a required, unique email. Only Egyptian mobile numbers are accepted: 11 digits starting with 010, 011, 012 or 015, stored as +20.
 
 ## Who can do what
 
@@ -134,6 +136,15 @@ You need Node.js 20 or later and MongoDB. MongoDB can run on your machine, or yo
 
 If Google Drive is not configured, uploaded files are saved in `server/uploads/` so that everything still works during development.
 
+## Setting up emails (Brevo)
+
+1. Create a free account at [brevo.com](https://www.brevo.com) with the group's Gmail address.
+2. **Senders, domains & dedicated IPs → Senders → Add a sender** with that Gmail address, and confirm it from the email Brevo sends.
+3. **SMTP & API → API Keys → Generate a new API key**, and copy it.
+4. In `server/.env` (and on Render): `BREVO_API_KEY` = the key, `EMAIL_FROM` = the Gmail address, `EMAIL_FROM_NAME` (optional), and `APP_URL` = the site's https address (it defaults to `CLIENT_ORIGIN`) so the links in emails open the app.
+
+Without a key nothing is sent: on a computer used for testing each email is printed in the server log instead, links included. The free plan allows about 300 emails a day; a whole-group event sends about 60. Emails from a Gmail address sent through Brevo can land in spam at first: ask members to mark them "Not spam". Your own domain later improves delivery.
+
 ## Connecting Google Drive
 
 1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the **Google Drive API**.
@@ -165,9 +176,9 @@ The Express server serves the built React app from `client/dist`, so one Node pr
 3. **Web service:** on render.com → New → Web Service → this repository, branch `main`, region Frankfurt (closest to Egypt; ideally the Atlas cluster is in Frankfurt too), plan Free, health check path `/api/health`.
    - Build command: `npm install --prefix server && npm install --prefix client --include=dev && npm run build` (`--include=dev` is needed: with `NODE_ENV=production` npm would skip the build tools).
    - Start command: `npm start`
-   - Environment: `NODE_ENV=production`, `TZ=Africa/Cairo`, `MONGO_URI` (the live database), a **new** `JWT_SECRET`, `CLIENT_ORIGIN=https://<app-name>.onrender.com`, `TRUST_PROXY=1`, and the `GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_OAUTH_…` values. Not `PORT` (Render sets it) and not `DNS_SERVERS`.
-4. **First accounts:** on your computer, point `server/.env` at the live database, fill in the `SEED_ADMIN_…` and `SEED_DB_…` values, and run `npm run seed --prefix server`. Then point `.env` back at the test database.
-5. **Check:** `https://<app-name>.onrender.com/api/health` shows `"ok":true,"drive":true`; sign in, add a test member, upload and approve a file, take attendance, and a minute after start-up a `scouts-backup-automatic-…` file appears in Google Drive. Remove the test data, then share the link.
+   - Environment: `NODE_ENV=production`, `TZ=Africa/Cairo`, `MONGO_URI` (the live database), a **new** `JWT_SECRET`, `CLIENT_ORIGIN=https://<app-name>.onrender.com`, `TRUST_PROXY=1`, the `GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_OAUTH_…` values, and `BREVO_API_KEY` and `EMAIL_FROM` (see [Setting up emails](#setting-up-emails-brevo)). Not `PORT` (Render sets it) and not `DNS_SERVERS`.
+4. **First accounts:** on your computer, point `server/.env` at the live database, fill in the `SEED_ADMIN_…` and `SEED_DB_…` values (with their `…_EMAIL`, so "Forgot password?" works for them from the start), and run `npm run seed --prefix server`. Then point `.env` back at the test database.
+5. **Check:** `https://<app-name>.onrender.com/api/health` shows `"ok":true,"drive":true`; sign in, add a test member with your own email (an event and a task for them should arrive by email), try "Forgot password?", upload and approve a file, take attendance, and a minute after start-up a `scouts-backup-automatic-…` file appears in Google Drive. Remove the test data, then share the link.
 
 Every push to `main` redeploys automatically. On the free plan the site sleeps after 15 minutes without visitors and takes 30–60 seconds to wake.
 
@@ -225,7 +236,10 @@ All routes except login need an `Authorization: Bearer <token>` header.
 | POST | `/api/auth/login` | Sign in with username and password |
 | GET | `/api/auth/me` | The signed-in user and their permissions |
 | PUT | `/api/auth/me/password` | Change your own password |
-| PUT | `/api/auth/me/profile` | Set your own mobile number |
+| PUT | `/api/auth/me/profile` | Set your own mobile number and/or email |
+| PUT | `/api/auth/me/email-prefs` | Which automatic emails you get (`events`, `tasks`, `reviews`) |
+| POST | `/api/auth/forgot` | Email a password-reset link (`login`: username or email); always answers the same |
+| POST | `/api/auth/reset` | Set a new password with the link's `token`; signs you in |
 | GET | `/api/events?when=upcoming\|past\|all&team=` | List events you can see (`team=group` for whole-group events) |
 | POST/PUT/DELETE | `/api/events[/:id]` | Manage events |
 | GET | `/api/events/:id` | An event with its tasks |

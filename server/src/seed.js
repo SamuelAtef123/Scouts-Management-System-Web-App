@@ -1,7 +1,7 @@
 /*
  * Creates the first accounts on a new database:
- * - the Group Leader (SEED_ADMIN_USERNAME / SEED_ADMIN_PASSWORD / SEED_ADMIN_NAME);
- * - the first privileged Database / Attendance member (SEED_DB_USERNAME / SEED_DB_PASSWORD / SEED_DB_NAME),
+ * - the Group Leader (SEED_ADMIN_USERNAME / SEED_ADMIN_PASSWORD / SEED_ADMIN_NAME / SEED_ADMIN_EMAIL);
+ * - the first privileged Database / Attendance member (SEED_DB_USERNAME / SEED_DB_PASSWORD / SEED_DB_NAME / SEED_DB_EMAIL),
  *   because only Database members can add members: this person then adds everyone else from the Members page.
  *
  *   npm run seed                 -> creates those accounts (existing ones are left unchanged)
@@ -16,6 +16,14 @@ import { ROLES, TEAMS } from './constants.js';
 import { ATTENDANCE_ASSIGNMENTS } from './attendanceAssignments.js';
 
 const DEMO_PASSWORD = 'scouts123';
+
+/** An optional email from server/.env for a first account (otherwise it is asked on first sign-in). */
+function seedEmail(name) {
+  const value = String(process.env[name] || '').trim().toLowerCase();
+  if (!value) return undefined;
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(value)) throw new Error(`${name} is not a valid email address`);
+  return value;
+}
 
 async function upsertUser({ password, ...fields }) {
   let user = await User.findOne({ username: fields.username });
@@ -53,7 +61,7 @@ async function seedDemo(leader) {
 
   const users = {};
   for (const m of members) {
-    const { user } = await upsertUser({ ...m, password: DEMO_PASSWORD });
+    const { user } = await upsertUser({ ...m, email: `${m.username}@example.com`, password: DEMO_PASSWORD });
     users[m.username] = user;
   }
 
@@ -156,6 +164,7 @@ async function main() {
   const { user: leader, created } = await upsertUser({
     name: process.env.SEED_ADMIN_NAME || 'Group Leader',
     username,
+    email: seedEmail('SEED_ADMIN_EMAIL') ?? (demo ? `${username}@example.com` : undefined),
     password,
     role: ROLES.SCOUT_LEADER,
     team: 'Gawala',
@@ -166,6 +175,7 @@ async function main() {
     const { user: dbUser, created: dbCreated } = await upsertUser({
       name: process.env.SEED_DB_NAME || 'Database Member',
       username: dbUsername,
+      email: seedEmail('SEED_DB_EMAIL'),
       password: dbPassword,
       role: ROLES.DATABASE_TEAM,
       isPrivileged: true,

@@ -8,6 +8,7 @@ import { TEAM_LEVEL_ROLES, canViewMembers, hasGlobalAccess, memberTeams } from '
 import { ROLES, ROLE_VALUES, TEAMS } from '../constants.js';
 import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 import { normalizePhone } from '../utils/phone.js';
+import { normalizeEmail } from '../utils/email.js';
 
 const router = Router();
 
@@ -20,6 +21,8 @@ function readUserFields(body, { partial }) {
   }
   if (!partial || body.username !== undefined) out.username = String(body.username || '').trim().toLowerCase();
   if (body.phone !== undefined) out.phone = normalizePhone(body.phone);
+  // Every member needs an email (notifications and "Forgot password?").
+  if (!partial || body.email !== undefined) out.email = normalizeEmail(body.email, { required: true });
   if (!partial || body.role !== undefined) {
     if (!ROLE_VALUES.includes(body.role)) throw badRequest('Choose a valid role');
     out.role = body.role;
@@ -117,6 +120,7 @@ router.post(
     const password = String(req.body.password || '');
     if (password.length < 8) throw badRequest('The password must be at least 8 characters');
     if (await User.exists({ username: fields.username })) throw badRequest('This username is already taken');
+    if (await User.exists({ email: fields.email })) throw badRequest('This email is already used by another member');
 
     const user = new User(fields);
     checkRoleTeam(user);
@@ -143,6 +147,9 @@ router.put(
     }
     if (fields.username && fields.username !== user.username) {
       if (await User.exists({ username: fields.username })) throw badRequest('This username is already taken');
+    }
+    if (fields.email && fields.email !== user.email) {
+      if (await User.exists({ email: fields.email, _id: { $ne: user._id } })) throw badRequest('This email is already used by another member');
     }
     if (user._id.equals(req.user._id) && (fields.isActive === false || (fields.role && fields.role !== user.role))) {
       throw badRequest('You cannot deactivate yourself or change your own role');

@@ -4,7 +4,8 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../auth.jsx';
 import { LanguageSwitch, t as tr } from '../i18n.jsx';
 import { VERSE } from '../constants.js';
-import { ErrorBox } from '../components/ui.jsx';
+import { ErrorBox, Field, Modal } from '../components/ui.jsx';
+import { api } from '../api.js';
 
 export default function Login() {
   const { login } = useAuth();
@@ -14,6 +15,7 @@ export default function Login() {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [forgot, setForgot] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -83,8 +85,69 @@ export default function Login() {
             {busy ? tr('Signing in…') : tr('Sign in')}
           </button>
         </form>
-        <p className="login-help">{tr('Forgot your password? Ask a Database / Attendance member to reset it.')}</p>
+        <button type="button" className="link login-forgot" onClick={() => setForgot(true)}>
+          {tr('Forgot your password?')}
+        </button>
+        {forgot && <ForgotDialog initial={username} onClose={() => setForgot(false)} />}
       </section>
     </div>
+  );
+}
+
+/** Asks for a username or email and emails a link to choose a new password. */
+function ForgotDialog({ initial, onClose }) {
+  const [login, setLogin] = useState(initial || '');
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState('');
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      await api.post('/auth/forgot', { login });
+      setSent(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <Modal
+      title={tr('Forgot your password?')}
+      onClose={onClose}
+      footer={
+        sent ? (
+          <button type="button" className="btn btn-primary" onClick={onClose}>
+            {tr('OK')}
+          </button>
+        ) : (
+          <>
+            <button type="button" className="btn btn-ghost" onClick={onClose}>
+              {tr('Cancel')}
+            </button>
+            <button type="submit" form="forgot-form" className="btn btn-primary" disabled={busy}>
+              {busy ? tr('Please wait…') : tr('Send link')}
+            </button>
+          </>
+        )
+      }
+    >
+      {sent ? (
+        <p className="muted">
+          {tr('If an account matches, we have emailed it a link to choose a new password. The link works once, for 1 hour. Check your spam folder too.')}
+        </p>
+      ) : (
+        <form id="forgot-form" className="form" onSubmit={submit}>
+          <p className="muted">{tr('Enter your username or email. We will email you a link to choose a new password.')}</p>
+          <Field label={tr('Username or email')}>
+            <input value={login} onChange={(e) => setLogin(e.target.value)} required dir="ltr" autoCapitalize="none" autoCorrect="off" autoComplete="username" />
+          </Field>
+          {error && <ErrorBox message={error} />}
+          <p className="field-hint">{tr('No email on your account? Ask a Database / Attendance member to reset your password.')}</p>
+        </form>
+      )}
+    </Modal>
   );
 }

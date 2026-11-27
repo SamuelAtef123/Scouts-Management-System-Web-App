@@ -29,10 +29,16 @@ export function AuthProvider({ children }) {
     return data.user;
   }, []);
 
-  // Replace the signed-in user after they edit their own profile (phone).
+  // After choosing a new password from an emailed link: the server signs the person in.
+  const signInWith = useCallback((token, next) => {
+    tokenStore.set(token);
+    setUser(next);
+  }, []);
+
+  // Replace the signed-in user after they edit their own profile (phone, email, email settings).
   const updateUser = useCallback((next) => setUser(next), []);
 
-  const value = useMemo(() => ({ user, loading, login, logout, updateUser }), [user, loading, login, logout, updateUser]);
+  const value = useMemo(() => ({ user, loading, login, logout, updateUser, signInWith }), [user, loading, login, logout, updateUser, signInWith]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

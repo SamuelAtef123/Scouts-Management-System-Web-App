@@ -4,6 +4,7 @@ import Layout from './components/Layout.jsx';
 import { Spinner } from './components/ui.jsx';
 import Login from './pages/Login.jsx';
 import CompleteProfile from './pages/CompleteProfile.jsx';
+import ResetPassword from './pages/ResetPassword.jsx';
 import Home from './pages/Home.jsx';
 import Events from './pages/Events.jsx';
 import EventDetail from './pages/EventDetail.jsx';
@@ -23,9 +24,11 @@ export default function App() {
     );
   }
 
+  // "Forgot password?" link from an email: works whether or not someone is signed in on this device.
+  if (window.location.pathname === '/reset-password') return <ResetPassword />;
   if (!user) return <Login />;
-  // First sign-in: the mobile number must be added before using the app.
-  if (!user.phone) return <CompleteProfile />;
+  // The mobile number and email must be added before using the app.
+  if (!user.phone || !user.email) return <CompleteProfile />;
 
   return (
     <Routes>

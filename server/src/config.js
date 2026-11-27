@@ -37,6 +37,15 @@ export const config = {
   // Number of reverse proxies in front of the app (0 = none). See index.js.
   trustProxy: Number(process.env.TRUST_PROXY) || 0,
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB) || 25,
+  // Automatic emails (new events, tasks assigned, file reviews, "Forgot password?") go through Brevo.
+  // Without BREVO_API_KEY nothing is sent: each email is written to the server log instead.
+  email: {
+    brevoApiKey: process.env.BREVO_API_KEY || '',
+    from: process.env.EMAIL_FROM || '',
+    fromName: process.env.EMAIL_FROM_NAME || 'Light of the World Scouts',
+    // The site's public address, for the links in emails (in production the same as CLIENT_ORIGIN).
+    appUrl: (process.env.APP_URL || process.env.CLIENT_ORIGIN || 'http://localhost:5173').replace(/\/+$/, ''),
+  },
   // Automatic backup: a dated file in Google Drive every `days`, keeping the newest `keep`.
   // On by default on the live site only, so a computer used for testing never adds or removes any.
   autoBackup: {

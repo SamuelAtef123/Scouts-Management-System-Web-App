@@ -4,13 +4,17 @@ The Light of the World Scouts App is an internal web app used by the leaders (th
 
 ## What the app stores
 
-- **Member accounts:** name, username, optional phone number, role and team. Passwords are stored only as secure hashes.
+- **Member accounts:** name, username, email, phone number, role and team, and which automatic emails each member wants. Passwords are stored only as secure hashes; password-reset links are stored only as hashes and expire after 1 hour.
 - **Events, tasks and attendance** that leaders create in the app.
 - **Uploaded task materials** (PDF, Word documents and images).
 
 ## Google Drive
 
 The app uses the Google Drive API only to save the task materials that leaders upload, in the group's own Google Drive folder, and to remove a file when a leader deletes it from a task. It does not read, share or change any other files, and it does not use Google data for advertising or any other purpose.
+
+## Emails
+
+The app emails members about new events for their kadr, tasks assigned to them, reviews of their uploaded files, and password-reset links they ask for. Emails are sent through [Brevo](https://www.brevo.com), which receives only the recipient's address and the email's content in order to deliver it. Each member can switch the automatic emails off on their Profile page.
 
 ## Sharing
 

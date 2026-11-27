@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ClipboardCheck, KeyRound, Languages, LogOut, Phone } from 'lucide-react';
+import { Bell, ClipboardCheck, KeyRound, Languages, LogOut, Mail, Phone } from 'lucide-react';
 import { LanguageSwitch, t as tr } from '../i18n.jsx';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { displayPhone, localPhone } from '../format.js';
@@ -47,6 +47,94 @@ function PhoneCard() {
           {busy ? tr('Saving…') : tr('Save number')}
         </button>
       </form>
+    </section>
+  );
+}
+
+function EmailCard() {
+  const { user, updateUser } = useAuth();
+  const toast = useToast();
+  const [email, setEmail] = useState(user.email || '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const data = await api.put('/auth/me/profile', { email });
+      updateUser(data.user);
+      setEmail(data.user.email);
+      toast(tr('Email saved'));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="card">
+      <h2 className="card-title">
+        <Mail size={18} /> {tr('Email')}
+      </h2>
+      <form className="form phone-form" onSubmit={submit}>
+        <Field label={tr('Email')} hint={tr('For notifications and to reset a forgotten password')}>
+          <input type="email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={120} autoCapitalize="none" autoComplete="email" />
+        </Field>
+        {error && <ErrorBox message={error} />}
+        <button className="btn btn-primary" disabled={busy || email.trim().toLowerCase() === (user.email || '')}>
+          {busy ? tr('Saving…') : tr('Save email')}
+        </button>
+      </form>
+    </section>
+  );
+}
+
+const EMAIL_KINDS = [
+  { id: 'events', label: 'New events for my kadr or the whole group' },
+  { id: 'tasks', label: 'A task assigned to me' },
+  { id: 'reviews', label: 'My uploaded file approved or sent back' },
+];
+
+function EmailPrefsCard() {
+  const { user, updateUser } = useAuth();
+  const toast = useToast();
+  const [busy, setBusy] = useState('');
+  const prefs = user.emailPrefs || {};
+
+  const toggle = async (id) => {
+    setBusy(id);
+    try {
+      const data = await api.put('/auth/me/email-prefs', { [id]: prefs[id] === false });
+      updateUser(data.user);
+      toast(tr('Saved'));
+    } catch (err) {
+      toast(err.message, 'error');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  return (
+    <section className="card">
+      <h2 className="card-title">
+        <Bell size={18} /> {tr('Email notifications')}
+      </h2>
+      <p className="muted email-prefs-intro">
+        {tr('Choose which emails you get at this address:')}
+        <br />
+        <bdi dir="ltr" className="email-prefs-address">{user.email}</bdi>
+      </p>
+      <div className="email-prefs">
+        {EMAIL_KINDS.map((k) => (
+          <label key={k.id} className="switch-row">
+            <span>{tr(k.label)}</span>
+            <input type="checkbox" role="switch" className="switch" checked={prefs[k.id] !== false} disabled={busy === k.id} onChange={() => toggle(k.id)} />
+          </label>
+        ))}
+      </div>
     </section>
   );
 }
@@ -141,6 +229,10 @@ export default function Profile() {
       <AttendanceCard />
 
       <PhoneCard />
+
+      <EmailCard />
+
+      <EmailPrefsCard />
 
       <section className="card">
         <h2 className="card-title">

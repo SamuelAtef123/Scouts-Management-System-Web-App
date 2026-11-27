@@ -73,7 +73,7 @@ async function icon(name, color = 'FFFFFF') {
   });
 
   const ic = {};
-  for (const n of ['LuLockKeyhole', 'LuSmartphone', 'LuCalendarDays', 'LuShapes', 'LuListChecks', 'LuUpload', 'LuClipboardCheck', 'LuUsers', 'LuHouse', 'LuUserRound', 'LuCrown', 'LuFlag', 'LuHandHelping', 'LuDatabase', 'LuServer', 'LuLayoutDashboard', 'LuFolderOpen', 'LuRocket', 'LuKeyRound', 'LuFileCode', 'LuHardDrive', 'LuGlobe', 'LuBan', 'LuUserPlus', 'LuEye', 'LuPencil', 'LuShieldCheck', 'LuFileCheck2', 'LuDatabaseBackup']) {
+  for (const n of ['LuLockKeyhole', 'LuSmartphone', 'LuCalendarDays', 'LuShapes', 'LuListChecks', 'LuUpload', 'LuClipboardCheck', 'LuUsers', 'LuHouse', 'LuUserRound', 'LuCrown', 'LuFlag', 'LuHandHelping', 'LuDatabase', 'LuServer', 'LuLayoutDashboard', 'LuFolderOpen', 'LuRocket', 'LuKeyRound', 'LuFileCode', 'LuHardDrive', 'LuGlobe', 'LuBan', 'LuUserPlus', 'LuEye', 'LuPencil', 'LuShieldCheck', 'LuFileCheck2', 'LuDatabaseBackup', 'LuMail']) {
     ic[n] = await icon(n);
   }
 
@@ -144,16 +144,16 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'What has been built' });
   s.addText('Everything planned for version 1 is built', { placeholder: 'title' });
   const feats = [
-    ['LuLockKeyhole', 'Sign-in', 'Username and password, 7-day sessions', HEX.navy],
-    ['LuSmartphone', 'First sign-in', 'Asks for an Egyptian mobile number', HEX.teal],
+    ['LuLockKeyhole', 'Sign-in', 'Username and password; Forgot password? by email', HEX.navy],
+    ['LuSmartphone', 'First sign-in', 'Asks for a mobile number and an email', HEX.teal],
     ['LuCalendarDays', 'Events', 'Upcoming and past, filter by kadr', HEX.navy],
     ['LuShapes', 'Event types', 'Four types, each with its own rules', HEX.gold],
     ['LuListChecks', 'Tasks', 'Assign, set due dates, track progress', HEX.green],
     ['LuUpload', 'Materials', 'PDF, Word or photo, reviewed, then saved to Google Drive', HEX.red],
     ['LuClipboardCheck', 'Attendance', 'Present, Absent or Excused per member', HEX.green],
     ['LuUsers', 'Members', 'Attendance % and account management', HEX.teal],
-    ['LuHouse', 'Home', 'Open, done and overdue at a glance', HEX.gold],
-    ['LuUserRound', 'Profile', 'Mobile, attendance, password, English or Arabic', HEX.navy],
+    ['LuMail', 'Emails', 'New events, tasks and file reviews, in Arabic and English', HEX.gold],
+    ['LuUserRound', 'Profile', 'Mobile, email settings, attendance, password, language', HEX.navy],
   ];
   feats.forEach(([icn, t, d, c], i) => {
     const col = i % 5, row = Math.floor(i / 5);
@@ -209,10 +209,10 @@ async function icon(name, color = 'FFFFFF') {
   s.addText('Getting started (everyone)', { placeholder: 'title' });
   steps(s, [
     'Open the app on your phone and sign in with the username and password from the Database team.',
-    'On first sign-in, enter your Egyptian mobile number: 11 digits starting with 010, 011, 012 or 015, then tap Continue.',
+    'On first sign-in, enter your Egyptian mobile number: 11 digits starting with 010, 011, 012 or 015, and your email, then tap Continue.',
     'Prefer Arabic? Tap العربية on the sign-in screen or in your Profile.',
     'Add it to your home screen to open it like an app.',
-    'Forgot your password? Ask a Database / Attendance member to reset it.',
+    'Forgot your password? Tap Forgot your password? on the sign-in screen; a link arrives by email.',
   ], 0.6, 1.5, 8.4, HEX.navy, 0.82);
   phone(s, 'onboard.png', 10.0, 1.3, 5.05, 'First sign-in screen');
 

@@ -5,6 +5,9 @@ import { User } from '../models/User.js';
 import { requireAuth, signToken } from '../middleware/auth.js';
 import { asyncHandler, badRequest, HttpError } from '../utils/httpError.js';
 import { normalizePhone } from '../utils/phone.js';
+import { normalizeEmail } from '../utils/email.js';
+import { inBackground, sendPasswordReset } from '../services/notify.js';
+import crypto from 'node:crypto';
 import { hasGlobalAccess, isReviewer, canManageUsers, canViewAllTeams, canViewMembers, memberTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
 import { config } from '../config.js';
@@ -96,14 +99,92 @@ router.put(
   })
 );
 
-// Update your own mobile number (asked on first sign-in, editable on the Profile page).
+// Update your own mobile number and/or email (asked on first sign-in, editable on the Profile page).
 router.put(
   '/me/profile',
   requireAuth,
   asyncHandler(async (req, res) => {
-    req.user.phone = normalizePhone(req.body.phone, { required: true });
+    if (req.body.phone === undefined && req.body.email === undefined) throw badRequest('Nothing to update');
+    if (req.body.phone !== undefined) req.user.phone = normalizePhone(req.body.phone, { required: true });
+    if (req.body.email !== undefined) {
+      const email = normalizeEmail(req.body.email, { required: true });
+      if (email !== req.user.email && (await User.exists({ email, _id: { $ne: req.user._id } }))) {
+        throw badRequest('This email is already used by another member');
+      }
+      req.user.email = email;
+    }
     await req.user.save();
     res.json({ user: publicUser(req.user) });
+  })
+);
+
+// Which automatic emails you want: { events, tasks, reviews } (true or false each).
+router.put(
+  '/me/email-prefs',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    for (const key of ['events', 'tasks', 'reviews']) {
+      if (req.body[key] !== undefined) req.user.emailPrefs[key] = Boolean(req.body[key]);
+    }
+    await req.user.save();
+    res.json({ user: publicUser(req.user) });
+  })
+);
+
+// ---------- Forgot password ----------
+// A one-time link, valid for RESET_MINUTES, is emailed to the account's address. The link holds a
+// random secret; only its hash is stored, so the database alone cannot be used to reset a password.
+const RESET_MINUTES = 60;
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+// Per internet address (leaders at church share one), every 15 minutes. The link's secret cannot
+// be guessed, so these limits only stop someone flooding inboxes or the server.
+const limitPer15Min = (limit) =>
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    message: { message: 'Too many requests. Try again in 15 minutes.' },
+  });
+const forgotLimiter = limitPer15Min(10);
+const resetLimiter = limitPer15Min(20);
+
+// POST /api/auth/forgot { login: username or email }. Always answers the same, so it does not
+// reveal which usernames or emails exist.
+router.post(
+  '/forgot',
+  forgotLimiter,
+  asyncHandler(async (req, res) => {
+    const login = String(req.body.login || '').trim().toLowerCase();
+    if (!login) throw badRequest('Enter your username or email');
+    const user = await User.findOne({ $or: [{ username: login }, { email: login }], isActive: true, email: { $type: 'string' } });
+    if (user) {
+      const token = crypto.randomBytes(32).toString('hex');
+      user.resetTokenHash = hashToken(token);
+      user.resetTokenExpires = new Date(Date.now() + RESET_MINUTES * 60 * 1000);
+      await user.save();
+      inBackground(sendPasswordReset(user, token, RESET_MINUTES));
+    }
+    res.json({ ok: true });
+  })
+);
+
+// POST /api/auth/reset { token, newPassword }: sets the new password and signs the person in.
+router.post(
+  '/reset',
+  resetLimiter,
+  asyncHandler(async (req, res) => {
+    const token = String(req.body.token || '');
+    const newPassword = String(req.body.newPassword || '');
+    if (newPassword.length < 8) throw badRequest('The new password must be at least 8 characters');
+    const user = token
+      ? await User.findOne({ resetTokenHash: hashToken(token), resetTokenExpires: { $gt: new Date() }, isActive: true }).select('+passwordHash')
+      : null;
+    if (!user) throw badRequest('This link is not valid or has expired. Ask for a new one.');
+    await user.setPassword(newPassword); // also cancels the link and signs out other devices
+    await user.save();
+    res.json({ token: signToken(user), user: publicUser(user) });
   })
 );
 

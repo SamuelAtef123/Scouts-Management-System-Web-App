@@ -21,6 +21,7 @@ function MemberForm({ member, onClose, onSaved }) {
     name: member?.name || '',
     username: member?.username || '',
     phone: localPhone(member?.phone),
+    email: member?.email || '',
     role: member?.role || 'team_leader_helper',
     team: member?.team || (limited ? teamOptions[0]?.id || '' : ''),
     isPrivileged: member?.isPrivileged || false,
@@ -74,6 +75,9 @@ function MemberForm({ member, onClose, onSaved }) {
             <PhoneInput value={form.phone} onChange={(phone) => setForm((f) => ({ ...f, phone }))} />
           </Field>
         </div>
+        <Field label={tr('Email')} hint={tr('For notifications and to reset a forgotten password')}>
+          <input type="email" dir="ltr" value={form.email} onChange={set('email')} required maxLength={120} autoCapitalize="none" autoComplete="off" />
+        </Field>
         <div className="form-row">
           <Field label={tr('Role')}>
             <select
@@ -194,6 +198,10 @@ function MemberDetails({ member, onClose, onEdit }) {
         <div>
           <dt>{tr('Phone')}</dt>
           <dd>{member.phone ? <a href={`tel:${member.phone}`} dir="ltr">{displayPhone(member.phone)}</a> : '–'}</dd>
+        </div>
+        <div className="detail-wide">
+          <dt>{tr('Email')}</dt>
+          <dd>{member.email ? <a href={`mailto:${member.email}`} dir="ltr" className="detail-email">{member.email}</a> : '–'}</dd>
         </div>
         <div>
           <dt>{tr('Status')}</dt>

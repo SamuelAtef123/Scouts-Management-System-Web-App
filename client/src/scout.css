@@ -1679,3 +1679,94 @@ html[lang='ar'] .done-stamp {
 .tone-low { color: #b52a20; }
 .tone-none { color: var(--muted); }
 .attend-type .attend-type-name { color: var(--ink-2); }
+
+/* ---------- Email ---------- */
+.detail-wide {
+  grid-column: 1 / -1;
+}
+
+.detail-email {
+  overflow-wrap: anywhere;
+}
+
+.login-forgot {
+  display: block;
+  margin: 14px auto 0;
+  font-weight: 700;
+  color: var(--purple);
+}
+
+.email-prefs-intro {
+  margin: -4px 0 10px;
+  overflow-wrap: anywhere;
+}
+
+.email-prefs {
+  display: flex;
+  flex-direction: column;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px dashed var(--stitch);
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.switch-row:first-child {
+  border-top: none;
+}
+
+/* An on/off switch built from a checkbox */
+.switch {
+  appearance: none;
+  flex: none;
+  position: relative;
+  width: 42px;
+  height: 24px;
+  margin: 0;
+  border-radius: 12px;
+  background: #cdd2e3;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(20, 28, 68, 0.3);
+  transition: inset-inline-start 0.15s;
+}
+
+.switch:checked {
+  background: var(--purple);
+}
+
+.switch:checked::after {
+  inset-inline-start: 21px;
+}
+
+.switch:disabled {
+  opacity: 0.6;
+}
+
+.switch:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.email-prefs-address {
+  font-weight: 700;
+  color: var(--ink);
+}

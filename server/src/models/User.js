@@ -15,6 +15,18 @@ const userSchema = new mongoose.Schema(
       match: [/^[a-z0-9._-]{3,30}$/, 'Username must be 3-30 characters: letters, numbers, dot, dash or underscore'],
     },
     phone: { type: String, trim: true, maxlength: 20 },
+    // Required for everyone: asked on the next sign-in when missing. Used for notifications and
+    // "Forgot password?". Unique, so a reset link always goes to exactly one account.
+    email: { type: String, trim: true, lowercase: true, maxlength: 120 },
+    // Which automatic emails this member wants (each can be switched off on the Profile page).
+    emailPrefs: {
+      events: { type: Boolean, default: true }, // a new event for their kadr or the whole group
+      tasks: { type: Boolean, default: true }, // a task assigned to them
+      reviews: { type: Boolean, default: true }, // their uploaded file approved or sent back
+    },
+    // "Forgot password?": a hash of the one-time link's secret, valid until resetTokenExpires.
+    resetTokenHash: { type: String, select: false },
+    resetTokenExpires: { type: Date, select: false },
     passwordHash: { type: String, required: true, select: false },
     role: { type: String, enum: ROLE_VALUES, required: true },
     // The team this person belongs to; it decides whose attendance sheet they appear on.
@@ -28,8 +40,13 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.index({ email: 1 }, { unique: true, partialFilterExpression: { email: { $type: 'string' } } });
+
 userSchema.methods.setPassword = async function setPassword(plain) {
   this.passwordHash = await bcrypt.hash(plain, 10);
+  // A new password also cancels any "Forgot password?" link that was not used yet.
+  this.resetTokenHash = undefined;
+  this.resetTokenExpires = undefined;
   // Sign out every existing session. One second back so the new token issued right now stays valid.
   this.passwordChangedAt = new Date(Date.now() - 1000);
 };
@@ -44,6 +61,8 @@ userSchema.set('toJSON', {
     ret.attendanceTeam = ret.role === 'database_team' ? (ATTENDANCE_ASSIGNMENTS[ret.username] ?? null) : null;
     delete ret.passwordHash;
     delete ret.passwordChangedAt;
+    delete ret.resetTokenHash;
+    delete ret.resetTokenExpires;
     delete ret.__v;
     return ret;
   },

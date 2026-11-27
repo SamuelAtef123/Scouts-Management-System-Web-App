@@ -8,6 +8,7 @@ import { loadEvent } from './events.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
 import { canManageTeam, canReviewMaterials, reviewTaskFilter } from '../utils/access.js';
 import { approveMaterial, readMaterial, storeMaterial, removeMaterial } from '../services/storage.js';
+import { inBackground, notifyFileReviewed, notifyTaskAssigned } from '../services/notify.js';
 import { ALLOWED_MATERIAL_TYPES, TASK_STATUSES } from '../constants.js';
 import { config } from '../config.js';
 import { fixFileName } from '../utils/fileName.js';
@@ -158,6 +159,7 @@ router.post(
       dueDate: parseDueDate(req.body.dueDate) ?? undefined,
     });
     await sendTask(res, task._id, req.user, 201);
+    inBackground(notifyTaskAssigned(task, event, req.user));
   })
 );
 
@@ -166,6 +168,7 @@ router.put(
   asyncHandler(async (req, res) => {
     const task = await loadTask(req.params.id);
     const manager = canManageTeam(req.user, task.team);
+    let assignedTo = null; // the event, when the task gets a new assignee
     if (!manager && !isAssignee(task, req.user)) throw forbidden('You cannot edit this task');
 
     if (req.body.status !== undefined) {
@@ -190,13 +193,15 @@ router.put(
       if (req.body.description !== undefined) task.description = String(req.body.description || '').trim();
       if (req.body.dueDate !== undefined) task.dueDate = parseDueDate(req.body.dueDate);
       if (req.body.assignee !== undefined && String(req.body.assignee) !== task.assignee.toString()) {
-        const event = await loadEvent(task.event, req.user, { manage: 'tasks' });
-        task.assignee = (await checkAssignee(req.body.assignee, event))._id;
+        assignedTo = await loadEvent(task.event, req.user, { manage: 'tasks' });
+        task.assignee = (await checkAssignee(req.body.assignee, assignedTo))._id;
       }
     }
 
     await task.save();
     await sendTask(res, task._id, req.user);
+    // A task given to someone new: tell them.
+    if (assignedTo) inBackground(notifyTaskAssigned(task, assignedTo, req.user));
   })
 );
 
@@ -313,6 +318,7 @@ router.post(
     material.reviewNote = '';
     await task.save();
     await sendTask(res, task._id, req.user);
+    inBackground(notifyFileReviewed(task, material, req.user, true));
   })
 );
 
@@ -334,6 +340,7 @@ router.post(
     if (task.status === 'done') task.status = 'in_progress';
     await task.save();
     await sendTask(res, task._id, req.user);
+    inBackground(notifyFileReviewed(task, material, req.user, false));
   })
 );
 

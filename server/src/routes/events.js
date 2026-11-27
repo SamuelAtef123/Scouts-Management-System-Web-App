@@ -4,6 +4,7 @@ import { Event } from '../models/Event.js';
 import { Task } from '../models/Task.js';
 import { taskForClient } from './tasks.js';
 import { removeMaterial } from '../services/storage.js';
+import { inBackground, notifyEventCreated } from '../services/notify.js';
 import { User } from '../models/User.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
 import { canManageEvent, canManageTeam, canRecordAttendance, canSeeEvent, canViewAllTeams, hasGlobalAccess, recordableTeams, visibleTeams } from '../utils/access.js';
@@ -193,6 +194,7 @@ router.post(
     checkNotInPast(fields.startDate);
     const event = await Event.create({ ...fields, createdBy: req.user._id });
     res.status(201).json({ event: eventForClient(event) });
+    inBackground(notifyEventCreated(event, req.user));
   })
 );
 
