@@ -69,7 +69,7 @@ export default function CompleteProfile() {
                   </button>
                 </div>
               </Field>
-              <Field label={tr('Repeat the new password')}>
+              <Field label={tr('Write the new password again')}>
                 <input type={show ? 'text' : 'password'} value={again} onChange={(e) => setAgain(e.target.value)} minLength={8} required autoComplete="new-password" />
               </Field>
             </>

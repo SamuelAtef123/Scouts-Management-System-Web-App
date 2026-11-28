@@ -416,7 +416,7 @@ export const AR = {
   'Choose a new password': 'اختر كلمة مرور جديدة',
   'At least 8 characters. You will be signed in right after.': '8 أحرف على الأقل. سيتم تسجيل دخولك مباشرة بعدها.',
   'This link is not valid or has expired. Ask for a new one.': 'هذا الرابط غير صالح أو انتهت صلاحيته. اطلب رابطًا جديدًا.',
-  'Repeat the new password': 'أعد كتابة كلمة المرور الجديدة',
+  'Write the new password again': 'اكتب كلمة المرور الجديدة مرة أخرى',
   'Save and sign in': 'حفظ وتسجيل الدخول',
   'Back to sign in': 'العودة لتسجيل الدخول',
   'Nothing to update': 'لا يوجد ما يتم تحديثه',
