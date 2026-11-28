@@ -61,7 +61,7 @@ The app is designed for phones first and also works on a computer.
 - Roles only decide permissions. Kadr membership decides who is on an attendance sheet, so every member belongs to a kadr. The Group Leader, Helpers and the Database team belong to the Gawala kadr; on its first start, the server moves anyone without a kadr into Gawala.
 - Before a kadr's section is first saved, it lists the kadr's current members. On that first save the list is fixed, so later kadr changes don't alter past sheets. After attendance is taken, the event's type and kadr can't be changed.
 - Who records attendance: **only the 5 Database / Attendance team members, each for one assigned kadr**. Nobody else can record it, including the Group Leader.
-  - The assignments are **fixed in the code** in `server/src/attendanceAssignments.js` (username → kadr), not set from the app. To change them, edit that file and redeploy. **Replace the demo usernames there with the real ones before going live.**
+  - The assignments are **fixed in the code** in `server/src/attendanceAssignments.js` (username → kadr), not set from the app. To change them, edit that file and redeploy. The real usernames are already set: `michael.gamil` (Gawala), `lavy.hani` (Ashbal), `sandra.rafaat` (Zahrat), `ramez.samy` (Kashafeen) and `marina.maged` (Morshedat); `michael.gamil` and `ramez.samy` are the 2 privileged members.
   - On start, the server checks that list and warns about a missing kadr, an unknown username, or an account that isn't in the Database/Attendance team. The username of an assigned member can't be changed from the Members page.
   - A Kadr Session or Preparation Meeting is recorded only by the member assigned to the event's kadr.
   - A Gawala Session (all kadrs) is recorded only by the member assigned to Gawala. The event page shows which kadrs' sections are done.
@@ -174,7 +174,7 @@ The Express server serves the built React app from `client/dist`, so one Node pr
 ### Deploying on Render (free plan)
 
 1. **Database:** use a separate, empty database for the live site: change the name in the Atlas connection string (for example `…mongodb.net/scouts_live?…`). In Atlas → Network Access allow `0.0.0.0/0` (Render's free plan has no fixed address) and use a database user with a strong password.
-2. **Attendance:** put the real Database members' usernames in `server/src/attendanceAssignments.js` and push.
+2. **Attendance:** the real Database members' usernames are already in `server/src/attendanceAssignments.js`; create their accounts with exactly those usernames.
 3. **Web service:** on render.com → New → Web Service → this repository, branch `main`, region Frankfurt (closest to Egypt; ideally the Atlas cluster is in Frankfurt too), plan Free, health check path `/api/health`.
    - Build command: `npm install --prefix server && npm install --prefix client --include=dev && npm run build` (`--include=dev` is needed: with `NODE_ENV=production` npm would skip the build tools).
    - Start command: `npm start`
@@ -192,7 +192,7 @@ Every push to `main` redeploys automatically. On the free plan the site sleeps a
 - [ ] `TRUST_PROXY`: `1` on hosts such as Render or Railway that put one proxy in front of the app; `0` if Node is reached directly. Sign-in limits only count wrong passwords (50 per address and 8 per account every 15 minutes), so many leaders can sign in from the same church Wi-Fi.
 - [ ] MongoDB Atlas: a database user with a strong password, and Network Access limited to the host's address where possible.
 - [ ] Remove the demo accounts and events (`seed --demo` is refused in production).
-- [ ] Put the real usernames in `server/src/attendanceAssignments.js`.
+- [x] Put the real usernames in `server/src/attendanceAssignments.js`.
 - [ ] Make a first backup with `npm run backup` and check it appears in Google Drive (see [Backups](#backups)).
 - [ ] Google Drive is configured, so materials do not use the local `uploads/` folder.
 

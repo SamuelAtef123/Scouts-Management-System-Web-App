@@ -45,12 +45,15 @@ async function seedDemo(leader) {
   // The Group Leader, Helpers and the Database team belong to the Gawala kadr.
   const members = [
     { name: 'Mina Leader Helper', username: 'mina', role: ROLES.SCOUT_LEADER_HELPER, team: 'Gawala' },
-    // The 5 Database/Attendance members (2 privileged). Whose attendance each takes is fixed in attendanceAssignments.js.
-    { name: 'Marina Database', username: 'marina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala' },
-    { name: 'Kirollos Database', username: 'kirollos', role: ROLES.DATABASE_TEAM, team: 'Gawala' },
-    { name: 'Verina Database', username: 'verina', role: ROLES.DATABASE_TEAM, isPrivileged: true, team: 'Gawala' },
-    { name: 'Bishoy Database', username: 'bishoy', role: ROLES.DATABASE_TEAM, team: 'Gawala' },
-    { name: 'Mariam Database', username: 'mariam', role: ROLES.DATABASE_TEAM, team: 'Gawala' },
+    // The 5 Database/Attendance members, with the usernames from attendanceAssignments.js so they can
+    // take attendance. As in the real team, the Gawala and Kashafeen ones are the 2 privileged members.
+    ...Object.entries(ATTENDANCE_ASSIGNMENTS).map(([username, kadr]) => ({
+      name: `${kadr} Database Member`,
+      username,
+      role: ROLES.DATABASE_TEAM,
+      isPrivileged: ['Gawala', 'Kashafeen'].includes(kadr),
+      team: 'Gawala',
+    })),
   ];
   TEAMS.forEach((team) => {
     const t = team.toLowerCase();
@@ -130,7 +133,7 @@ async function seedDemo(leader) {
     event: gathering._id,
     team: null,
     assignee: leader._id,
-    createdBy: users.marina._id,
+    createdBy: users['michael.gamil']._id,
     dueDate: daysFromNow(2),
   });
 

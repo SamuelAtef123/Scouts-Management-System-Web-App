@@ -8,13 +8,14 @@
  * - Kadr Sessions and Preparation Meetings: recorded by the member assigned to the event's kadr.
  * - Gawala Sessions (all teams on one sheet): recorded by the member assigned to Gawala.
  *
- * The usernames below are the demo accounts from `npm run seed:demo`.
- * Replace them with the real usernames of the Database/Attendance team before going live.
+ * These are the real usernames of the Database/Attendance team (lowercase, as stored).
+ * ramez.samy and michael.gamil are the 2 privileged members (set on their accounts, not here).
+ * `npm run seed:demo` creates demo accounts with these usernames on a test database.
  */
 export const ATTENDANCE_ASSIGNMENTS = Object.freeze({
-  marina: 'Gawala',
-  kirollos: 'Ashbal',
-  verina: 'Zahrat',
-  bishoy: 'Kashafeen',
-  mariam: 'Morshedat',
+  'michael.gamil': 'Gawala',
+  'lavy.hani': 'Ashbal',
+  'sandra.rafaat': 'Zahrat',
+  'ramez.samy': 'Kashafeen',
+  'marina.maged': 'Morshedat',
 });

@@ -328,7 +328,7 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'Running the system' });
   s.addText('Five steps to go live', { placeholder: 'title' });
   const next = [
-    ['Set the real attendance assignments', 'Put the real Database usernames in the assignments file'],
+    ['Set the real attendance assignments', 'Done: the 5 real usernames are set'],
     ['Clean out the demo data', 'Remove demo accounts and events'],
     ['Create the 60 accounts', 'Setup makes the first two; the rest from the Members page'],
     ['Put the app online', 'Over HTTPS, reachable from anywhere'],
