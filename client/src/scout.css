@@ -1814,3 +1814,15 @@ html[lang='ar'] .done-stamp {
   align-items: center;
   gap: 4px;
 }
+
+/* A warning inside a form (e.g. the kadr already has a Kadr Leader) */
+.form-warning {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border-inline-start: 3px solid #d99a16;
+  background: #fff6dc;
+  color: #6f4e00;
+  font-size: 0.85rem;
+  font-weight: 600;
+}

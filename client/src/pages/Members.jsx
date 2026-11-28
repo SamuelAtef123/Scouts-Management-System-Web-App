@@ -11,7 +11,10 @@ import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast
 import AttendanceByType from '../components/AttendanceByType.jsx';
 import { Award, MemberBadges } from '../components/Badges.jsx';
 
-function MemberForm({ member, onClose, onSaved }) {
+// How many ACTIVE accounts each role can have (Kadr Leaders: one per kadr). The server checks this too.
+const ROLE_LIMITS = { scout_leader: 1, scout_leader_helper: 2, database_team: 5, team_leader: 5 };
+
+function MemberForm({ member, members = [], onClose, onSaved }) {
   const { user } = useAuth();
   const isSelf = member?._id === user._id;
   // The 3 non-privileged Database members manage only their assigned team, and only these roles.
@@ -32,6 +35,10 @@ function MemberForm({ member, onClose, onSaved }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+  // Other active accounts, to show which roles are full.
+  const others = members.filter((m) => m.isActive && m._id !== member?._id);
+  const isFull = (role) => ROLE_LIMITS[role] !== undefined && others.filter((m) => m.role === role).length >= ROLE_LIMITS[role];
+  const kadrHasLeader = form.role === 'team_leader' && others.some((m) => m.role === 'team_leader' && m.team === form.team);
   // Whose attendance this member takes follows their username (fixed in the server's list), shown as you type.
   const attendanceKadr = user.permissions.attendanceAssignments?.[form.username.trim().toLowerCase()] ?? member?.attendanceTeam ?? null;
 
@@ -93,11 +100,14 @@ function MemberForm({ member, onClose, onSaved }) {
               }}
               disabled={isSelf}
             >
-              {roleOptions.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.label}
-                </option>
-              ))}
+              {roleOptions.map((r) => {
+                const full = isFull(r.id) && r.id !== member?.role;
+                return (
+                  <option key={r.id} value={r.id} disabled={full}>
+                    {full ? `${r.label} (${tr('full')})` : r.label}
+                  </option>
+                );
+              })}
             </select>
           </Field>
           <Field label={tr('Kadr')} hint={tr('Decides whose attendance sheet they appear on')}>
@@ -111,6 +121,7 @@ function MemberForm({ member, onClose, onSaved }) {
             </select>
           </Field>
         </div>
+        {kadrHasLeader && form.isActive && <p className="form-warning">{tr('This kadr already has an active Kadr Leader. Choose Kadr Leader Helper, or deactivate the current Kadr Leader first.')}</p>}
         {form.role === 'database_team' && (
           <p className="form-context">
             {attendanceKadr ? (
@@ -381,6 +392,7 @@ export default function Members() {
 
       {editing && canEdit && (
         <MemberForm
+          members={data?.users || []}
           member={editing._id ? editing : undefined}
           onClose={() => setEditing(null)}
           onSaved={(saved, created) => {

@@ -32,6 +32,8 @@ The app is designed for phones first and also works on a computer.
 | Kadr Leader (5, one per kadr) | Their own kadr | Their own kadr |
 | Kadr Leader Helper (the rest) | Their own kadr | Their own kadr |
 
+The app keeps to these numbers of **active** accounts: 1 Group Leader, 2 Group Leader Helpers, 5 Database / Attendance members and 5 Kadr Leaders (one per kadr); Kadr Leader Helpers have no limit. Adding a member, changing a role or kadr, or re-activating an account beyond that is refused (deactivate the old account first); full roles show "(full)" in the member form.
+
 - Only the person a task is assigned to can upload its material and change its status. Only the person who **uploaded** a file can remove it (waiting, approved or sent back); reviewers send a file back instead. Files over the upload limit (25 MB) are refused before they upload.
 - **Reviewing uploaded files.** A file uploaded for a task waits as *Waiting for review* in a private place and is not in the event's Drive folder yet. It can be reviewed by:
   - the Group Leader and the Group Leader Helpers, for every event;

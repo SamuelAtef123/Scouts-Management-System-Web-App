@@ -5,7 +5,7 @@ import { requireMemberViewer, requireUserAdmin } from '../middleware/auth.js';
 import { attendanceRates, attendanceStats } from './stats.js';
 import { asyncHandler, badRequest, forbidden, notFound } from '../utils/httpError.js';
 import { TEAM_LEVEL_ROLES, canViewMembers, hasGlobalAccess, memberTeams } from '../utils/access.js';
-import { ROLES, ROLE_VALUES, TEAMS } from '../constants.js';
+import { ROLES, ROLE_LIMITS, ROLE_VALUES, TEAMS } from '../constants.js';
 import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 import { normalizePhone } from '../utils/phone.js';
 import { normalizeEmail } from '../utils/email.js';
@@ -49,6 +49,24 @@ function checkManagerScope(manager, member, { before } = {}) {
   if (!teams.includes(member.team)) throw forbidden('You can only manage members of the kadr assigned to you');
   if (!TEAM_LEVEL_ROLES.includes(member.role)) throw forbidden('You can only add Kadr Leaders and Kadr Leader Helpers');
   if (member.isPrivileged) throw forbidden('You cannot make a member privileged');
+}
+
+const LIMIT_MESSAGES = {
+  scout_leader: 'There can only be 1 active Group Leader. Deactivate the current one first.',
+  scout_leader_helper: 'There can only be 2 active Group Leader Helpers. Deactivate one first.',
+  database_team: 'There can only be 5 active Database / Attendance members. Deactivate one first.',
+  team_leader: 'There can only be 5 active Kadr Leaders. Deactivate one first.',
+};
+
+/** Keeps the number of active accounts per role within ROLE_LIMITS (and one Kadr Leader per kadr). */
+async function checkRoleLimits(user) {
+  if (!user.isActive) return;
+  const others = { _id: { $ne: user._id }, isActive: true };
+  if (user.role === ROLES.TEAM_LEADER && (await User.exists({ ...others, role: ROLES.TEAM_LEADER, team: user.team }))) {
+    throw badRequest('This kadr already has an active Kadr Leader. Deactivate them first, or choose Kadr Leader Helper.');
+  }
+  const limit = ROLE_LIMITS[user.role];
+  if (limit && (await User.countDocuments({ ...others, role: user.role })) >= limit) throw badRequest(LIMIT_MESSAGES[user.role]);
 }
 
 function checkRoleTeam(user) {
@@ -127,6 +145,7 @@ router.post(
     const user = new User(fields);
     checkRoleTeam(user);
     checkManagerScope(req.user, user);
+    await checkRoleLimits(user);
     await user.setPassword(password);
     user.mustChangePassword = true; // they choose their own on first sign-in
     await user.save();
@@ -161,6 +180,8 @@ router.put(
     Object.assign(user, fields);
     checkRoleTeam(user);
     checkManagerScope(req.user, user, { before });
+    // Only when this edit could add one more active account to a limited role.
+    if (user.isModified('role') || user.isModified('team') || user.isModified('isActive')) await checkRoleLimits(user);
     if (req.body.password) {
       if (String(req.body.password).length < 8) throw badRequest('The password must be at least 8 characters');
       await user.setPassword(String(req.body.password));

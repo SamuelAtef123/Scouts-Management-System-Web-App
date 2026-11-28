@@ -12,6 +12,14 @@ export const ROLES = {
 
 export const ROLE_VALUES = Object.values(ROLES);
 
+// How many ACTIVE accounts each role can have (Kadr Leaders: one per kadr). Kadr Leader Helpers: no limit.
+export const ROLE_LIMITS = {
+  scout_leader: 1,
+  scout_leader_helper: 2,
+  database_team: 5,
+  team_leader: 5,
+};
+
 export const REVIEW_STATUSES = ['pending', 'approved', 'changes'];
 
 export const TASK_STATUSES = ['todo', 'in_progress', 'done'];

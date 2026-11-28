@@ -419,6 +419,13 @@ export const AR = {
   'Email is required': 'البريد الإلكتروني مطلوب',
   'Enter a valid email address': 'اكتب بريدًا إلكترونيًا صحيحًا',
   'Too many requests. Try again in 15 minutes.': 'طلبات كثيرة. حاول مرة أخرى بعد 15 دقيقة.',
+  'full': 'مكتمل',
+  'This kadr already has an active Kadr Leader. Choose Kadr Leader Helper, or deactivate the current Kadr Leader first.': 'لهذا الكدر قائد كدر نشط بالفعل. اختر مساعد قائد كدر، أو أوقف قائد الكدر الحالي أولًا.',
+  'There can only be 1 active Group Leader. Deactivate the current one first.': 'يمكن وجود قائد مجموعة نشط واحد فقط. أوقف الحالي أولًا.',
+  'There can only be 2 active Group Leader Helpers. Deactivate one first.': 'يمكن وجود مساعدَين نشطين فقط لقائد المجموعة. أوقف أحدهما أولًا.',
+  'There can only be 5 active Database / Attendance members. Deactivate one first.': 'يمكن وجود 5 أعضاء نشطين فقط في فريق البيانات / الحضور. أوقف أحدهم أولًا.',
+  'There can only be 5 active Kadr Leaders. Deactivate one first.': 'يمكن وجود 5 قادة كدر نشطين فقط. أوقف أحدهم أولًا.',
+  'This kadr already has an active Kadr Leader. Deactivate them first, or choose Kadr Leader Helper.': 'لهذا الكدر قائد كدر نشط بالفعل. أوقفه أولًا، أو اختر مساعد قائد كدر.',
   // ---------- Badges ----------
   'Given by {name}': 'منحه {name}',
   'Remove the badge {name}': 'إزالة وسام {name}',
