@@ -9,7 +9,9 @@
     "build": "npm run build --prefix client",
     "start": "npm start --prefix server",
     "seed": "npm run seed --prefix server",
-    "seed:demo": "npm run seed:demo --prefix server"
+    "seed:demo": "npm run seed:demo --prefix server",
+    "backup": "npm run backup --prefix server --",
+    "restore": "npm run restore --prefix server --"
   },
   "devDependencies": {
     "concurrently": "^10.0.7"

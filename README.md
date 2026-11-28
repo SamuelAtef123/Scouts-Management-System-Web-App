@@ -200,10 +200,9 @@ See [SECURITY.md](SECURITY.md) for the security assessment and the protections i
 
 ## Backups
 
-The free MongoDB Atlas plan keeps no backups, so make your own copy regularly (for example every week, and always before a big change). Run these on a computer that has the project and `server/.env`:
+The free MongoDB Atlas plan keeps no backups, so make your own copy regularly (for example every week, and always before a big change). Run these in the project folder (or in `server`) on a computer that has the project and `server/.env`:
 
 ```bash
-cd server
 npm run backup
 ```
 
