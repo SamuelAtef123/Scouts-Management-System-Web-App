@@ -133,18 +133,6 @@ router.put(
   })
 );
 
-// Which automatic emails you want: { events, tasks, reviews } (true or false each).
-router.put(
-  '/me/email-prefs',
-  requireAuth,
-  asyncHandler(async (req, res) => {
-    for (const key of ['events', 'tasks', 'reviews', 'badges']) {
-      if (req.body[key] !== undefined) req.user.emailPrefs[key] = Boolean(req.body[key]);
-    }
-    await req.user.save();
-    res.json({ user: publicUser(req.user) });
-  })
-);
 
 // ---------- Forgot password ----------
 // A one-time link, valid for RESET_MINUTES, is emailed to the account's address. The link holds a

@@ -18,13 +18,6 @@ const userSchema = new mongoose.Schema(
     // Required for everyone: asked on the next sign-in when missing. Used for notifications and
     // "Forgot password?". Unique, so a reset link always goes to exactly one account.
     email: { type: String, trim: true, lowercase: true, maxlength: 120 },
-    // Which automatic emails this member wants (each can be switched off on the Profile page).
-    emailPrefs: {
-      events: { type: Boolean, default: true }, // a new event for their kadr or the whole group
-      tasks: { type: Boolean, default: true }, // a task assigned to them
-      reviews: { type: Boolean, default: true }, // their uploaded file approved or sent back
-      badges: { type: Boolean, default: true }, // a badge given to them
-    },
     // "Forgot password?": a hash of the one-time link's secret, valid until resetTokenExpires.
     resetTokenHash: { type: String, select: false },
     resetTokenExpires: { type: Date, select: false },

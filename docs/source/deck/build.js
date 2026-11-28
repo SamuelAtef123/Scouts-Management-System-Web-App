@@ -153,7 +153,7 @@ async function icon(name, color = 'FFFFFF') {
     ['LuClipboardCheck', 'Attendance', 'Present, Absent or Excused per member', HEX.green],
     ['LuUsers', 'Members', 'Attendance %, scout badges, account management', HEX.teal],
     ['LuMail', 'Emails', 'New events, tasks and file reviews, in Arabic and English', HEX.gold],
-    ['LuUserRound', 'Profile', 'Mobile, email settings, attendance, password, language', HEX.navy],
+    ['LuUserRound', 'Profile', 'Mobile, email, badges, attendance, password, language', HEX.navy],
   ];
   feats.forEach(([icn, t, d, c], i) => {
     const col = i % 5, row = Math.floor(i / 5);

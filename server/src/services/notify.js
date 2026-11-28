@@ -39,7 +39,7 @@ function layout({ ar, en, button }) {
 <div style="padding:20px">${block(ar, 'rtl')}<hr style="border:none;border-top:1px dashed #cfc6ea;margin:16px 0">${block(en, 'ltr')}
 <p style="text-align:center;margin:22px 0 4px"><a href="${esc(button.href)}" style="display:inline-block;background:#6d3fb5;color:#ffffff;text-decoration:none;padding:11px 22px;border-radius:8px;font-weight:bold">${esc(button.label)}</a></p>
 </div></div>
-<p style="text-align:center;color:#6b7190;font-size:12px;margin-top:14px">St. Mary Church, Garden City Scouts · You can turn these emails off on your Profile page in the app.</p>
+<p style="text-align:center;color:#6b7190;font-size:12px;margin-top:14px">St. Mary Church, Garden City Scouts</p>
 </body></html>`;
   const strip = (l) => l.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
   const text = [...ar.map(strip), '', ...en.map(strip), '', `${button.label}: ${button.href}`].join('\n');
@@ -49,7 +49,7 @@ function layout({ ar, en, button }) {
 /** People to tell about a new event: its kadr (or everyone for a whole-group event), plus the
  *  Database member who takes that kadr's attendance. Never the person who created it. */
 async function eventRecipients(event, creatorId) {
-  const base = { isActive: true, email: { $type: 'string' }, 'emailPrefs.events': { $ne: false }, _id: { $ne: creatorId } };
+  const base = { isActive: true, email: { $type: 'string' }, _id: { $ne: creatorId } };
   if (!event.team) return User.find(base).select('name email');
   const recorders = ATTENDANCE_EVENT_TYPES.includes(event.type)
     ? Object.entries(ATTENDANCE_ASSIGNMENTS).filter(([, team]) => team === event.team).map(([u]) => u)
@@ -85,7 +85,7 @@ export async function notifyEventCreated(event, creator) {
 }
 
 export async function notifyTaskAssigned(task, event, assigner) {
-  const p = await User.findOne({ _id: task.assignee, isActive: true, email: { $type: 'string' }, 'emailPrefs.tasks': { $ne: false } }).select('name email');
+  const p = await User.findOne({ _id: task.assignee, isActive: true, email: { $type: 'string' } }).select('name email');
   if (!p || p._id.equals(assigner._id)) return;
   const due = task.dueDate ? new Date(task.dueDate) : null;
   const dueOpts = { weekday: 'long', day: 'numeric', month: 'long', timeZone: process.env.TZ || 'Africa/Cairo' };
@@ -111,7 +111,7 @@ export async function notifyTaskAssigned(task, event, assigner) {
 }
 
 export async function notifyFileReviewed(task, material, reviewer, approved) {
-  const p = await User.findOne({ _id: material.uploadedBy, isActive: true, email: { $type: 'string' }, 'emailPrefs.reviews': { $ne: false } }).select('name email');
+  const p = await User.findOne({ _id: material.uploadedBy, isActive: true, email: { $type: 'string' } }).select('name email');
   if (!p || p._id.equals(reviewer._id)) return;
   const file = iso(material.fileName);
   const note = iso(material.reviewNote);
@@ -131,7 +131,7 @@ export async function notifyFileReviewed(task, material, reviewer, approved) {
 }
 
 export async function notifyBadge(badge, member, giver) {
-  const p = await User.findOne({ _id: member._id, isActive: true, email: { $type: 'string' }, 'emailPrefs.badges': { $ne: false } }).select('name email');
+  const p = await User.findOne({ _id: member._id, isActive: true, email: { $type: 'string' } }).select('name email');
   if (!p) return;
   const reasonAr = badge.reason ? `«${iso(badge.reason)}»` : '';
   const reasonEn = badge.reason ? `“${iso(badge.reason)}”` : '';

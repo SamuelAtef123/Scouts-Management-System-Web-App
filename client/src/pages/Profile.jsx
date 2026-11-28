@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, ClipboardCheck, KeyRound, Languages, LogOut, Mail, Phone } from 'lucide-react';
+import { ClipboardCheck, KeyRound, Languages, LogOut, Mail, Phone } from 'lucide-react';
 import { LanguageSwitch, t as tr } from '../i18n.jsx';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { displayPhone, localPhone } from '../format.js';
@@ -93,13 +93,6 @@ function EmailCard() {
   );
 }
 
-const EMAIL_KINDS = [
-  { id: 'events', label: 'New events for my kadr or the whole group' },
-  { id: 'tasks', label: 'A task assigned to me' },
-  { id: 'reviews', label: 'My uploaded file approved or sent back' },
-  { id: 'badges', label: 'A badge given to me' },
-];
-
 function MyBadgesCard() {
   const { data, error, loading } = useApi('/badges/mine');
   return (
@@ -108,47 +101,6 @@ function MyBadgesCard() {
         <Award size={18} /> {tr('My badges')}
       </h2>
       {loading && !data ? <Spinner /> : error ? <ErrorBox message={error} /> : <BadgeList badges={data.badges} empty={tr('No badges yet. Your leaders give them for great work.')} />}
-    </section>
-  );
-}
-
-function EmailPrefsCard() {
-  const { user, updateUser } = useAuth();
-  const toast = useToast();
-  const [busy, setBusy] = useState('');
-  const prefs = user.emailPrefs || {};
-
-  const toggle = async (id) => {
-    setBusy(id);
-    try {
-      const data = await api.put('/auth/me/email-prefs', { [id]: prefs[id] === false });
-      updateUser(data.user);
-      toast(tr('Saved'));
-    } catch (err) {
-      toast(err.message, 'error');
-    } finally {
-      setBusy('');
-    }
-  };
-
-  return (
-    <section className="card">
-      <h2 className="card-title">
-        <Bell size={18} /> {tr('Email notifications')}
-      </h2>
-      <p className="muted email-prefs-intro">
-        {tr('Choose which emails you get at this address:')}
-        <br />
-        <bdi dir="ltr" className="email-prefs-address">{user.email}</bdi>
-      </p>
-      <div className="email-prefs">
-        {EMAIL_KINDS.map((k) => (
-          <label key={k.id} className="switch-row">
-            <span>{tr(k.label)}</span>
-            <input type="checkbox" role="switch" className="switch" checked={prefs[k.id] !== false} disabled={busy === k.id} onChange={() => toggle(k.id)} />
-          </label>
-        ))}
-      </div>
     </section>
   );
 }
@@ -247,8 +199,6 @@ export default function Profile() {
       <PhoneCard />
 
       <EmailCard />
-
-      <EmailPrefsCard />
 
       <section className="card">
         <h2 className="card-title">
