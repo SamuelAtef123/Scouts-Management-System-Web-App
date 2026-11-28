@@ -10,6 +10,7 @@ import { useApi } from '../hooks.js';
 import { Avatar, ErrorBox, Field, Spinner, TeamChip, VerseCard, useToast } from '../components/ui.jsx';
 import AttendanceByType from '../components/AttendanceByType.jsx';
 import { Award, BadgeList } from '../components/Badges.jsx';
+import { EmailCodeForm, EmailField } from '../components/EmailConfirm.jsx';
 
 function PhoneCard() {
   const { user, updateUser } = useAuth();
@@ -66,8 +67,6 @@ function EmailCard() {
     try {
       const data = await api.put('/auth/me/profile', { email });
       updateUser(data.user);
-      setEmail(data.user.email);
-      toast(tr('Email saved'));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -80,15 +79,34 @@ function EmailCard() {
       <h2 className="card-title">
         <Mail size={18} /> {tr('Email')}
       </h2>
-      <form className="form phone-form" onSubmit={submit}>
-        <Field label={tr('Email')} hint={tr('For notifications and to reset a forgotten password')}>
-          <input type="email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={120} autoCapitalize="none" autoComplete="email" />
-        </Field>
-        {error && <ErrorBox message={error} />}
-        <button className="btn btn-primary" disabled={busy || email.trim().toLowerCase() === (user.email || '')}>
-          {busy ? tr('Saving…') : tr('Save email')}
-        </button>
-      </form>
+      {user.pendingEmail ? (
+        <>
+          <p className="muted email-current">
+            {tr('Your email stays')} <bdi dir="ltr">{user.email}</bdi> {tr('until the new one is confirmed.')}
+          </p>
+          <EmailCodeForm
+            email={user.pendingEmail}
+            onConfirmed={(u) => {
+              updateUser(u);
+              setEmail(u.email);
+              toast(tr('Email confirmed'));
+            }}
+            onChangeEmail={async () => {
+              const data = await api.del('/auth/me/email-code');
+              updateUser(data.user);
+              setEmail(data.user.email || '');
+            }}
+          />
+        </>
+      ) : (
+        <form className="form phone-form" onSubmit={submit}>
+          <EmailField label={tr('Email')} hint={tr('A code is sent to a new email to confirm it')} value={email} onChange={setEmail} />
+          {error && <ErrorBox message={error} />}
+          <button className="btn btn-primary" disabled={busy || email.trim().toLowerCase() === (user.email || '')}>
+            {busy ? tr('Saving…') : tr('Change email')}
+          </button>
+        </form>
+      )}
     </section>
   );
 }

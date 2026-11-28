@@ -6,7 +6,8 @@ import { requireAuth, signToken } from '../middleware/auth.js';
 import { asyncHandler, badRequest, HttpError } from '../utils/httpError.js';
 import { normalizePhone } from '../utils/phone.js';
 import { normalizeEmail } from '../utils/email.js';
-import { inBackground, sendPasswordReset } from '../services/notify.js';
+import { inBackground, sendEmailConfirmCode, sendPasswordReset } from '../services/notify.js';
+import { explain } from '../services/mailer.js';
 import crypto from 'node:crypto';
 import { hasGlobalAccess, isReviewer, canManageUsers, canViewAllTeams, canViewMembers, memberTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
@@ -110,12 +111,14 @@ router.put(
   asyncHandler(async (req, res) => {
     if (req.body.phone === undefined && req.body.email === undefined && req.body.newPassword === undefined) throw badRequest('Nothing to update');
     if (req.body.phone !== undefined) req.user.phone = normalizePhone(req.body.phone, { required: true });
+    // A new (or not yet confirmed) email is not saved yet: a code is sent to it first.
+    let codeFor;
     if (req.body.email !== undefined) {
       const email = normalizeEmail(req.body.email, { required: true });
-      if (email !== req.user.email && (await User.exists({ email, _id: { $ne: req.user._id } }))) {
-        throw badRequest('This email is already used by another member');
+      if (email !== req.user.email || !req.user.emailVerified) {
+        if (await User.exists({ email, _id: { $ne: req.user._id } })) throw badRequest('This email is already used by another member');
+        codeFor = email;
       }
-      req.user.email = email;
     }
     // First sign-in with a password someone else set: the person chooses their own here.
     let token;
@@ -129,7 +132,89 @@ router.put(
       token = signToken(req.user); // the password change signs out other sessions, this one continues
     }
     await req.user.save();
+    if (codeFor) await sendEmailCode(req.user, codeFor);
     res.json({ user: publicUser(req.user), ...(token ? { token } : {}) });
+  })
+);
+
+// ---------- Confirming an email with a code ----------
+const CODE_MINUTES = 15;
+const CODE_TRIES = 5;
+const RESEND_SECONDS = 60;
+const hashCode = (user, code) => crypto.createHash('sha256').update(`${user._id}:${code}`).digest('hex');
+
+/** Emails a new 6-digit code to `email` and remembers it as the address waiting to be confirmed. */
+async function sendEmailCode(user, email) {
+  const fresh = await User.findById(user._id).select('+emailCodeSentAt');
+  if (fresh.emailCodeSentAt && fresh.pendingEmail === email && Date.now() - fresh.emailCodeSentAt < RESEND_SECONDS * 1000) {
+    user.pendingEmail = email; // a code for this address was sent a moment ago: keep it
+    return;
+  }
+  const code = String(crypto.randomInt(0, 1000000)).padStart(6, '0');
+  await User.updateOne(
+    { _id: user._id },
+    { pendingEmail: email, emailCodeHash: hashCode(user, code), emailCodeExpires: new Date(Date.now() + CODE_MINUTES * 60 * 1000), emailCodeSentAt: new Date(), emailCodeTries: 0 }
+  );
+  user.pendingEmail = email;
+  try {
+    await sendEmailConfirmCode({ name: user.name, email }, code, CODE_MINUTES);
+  } catch (err) {
+    console.error(`Confirmation code to ${email} failed: ${explain(err)}`);
+    throw new HttpError(502, 'The code could not be sent. Please try again in a few minutes.');
+  }
+}
+
+// POST /api/auth/me/email-code/resend: a new code to the address waiting to be confirmed.
+router.post(
+  '/me/email-code/resend',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id).select('+emailCodeSentAt');
+    if (!user.pendingEmail) throw badRequest('There is no email waiting to be confirmed');
+    if (user.emailCodeSentAt && Date.now() - user.emailCodeSentAt < RESEND_SECONDS * 1000) {
+      throw badRequest('Please wait a minute before asking for another code');
+    }
+    await sendEmailCode(user, user.pendingEmail);
+    res.json({ user: publicUser(user) });
+  })
+);
+
+// POST /api/auth/me/email-code { code }: confirms the waiting email; it becomes the account's email.
+router.post(
+  '/me/email-code',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id).select('+emailCodeHash +emailCodeExpires +emailCodeTries');
+    if (!user.pendingEmail || !user.emailCodeHash) throw badRequest('There is no email waiting to be confirmed');
+    if (user.emailCodeExpires < new Date() || user.emailCodeTries >= CODE_TRIES) {
+      throw badRequest('This code has expired. Ask for a new one.');
+    }
+    const code = String(req.body.code || '').replace(/\D/g, '');
+    if (hashCode(user, code) !== user.emailCodeHash) {
+      user.emailCodeTries += 1;
+      await user.save();
+      throw badRequest(user.emailCodeTries >= CODE_TRIES ? 'Too many wrong codes. Ask for a new one.' : 'This code is not correct');
+    }
+    if (await User.exists({ email: user.pendingEmail, _id: { $ne: user._id } })) throw badRequest('This email is already used by another member');
+    user.email = user.pendingEmail;
+    user.emailVerified = true;
+    user.pendingEmail = undefined;
+    user.emailCodeHash = undefined;
+    user.emailCodeExpires = undefined;
+    user.emailCodeSentAt = undefined;
+    user.emailCodeTries = 0;
+    await user.save();
+    res.json({ user: publicUser(user) });
+  })
+);
+
+// DELETE /api/auth/me/email-code: stop waiting for a code (e.g. the address was mistyped).
+router.delete(
+  '/me/email-code',
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    await User.updateOne({ _id: req.user._id }, { $unset: { pendingEmail: '', emailCodeHash: '', emailCodeExpires: '', emailCodeSentAt: '' } });
+    res.json({ user: publicUser(await User.findById(req.user._id)) });
   })
 );
 
@@ -161,7 +246,7 @@ router.post(
   asyncHandler(async (req, res) => {
     const login = String(req.body.login || '').trim().toLowerCase();
     if (!login) throw badRequest('Enter your username or email');
-    const user = await User.findOne({ $or: [{ username: login }, { email: login }], isActive: true, email: { $type: 'string' } });
+    const user = await User.findOne({ $or: [{ username: login }, { email: login }], isActive: true, email: { $type: 'string' }, emailVerified: true });
     if (user) {
       const token = crypto.randomBytes(32).toString('hex');
       user.resetTokenHash = hashToken(token);

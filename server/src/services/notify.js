@@ -49,7 +49,7 @@ function layout({ ar, en, button }) {
 /** People to tell about a new event: its kadr (or everyone for a whole-group event), plus the
  *  Database member who takes that kadr's attendance. Never the person who created it. */
 async function eventRecipients(event, creatorId) {
-  const base = { isActive: true, email: { $type: 'string' }, _id: { $ne: creatorId } };
+  const base = { isActive: true, email: { $type: 'string' }, emailVerified: true, _id: { $ne: creatorId } };
   if (!event.team) return User.find(base).select('name email');
   const recorders = ATTENDANCE_EVENT_TYPES.includes(event.type)
     ? Object.entries(ATTENDANCE_ASSIGNMENTS).filter(([, team]) => team === event.team).map(([u]) => u)
@@ -85,7 +85,7 @@ export async function notifyEventCreated(event, creator) {
 }
 
 export async function notifyTaskAssigned(task, event, assigner) {
-  const p = await User.findOne({ _id: task.assignee, isActive: true, email: { $type: 'string' } }).select('name email');
+  const p = await User.findOne({ _id: task.assignee, isActive: true, email: { $type: 'string' }, emailVerified: true }).select('name email');
   if (!p || p._id.equals(assigner._id)) return;
   const due = task.dueDate ? new Date(task.dueDate) : null;
   const dueOpts = { weekday: 'long', day: 'numeric', month: 'long', timeZone: process.env.TZ || 'Africa/Cairo' };
@@ -111,7 +111,7 @@ export async function notifyTaskAssigned(task, event, assigner) {
 }
 
 export async function notifyFileReviewed(task, material, reviewer, approved) {
-  const p = await User.findOne({ _id: material.uploadedBy, isActive: true, email: { $type: 'string' } }).select('name email');
+  const p = await User.findOne({ _id: material.uploadedBy, isActive: true, email: { $type: 'string' }, emailVerified: true }).select('name email');
   if (!p || p._id.equals(reviewer._id)) return;
   const file = iso(material.fileName);
   const note = iso(material.reviewNote);
@@ -131,7 +131,7 @@ export async function notifyFileReviewed(task, material, reviewer, approved) {
 }
 
 export async function notifyBadge(badge, member, giver) {
-  const p = await User.findOne({ _id: member._id, isActive: true, email: { $type: 'string' } }).select('name email');
+  const p = await User.findOne({ _id: member._id, isActive: true, email: { $type: 'string' }, emailVerified: true }).select('name email');
   if (!p) return;
   const reasonAr = badge.reason ? `«${iso(badge.reason)}»` : '';
   const reasonEn = badge.reason ? `“${iso(badge.reason)}”` : '';
@@ -142,6 +142,18 @@ export async function notifyBadge(badge, member, giver) {
       ar: [`أهلًا ${iso(firstName(p.name))}،`, `منحك ${iso(giver.name)} وسامًا:`, `🏅 <b>${iso(badge.title)}</b>`, ...(reasonAr ? [reasonAr] : []), 'مبروك!'],
       en: [`Hi ${iso(firstName(p.name))},`, `${iso(giver.name)} gave you a badge:`, `🏅 <b>${iso(badge.title)}</b>`, ...(reasonEn ? [reasonEn] : []), 'Congratulations!'],
       button: { label: 'See your badges · شاهد أوسمتك', href: link('/profile') },
+    }),
+  });
+}
+
+export async function sendEmailConfirmCode(person, code, minutes) {
+  await sendEmail({
+    to: person.email,
+    subject: `Your confirmation code: ${code} · رمز التأكيد`,
+    ...layout({
+      ar: [`أهلًا ${iso(firstName(person.name))}،`, 'رمز تأكيد بريدك الإلكتروني في تطبيق نور العالم:', `<b style="font-size:24px" dir="ltr">${code}</b>`, `الرمز صالح لمدة ${minutes} دقيقة. إن لم تطلبه فتجاهل هذه الرسالة.`],
+      en: [`Hi ${iso(firstName(person.name))},`, 'Your code to confirm this email in the Light of the World app:', `<b style="font-size:24px;letter-spacing:4px">${code}</b>`, `It works for ${minutes} minutes. If it was not you, ignore this email.`],
+      button: { label: 'Open the app · افتح التطبيق', href: link('/') },
     }),
   });
 }

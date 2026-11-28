@@ -18,6 +18,7 @@ The app is designed for phones first and also works on a computer.
 - **Members**: every member's details and attendance percentage. The Group Leader and Helpers view everyone; all 5 Database / Attendance members can add accounts (email and password optional: an empty password means `scouts123`, or `DEFAULT_MEMBER_PASSWORD`), edit them, reset passwords and deactivate members (the 3 non-privileged ones only for their assigned kadr).
 - **Profile**: your mobile number and email (both editable), your badges, your attendance, and changing your password. Members are shown by their initials on their kadr's colour (there are no profile photos). On first sign-in, anyone without a mobile number or email must add them before using the app, and anyone whose password was set by someone else (a new account, including the default `scouts123`, or a reset by a Database member) must choose their own.
 - **Emails** (in Arabic and English, sent from the group's Gmail): a new event for your kadr (whole-group events: everyone, plus the Database member who takes that kadr's attendance), a task assigned to you, and your uploaded file approved or sent back (with the note). The person who did the action is not emailed; everyone else concerned always gets them.
+- **Confirmed emails**: an email only counts once its owner enters the 6-digit code emailed to it (on first sign-in, or when changing it on the Profile page, where the old address stays until the new one is confirmed). The code works for 15 minutes, allows 5 tries and can be resent after a minute; "Wrong email? Change it" fixes a typo. Common misspellings (`@gmial.com`, `@gmail.con` …) get a "Did you mean …?" hint while typing. Only confirmed emails receive notifications and password-reset links, and an email typed or changed by a Database member is confirmed by the person at their next sign-in.
 - **Forgot password?** on the sign-in screen emails a link to choose a new password. It works once, for 1 hour, and signs out other devices. Every member needs a unique email: it can be left empty when a Database member adds them, and they are then asked for it on first sign-in. Only Egyptian mobile numbers are accepted: 11 digits starting with 010, 011, 012 or 015, stored as +20.
 
 - **Scout badges**: the Group Leader and Helpers give any member a badge, and a Kadr Leader gives members of their own kadr one: a short word (with suggestions such as Leadership or Teamwork) and an optional reason. Badges appear as shiny pills on the member's Profile ("My badges") and in their member details, with a count in the Members list; the member is emailed. Whoever gave a badge, or the Group Leader and Helpers, can remove it.
@@ -241,7 +242,9 @@ All routes except login need an `Authorization: Bearer <token>` header.
 | POST | `/api/auth/login` | Sign in with username and password |
 | GET | `/api/auth/me` | The signed-in user and their permissions |
 | PUT | `/api/auth/me/password` | Change your own password |
-| PUT | `/api/auth/me/profile` | Set your own mobile number and/or email |
+| PUT | `/api/auth/me/profile` | Set your own mobile number and/or email (a new email gets a confirmation code) |
+| POST/DELETE | `/api/auth/me/email-code` | Confirm the waiting email with its `code`, or cancel the change |
+| POST | `/api/auth/me/email-code/resend` | Send a new code (after a minute) |
 | POST | `/api/auth/forgot` | Email a password-reset link (`login`: username or email); always answers the same |
 | POST | `/api/auth/reset` | Set a new password with the link's `token`; signs you in |
 | GET | `/api/badges/mine`, `/api/badges/user/:id`, `/api/badges/counts` | Your badges, a member's badges (and whether you can give one), badge counts for the Members list |

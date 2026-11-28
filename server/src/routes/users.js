@@ -178,6 +178,7 @@ router.put(
     }
 
     Object.assign(user, fields);
+    if (user.isModified('email')) user.emailVerified = false; // confirmed by the person at their next sign-in
     checkRoleTeam(user);
     checkManagerScope(req.user, user, { before });
     // Only when this edit could add one more active account to a limited role.

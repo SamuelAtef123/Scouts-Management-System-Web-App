@@ -209,7 +209,7 @@ async function icon(name, color = 'FFFFFF') {
   s.addText('Getting started (everyone)', { placeholder: 'title' });
   steps(s, [
     'Open the app on your phone and sign in with the username and password from the Database team.',
-    'On first sign-in, enter your Egyptian mobile number: 11 digits starting with 010, 011, 012 or 015, your email and your own password, then tap Continue.',
+    'On first sign-in, enter your Egyptian mobile number: 11 digits starting with 010, 011, 012 or 015, your email and your own password, then the code emailed to you.',
     'Prefer Arabic? Tap العربية on the sign-in screen or in your Profile.',
     'Add it to your home screen to open it like an app.',
     'Forgot your password? Tap Forgot your password? on the sign-in screen; a link arrives by email.',

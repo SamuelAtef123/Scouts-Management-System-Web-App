@@ -14,7 +14,7 @@ The app uses the Google Drive API only to save the task materials that leaders u
 
 ## Emails
 
-The app emails members about new events for their kadr, tasks assigned to them, reviews of their uploaded files, and password-reset links they ask for. Emails are sent from the group's own Gmail account through the Gmail API, which is used only to send these emails: the app does not read the mailbox.
+The app emails members about new events for their kadr, tasks assigned to them, reviews of their uploaded files, and password-reset links they ask for, and a one-time code to confirm a new email address (stored only as a hash, valid for 15 minutes). Emails are sent from the group's own Gmail account through the Gmail API, which is used only to send these emails: the app does not read the mailbox.
 
 ## Sharing
 

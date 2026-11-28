@@ -64,7 +64,7 @@ async function seedDemo(leader) {
 
   const users = {};
   for (const m of members) {
-    const { user } = await upsertUser({ ...m, email: `${m.username}@example.com`, password: DEMO_PASSWORD });
+    const { user } = await upsertUser({ ...m, email: `${m.username}@example.com`, emailVerified: true, password: DEMO_PASSWORD });
     users[m.username] = user;
   }
 
@@ -168,6 +168,7 @@ async function main() {
     name: process.env.SEED_ADMIN_NAME || 'Group Leader',
     username,
     email: seedEmail('SEED_ADMIN_EMAIL') ?? (demo ? `${username}@example.com` : undefined),
+    emailVerified: demo, // demo addresses are made up; real ones are confirmed by code at first sign-in
     password,
     role: ROLES.SCOUT_LEADER,
     team: 'Gawala',

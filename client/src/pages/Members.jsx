@@ -224,7 +224,10 @@ function MemberDetails({ member, onClose, onEdit, onBadgesChanged }) {
         </div>
         <div className="detail-wide">
           <dt>{tr('Email')}</dt>
-          <dd>{member.email ? <a href={`mailto:${member.email}`} dir="ltr" className="detail-email">{member.email}</a> : '–'}</dd>
+          <dd>
+            {member.email ? <a href={`mailto:${member.email}`} dir="ltr" className="detail-email">{member.email}</a> : '–'}
+            {member.email && !member.emailVerified && <span className="not-confirmed"> · {tr('not confirmed yet')}</span>}
+          </dd>
         </div>
         <div>
           <dt>{tr('Status')}</dt>

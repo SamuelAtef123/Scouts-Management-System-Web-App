@@ -1826,3 +1826,52 @@ html[lang='ar'] .done-stamp {
   font-size: 0.85rem;
   font-weight: 600;
 }
+
+/* ---------- Confirming an email ---------- */
+.email-hint {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--purple);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: start;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.email-code-to,
+.email-current bdi {
+  font-weight: 700;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.code-input {
+  font-size: 1.6rem !important;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-align: center;
+}
+
+.email-code-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.email-code-links .link:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+.not-confirmed {
+  color: #b07800;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
