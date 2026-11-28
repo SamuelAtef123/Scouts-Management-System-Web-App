@@ -20,6 +20,7 @@ The app is designed for phones first and also works on a computer.
 - **Emails** (in Arabic and English, sent from the group's Gmail): a new event for your kadr (whole-group events: everyone, plus the Database member who takes that kadr's attendance), a task assigned to you, and your uploaded file approved or sent back (with the note). The person who did the action is not emailed, and each kind can be switched off on the Profile page.
 - **Forgot password?** on the sign-in screen emails a link to choose a new password. It works once, for 1 hour, and signs out other devices. Every member needs a unique email: it can be left empty when a Database member adds them, and they are then asked for it on first sign-in. Only Egyptian mobile numbers are accepted: 11 digits starting with 010, 011, 012 or 015, stored as +20.
 
+- **Scout badges**: the Group Leader and Helpers give any member a badge, and a Kadr Leader gives members of their own kadr one: a short word (with suggestions such as Leadership or Teamwork) and an optional reason. Badges appear as shiny pills on the member's Profile ("My badges") and in their member details, with a count in the Members list; the member is emailed. Whoever gave a badge, or the Group Leader and Helpers, can remove it.
 ## Who can do what
 
 | Persona | Events and tasks | Sees |
@@ -44,7 +45,8 @@ The app is designed for phones first and also works on a computer.
   - Group Leader and Group Leader Helpers: **view** all members.
   - The 2 privileged Database / Attendance members: view all members, and **add, edit or deactivate** accounts and reset passwords.
   - The other 3 Database / Attendance members: view, **add, edit or deactivate** members of **their assigned kadr only**. They can only give the Kadr Leader or Kadr Leader Helper role, and can't move a member out of their kadr.
-  - Kadr Leaders and Kadr Leader Helpers: no Members page.
+  - Kadr Leaders: **view** the members of their own kadr (details, attendance and badges), to give them badges. No editing.
+  - Kadr Leader Helpers: no Members page.
 - **Preparation Meetings** belong to one kadr. Only the Group Leader, the Group Leader Helpers, and a Kadr Leader (for their own kadr) can create, edit or delete them. Preparation Meetings have **no tasks**.
 - **Gawala Sessions** (whole-group events) are created and managed by the leaders who have access to every kadr.
 - The rules live in one place: `server/src/utils/access.js`.
@@ -241,6 +243,8 @@ All routes except login need an `Authorization: Bearer <token>` header.
 | PUT | `/api/auth/me/email-prefs` | Which automatic emails you get (`events`, `tasks`, `reviews`) |
 | POST | `/api/auth/forgot` | Email a password-reset link (`login`: username or email); always answers the same |
 | POST | `/api/auth/reset` | Set a new password with the link's `token`; signs you in |
+| GET | `/api/badges/mine`, `/api/badges/user/:id`, `/api/badges/counts` | Your badges, a member's badges (and whether you can give one), badge counts for the Members list |
+| POST/DELETE | `/api/badges[/:id]` | Give a badge (`user`, `title`, optional `reason`) or remove one |
 | GET | `/api/events?when=upcoming\|past\|all&team=` | List events you can see (`team=group` for whole-group events) |
 | POST/PUT/DELETE | `/api/events[/:id]` | Manage events |
 | GET | `/api/events/:id` | An event with its tasks |

@@ -9,6 +9,7 @@ import { roleLabel, teamName } from '../constants.js';
 import { useApi } from '../hooks.js';
 import { Avatar, ErrorBox, Field, Spinner, TeamChip, VerseCard, useToast } from '../components/ui.jsx';
 import AttendanceByType from '../components/AttendanceByType.jsx';
+import { Award, BadgeList } from '../components/Badges.jsx';
 
 function PhoneCard() {
   const { user, updateUser } = useAuth();
@@ -96,7 +97,20 @@ const EMAIL_KINDS = [
   { id: 'events', label: 'New events for my kadr or the whole group' },
   { id: 'tasks', label: 'A task assigned to me' },
   { id: 'reviews', label: 'My uploaded file approved or sent back' },
+  { id: 'badges', label: 'A badge given to me' },
 ];
+
+function MyBadgesCard() {
+  const { data, error, loading } = useApi('/badges/mine');
+  return (
+    <section className="card">
+      <h2 className="card-title">
+        <Award size={18} /> {tr('My badges')}
+      </h2>
+      {loading && !data ? <Spinner /> : error ? <ErrorBox message={error} /> : <BadgeList badges={data.badges} empty={tr('No badges yet. Your leaders give them for great work.')} />}
+    </section>
+  );
+}
 
 function EmailPrefsCard() {
   const { user, updateUser } = useAuth();
@@ -225,6 +239,8 @@ export default function Profile() {
             ` ${tr('You take attendance for the {team} kadr.', { team: teamName(user.permissions.attendanceTeam) })}`}
         </p>
       </section>
+
+      <MyBadgesCard />
 
       <AttendanceCard />
 

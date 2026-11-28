@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema(
       events: { type: Boolean, default: true }, // a new event for their kadr or the whole group
       tasks: { type: Boolean, default: true }, // a task assigned to them
       reviews: { type: Boolean, default: true }, // their uploaded file approved or sent back
+      badges: { type: Boolean, default: true }, // a badge given to them
     },
     // "Forgot password?": a hash of the one-time link's secret, valid until resetTokenExpires.
     resetTokenHash: { type: String, select: false },

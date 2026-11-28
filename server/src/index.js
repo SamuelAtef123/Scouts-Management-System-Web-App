@@ -13,6 +13,7 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import eventRoutes from './routes/events.js';
 import taskRoutes from './routes/tasks.js';
+import badgeRoutes from './routes/badges.js';
 import statsRoutes from './routes/stats.js';
 import { LOCAL_UPLOAD_DIR, isDriveEnabled } from './services/storage.js';
 import { startAutoBackup } from './backup/auto.js';
@@ -65,6 +66,7 @@ app.use('/api/users', requireAuth, userRoutes);
 app.use('/api/events', requireAuth, eventRoutes);
 app.use('/api/tasks', requireAuth, taskRoutes);
 app.use('/api/stats', requireAuth, statsRoutes);
+app.use('/api/badges', requireAuth, badgeRoutes);
 
 // Local file storage fallback (only used when Google Drive is not configured).
 // Files are stored under random names with a verified extension (PDF, Word or image), and are

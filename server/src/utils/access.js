@@ -103,12 +103,16 @@ export const TEAM_LEVEL_ROLES = [ROLES.TEAM_LEADER, ROLES.TEAM_LEADER_HELPER];
  * Teams whose members this user can view on the Members page (details and attendance %):
  * - Scouts Leader, Helpers and the 2 privileged Database members: every team;
  * - the other 3 Database/Attendance members: only the team they take attendance for;
+ * - a Kadr Leader: their own kadr, view only (to give badges);
  * - everyone else: none (no Members page).
  */
 export function memberTeams(user) {
   if (hasGlobalAccess(user)) return TEAMS;
   const team = attendanceTeamOf(user);
-  return team ? [team] : [];
+  if (team) return [team];
+  // A Kadr Leader views the members of their own kadr (view only), to give them badges.
+  if (user?.role === ROLES.TEAM_LEADER && user.team) return [user.team];
+  return [];
 }
 
 /** Who can open the Members page. */
@@ -139,4 +143,21 @@ export function reviewTaskFilter(user) {
   if (!isReviewer(user)) return null;
   if (user.role !== ROLES.TEAM_LEADER) return {};
   return { team: user.team === 'Gawala' ? { $in: ['Gawala', null] } : user.team };
+}
+
+/**
+ * Who can give a scout badge to `member`: the Group Leader and Helpers to anyone, and a Kadr Leader to
+ * members of their own kadr. Never to yourself, and only to active members.
+ */
+export function canGiveBadge(user, member) {
+  if (!user?.isActive || !member?.isActive || user._id.equals(member._id)) return false;
+  if (user.role === ROLES.SCOUT_LEADER || user.role === ROLES.SCOUT_LEADER_HELPER) return true;
+  return user.role === ROLES.TEAM_LEADER && Boolean(user.team) && member.team === user.team;
+}
+
+/** A badge can be removed by whoever gave it, or by the Group Leader and Helpers. */
+export function canRemoveBadge(user, badge) {
+  if (!user?.isActive) return false;
+  if (user.role === ROLES.SCOUT_LEADER || user.role === ROLES.SCOUT_LEADER_HELPER) return true;
+  return String(badge.givenBy?._id ?? badge.givenBy) === String(user._id);
 }

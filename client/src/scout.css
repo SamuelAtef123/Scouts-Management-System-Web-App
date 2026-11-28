@@ -1770,3 +1770,118 @@ html[lang='ar'] .done-stamp {
   font-weight: 700;
   color: var(--ink);
 }
+
+/* ---------- Scout badges: a shiny word with a badge icon ---------- */
+.scout-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f7dd8a 0%, #e7b53c 38%, #b98ae8 100%);
+  color: #2a1d55;
+  font-weight: 800;
+  font-size: 0.88rem;
+  line-height: 1.2;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 2px 6px rgba(109, 63, 181, 0.28);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+/* the shine: a soft diagonal highlight */
+.scout-badge::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  bottom: -30%;
+  inset-inline-start: -40%;
+  width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+
+.scout-badge svg {
+  flex: none;
+  color: #6d3fb5;
+}
+
+.scout-badge-x {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-inline-start: 2px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(42, 29, 85, 0.15);
+  color: #2a1d55;
+  cursor: pointer;
+}
+
+.badge-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.badge-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.badge-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 0.8rem;
+}
+
+.badge-reason {
+  color: var(--ink);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.badge-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: -4px;
+}
+
+.badge-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.badge-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-inline-start: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f7dd8a, #e7b53c);
+  color: #2a1d55;
+  font-size: 0.72rem;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.detail-section-action {
+  margin-inline-start: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

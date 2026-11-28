@@ -130,6 +130,22 @@ export async function notifyFileReviewed(task, material, reviewer, approved) {
   });
 }
 
+export async function notifyBadge(badge, member, giver) {
+  const p = await User.findOne({ _id: member._id, isActive: true, email: { $type: 'string' }, 'emailPrefs.badges': { $ne: false } }).select('name email');
+  if (!p) return;
+  const reasonAr = badge.reason ? `«${iso(badge.reason)}»` : '';
+  const reasonEn = badge.reason ? `“${iso(badge.reason)}”` : '';
+  await sendEmail({
+    to: p.email,
+    subject: `You received a badge: ${badge.title} · حصلت على وسام`,
+    ...layout({
+      ar: [`أهلًا ${iso(firstName(p.name))}،`, `منحك ${iso(giver.name)} وسامًا:`, `🏅 <b>${iso(badge.title)}</b>`, ...(reasonAr ? [reasonAr] : []), 'مبروك!'],
+      en: [`Hi ${iso(firstName(p.name))},`, `${iso(giver.name)} gave you a badge:`, `🏅 <b>${iso(badge.title)}</b>`, ...(reasonEn ? [reasonEn] : []), 'Congratulations!'],
+      button: { label: 'See your badges · شاهد أوسمتك', href: link('/profile') },
+    }),
+  });
+}
+
 export async function sendPasswordReset(user, token, minutes) {
   await sendEmail({
     to: user.email,

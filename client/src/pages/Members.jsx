@@ -9,6 +9,7 @@ import { displayPhone, localPhone } from '../format.js';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast } from '../components/ui.jsx';
 import AttendanceByType from '../components/AttendanceByType.jsx';
+import { Award, MemberBadges } from '../components/Badges.jsx';
 
 function MemberForm({ member, onClose, onSaved }) {
   const { user } = useAuth();
@@ -154,8 +155,13 @@ function MemberForm({ member, onClose, onSaved }) {
 }
 
 /** Read-only view of a member: details and attendance. */
-function MemberDetails({ member, onClose, onEdit }) {
+function MemberDetails({ member, onClose, onEdit, onBadgesChanged }) {
   const { data, error, loading } = useApi(`/users/${member._id}`);
+  const badges = useApi(`/badges/user/${member._id}`);
+  const setBadges = (update) => {
+    badges.setData(update);
+    onBadgesChanged?.();
+  };
   const a = data?.attendance;
   return (
     <Modal
@@ -215,6 +221,8 @@ function MemberDetails({ member, onClose, onEdit }) {
         </div>
       </dl>
 
+      <MemberBadges member={member} data={badges.data} setData={setBadges} />
+
       <h3 className="detail-section">
         <ClipboardCheck size={17} /> {tr('Attendance')}
       </h3>
@@ -268,6 +276,7 @@ export default function Members() {
   const filterTeams = TEAMS.filter((t) => myTeams.includes(t.id));
   const { data, error, loading, reload, setData } = useApi('/users?scope=members&includeInactive=true');
   const rates = useApi('/users/attendance');
+  const badgeCounts = useApi('/badges/counts');
   const [query, setQuery] = useState('');
   const [team, setTeam] = useState('');
   const [viewing, setViewing] = useState(null);
@@ -332,6 +341,12 @@ export default function Members() {
                 <strong>
                   {u.name}
                   {u.isPrivileged && <Shield size={14} className="privileged" aria-label={tr('Privileged')} />}
+                  {badgeCounts.data?.counts[u._id] > 0 && (
+                    <span className="badge-count" title={tr('{n} badges', { n: badgeCounts.data.counts[u._id] })}>
+                      <Award size={13} aria-hidden="true" />
+                      {badgeCounts.data.counts[u._id]}
+                    </span>
+                  )}
                 </strong>
                 <span>
                   {roleLabel(u)}
@@ -352,6 +367,7 @@ export default function Members() {
         <MemberDetails
           member={viewing}
           onClose={() => setViewing(null)}
+          onBadgesChanged={badgeCounts.reload}
           onEdit={
             canEdit
               ? () => {

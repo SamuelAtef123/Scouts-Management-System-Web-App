@@ -138,7 +138,7 @@ router.put(
   '/me/email-prefs',
   requireAuth,
   asyncHandler(async (req, res) => {
-    for (const key of ['events', 'tasks', 'reviews']) {
+    for (const key of ['events', 'tasks', 'reviews', 'badges']) {
       if (req.body[key] !== undefined) req.user.emailPrefs[key] = Boolean(req.body[key]);
     }
     await req.user.save();

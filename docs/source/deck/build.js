@@ -151,7 +151,7 @@ async function icon(name, color = 'FFFFFF') {
     ['LuListChecks', 'Tasks', 'Assign, set due dates, track progress', HEX.green],
     ['LuUpload', 'Materials', 'PDF, Word or photo, reviewed, then saved to Google Drive', HEX.red],
     ['LuClipboardCheck', 'Attendance', 'Present, Absent or Excused per member', HEX.green],
-    ['LuUsers', 'Members', 'Attendance % and account management', HEX.teal],
+    ['LuUsers', 'Members', 'Attendance %, scout badges, account management', HEX.teal],
     ['LuMail', 'Emails', 'New events, tasks and file reviews, in Arabic and English', HEX.gold],
     ['LuUserRound', 'Profile', 'Mobile, email settings, attendance, password, language', HEX.navy],
   ];
@@ -179,7 +179,7 @@ async function icon(name, color = 'FFFFFF') {
     [b('Group Leader Helper (2)'), 'Every kadr and Gawala Sessions', yes('Any kadr'), no('View only'), 'View all'],
     [b('Database / Attendance, privileged (2)'), 'Every kadr and Gawala Sessions', no('No'), yes('Takes it for one fixed kadr'), 'View, add, edit all'],
     [b('Database / Attendance, others (3)'), 'Own kadr', no('No'), yes('Takes it for one fixed kadr'), 'View, add, edit their kadr'],
-    [b('Kadr Leader (5)'), 'Own kadr', yes('Own kadr'), no('View only'), no('No')],
+    [b('Kadr Leader (5)'), 'Own kadr', yes('Own kadr'), no('View only'), 'View own kadr, give badges'],
     [b('Kadr Leader Helper (about 47)'), 'Own kadr', no('No'), no('View only'), no('No')],
   ];
   s.addTable(rows, { x: 0.6, y: 1.4, w: 12.1, colW: [3.0, 2.7, 2.0, 2.4, 2.0], fontSize: 13, color: HEX.ink, border: { type: 'solid', pt: 0.75, color: HEX.border }, fill: { color: 'FFFFFF' }, rowH: 0.56, valign: 'middle', margin: [0.04, 0.1, 0.04, 0.1], objectName: 'roles table' });
@@ -237,7 +237,7 @@ async function icon(name, color = 'FFFFFF') {
     ['LuPencil', 'Edit or delete', 'Pencil and bin buttons; uploaded files stay in Google Drive.'],
     ['LuFileCheck2', 'Review files', 'My tasks → To review: open, then Approve (to Google Drive) or Send back with a note.'],
     ['LuEye', 'See attendance', 'Tap View on the Attendance card; you cannot take or change it.'],
-    ['LuUsers', 'Members (view only)', 'Every member with attendance %; tap one for the % per event type.'],
+    ['LuUsers', 'Members and badges', 'Attendance % per member; tap one to see or give badges.'],
   ];
   sl.forEach(([icn, t, d], i) => {
     const col = i % 2, row = Math.floor(i / 2);
@@ -252,7 +252,7 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
   s.addText('Kadr Leader and Kadr Leader Helper', { placeholder: 'title' });
   const cols = [
-    ['LuFlag', 'Kadr Leader', HEX.gold, ['Create your kadr’s Kadr Sessions, Preparation Meetings and Others events', 'Add tasks and assign them to members of your kadr', 'Edit or delete your kadr’s events and tasks, including Preparation Meetings', 'See your kadr’s attendance (view only)', 'Review files sent for your kadr’s tasks (Gawala: whole-group events too)']],
+    ['LuFlag', 'Kadr Leader', HEX.gold, ['Create your kadr’s Kadr Sessions, Preparation Meetings and Others events', 'Add tasks and assign them to members of your kadr', 'Edit or delete your kadr’s events and tasks, including Preparation Meetings', 'See your kadr’s attendance and members; give them badges', 'Review files sent for your kadr’s tasks (Gawala: whole-group events too)']],
     ['LuHandHelping', 'Kadr Leader Helper', HEX.green, ['Create, edit and delete your kadr’s Kadr Sessions and Others events', 'Add tasks and assign them to members of your kadr', 'See Preparation Meetings, but not create, edit or delete them', 'See your kadr’s attendance (view only)']],
   ];
   cols.forEach(([icn, t, c, items], i) => {
