@@ -10,6 +10,7 @@ import { inBackground, sendPasswordReset } from '../services/notify.js';
 import crypto from 'node:crypto';
 import { hasGlobalAccess, isReviewer, canManageUsers, canViewAllTeams, canViewMembers, memberTeams, attendanceTeamOf, visibleTeams } from '../utils/access.js';
 import { TEAMS } from '../constants.js';
+import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 import { config } from '../config.js';
 
 const router = Router();
@@ -38,6 +39,8 @@ export function publicUser(user) {
       viewMembers: canViewMembers(user), // Members page: details and attendance %
       memberTeams: memberTeams(user), // teams whose members they can view there
       manageUsers: canManageUsers(user), // add / edit / deactivate members
+      // username -> kadr from attendanceAssignments.js, so the member form can show it while typing
+      attendanceAssignments: canManageUsers(user) ? ATTENDANCE_ASSIGNMENTS : undefined,
       reviewMaterials: isReviewer(user), // reviews uploaded files before they go to Google Drive
     },
   };

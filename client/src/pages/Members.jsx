@@ -4,7 +4,7 @@ import { api } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { useApi } from '../hooks.js';
 import { ROLES, roleLabel, TEAMS, teamName } from '../constants.js';
-import { t as tr } from '../i18n.jsx';
+import { t as tr, isArabic } from '../i18n.jsx';
 import { displayPhone, localPhone } from '../format.js';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { Avatar, EmptyState, ErrorBox, Field, Modal, Spinner, TeamChip, useToast } from '../components/ui.jsx';
@@ -31,6 +31,8 @@ function MemberForm({ member, onClose, onSaved }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
+  // Whose attendance this member takes follows their username (fixed in the server's list), shown as you type.
+  const attendanceKadr = user.permissions.attendanceAssignments?.[form.username.trim().toLowerCase()] ?? member?.attendanceTeam ?? null;
 
   const submit = async (e) => {
     e.preventDefault();
@@ -110,12 +112,13 @@ function MemberForm({ member, onClose, onSaved }) {
         </div>
         {form.role === 'database_team' && (
           <p className="form-context">
-            {member?.attendanceTeam ? (
+            {attendanceKadr ? (
               <>
-                {tr('Takes attendance for the')} <strong>{teamName(member.attendanceTeam)}</strong> {tr('kadr.')}
+                {tr('Takes attendance for the')} <strong>{teamName(attendanceKadr)}</strong>
+                {isArabic() ? tr('kadr.') : ` ${tr('kadr.')}`}
               </>
             ) : (
-              tr("Not assigned to take any kadr's attendance.")
+              tr("This username is not on the attendance list, so they won't take any kadr's attendance.")
             )}{' '}
             {tr("This is fixed by the system and can't be changed here.")}
           </p>

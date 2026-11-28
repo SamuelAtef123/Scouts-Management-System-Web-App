@@ -229,7 +229,6 @@ export const AR = {
   'Choose a kadr': 'اختر كدرًا',
   'Takes attendance for the': 'يسجّل حضور كدر',
   'kadr.': '.',
-  "Not assigned to take any kadr's attendance.": 'غير مسؤول عن تسجيل حضور أي كدر.',
   "This is fixed by the system and can't be changed here.": 'هذا محدد من النظام ولا يمكن تغييره هنا.',
   'Privileged member': 'عضو بصلاحيات إضافية',
   Privileged: 'صلاحيات إضافية',
@@ -385,6 +384,7 @@ export const AR = {
   'The file could not be opened. It may have been deleted.': 'تعذّر فتح الملف. ربما تم حذفه.',
   'The file could not be moved to Google Drive. Please tell the Database team.': 'تعذّر نقل الملف إلى Google Drive. برجاء إبلاغ فريق البيانات.',
   'Google Drive is not connected, so the file cannot be approved now. Please tell the Database team.': 'Google Drive غير متصل، لذا لا يمكن اعتماد الملف الآن. برجاء إبلاغ فريق البيانات.',
+  "This username is not on the attendance list, so they won't take any kadr's attendance.": 'اسم المستخدم هذا غير موجود في قائمة الحضور، لذا لن يسجّل حضور أي كدر.',
   // ---------- Email ----------
   'Email': 'البريد الإلكتروني',
   'For notifications about your events and tasks, and to reset a forgotten password': 'لإشعارات أحداثك ومهامك، ولإعادة تعيين كلمة المرور إذا نسيتها',
