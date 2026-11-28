@@ -96,6 +96,7 @@ router.put(
     if (!(await user.checkPassword(String(currentPassword)))) throw badRequest('Your current password is wrong');
 
     await user.setPassword(String(newPassword));
+    user.mustChangePassword = false;
     await user.save();
     // Other sessions are now signed out; this device gets a fresh session.
     res.json({ ok: true, token: signToken(user) });
@@ -107,7 +108,7 @@ router.put(
   '/me/profile',
   requireAuth,
   asyncHandler(async (req, res) => {
-    if (req.body.phone === undefined && req.body.email === undefined) throw badRequest('Nothing to update');
+    if (req.body.phone === undefined && req.body.email === undefined && req.body.newPassword === undefined) throw badRequest('Nothing to update');
     if (req.body.phone !== undefined) req.user.phone = normalizePhone(req.body.phone, { required: true });
     if (req.body.email !== undefined) {
       const email = normalizeEmail(req.body.email, { required: true });
@@ -116,8 +117,19 @@ router.put(
       }
       req.user.email = email;
     }
+    // First sign-in with a password someone else set: the person chooses their own here.
+    let token;
+    if (req.body.newPassword !== undefined) {
+      if (!req.user.mustChangePassword) throw badRequest('Use Change password on your Profile page');
+      const newPassword = String(req.body.newPassword);
+      if (newPassword.length < 8) throw badRequest('The new password must be at least 8 characters');
+      if (newPassword === config.defaultMemberPassword) throw badRequest('Choose a password different from the one you were given');
+      await req.user.setPassword(newPassword);
+      req.user.mustChangePassword = false;
+      token = signToken(req.user); // the password change signs out other sessions, this one continues
+    }
     await req.user.save();
-    res.json({ user: publicUser(req.user) });
+    res.json({ user: publicUser(req.user), ...(token ? { token } : {}) });
   })
 );
 
@@ -186,6 +198,7 @@ router.post(
       : null;
     if (!user) throw badRequest('This link is not valid or has expired. Ask for a new one.');
     await user.setPassword(newPassword); // also cancels the link and signs out other devices
+    user.mustChangePassword = false;
     await user.save();
     res.json({ token: signToken(user), user: publicUser(user) });
   })

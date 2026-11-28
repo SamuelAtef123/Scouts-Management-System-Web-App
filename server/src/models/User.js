@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema(
     // Only meaningful for the Database/Attendance team: the 2 members with extra privileges.
     isPrivileged: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
+    // The password was set by someone else (a new account, or a reset by a Database member):
+    // the person must choose their own on their next sign-in.
+    mustChangePassword: { type: Boolean, default: false },
     // Sessions issued before this moment are rejected (set when the password changes).
     passwordChangedAt: { type: Date, default: null },
   },

@@ -389,6 +389,10 @@ export const AR = {
   'If empty, they are asked for it the first time they sign in': 'إن تُرك فارغًا يُطلب منه عند أول تسجيل دخول',
   'Password (optional)': 'كلمة المرور (اختياري)',
   'At least 8 characters. If empty, the password is {password}': '8 أحرف على الأقل. إن تُركت فارغة تكون كلمة المرور {password}',
+  'Choose your own password': 'اختر كلمة مرور خاصة بك',
+  'Replaces the password you were given. At least 8 characters.': 'تحل محل كلمة المرور التي أُعطيت لك. 8 أحرف على الأقل.',
+  'Use Change password on your Profile page': 'استخدم تغيير كلمة المرور في صفحة ملفك الشخصي',
+  'Choose a password different from the one you were given': 'اختر كلمة مرور مختلفة عن التي أُعطيت لك',
   // ---------- Email ----------
   'Email': 'البريد الإلكتروني',
   'For notifications about your events and tasks, and to reset a forgotten password': 'لإشعارات أحداثك ومهامك، ولإعادة تعيين كلمة المرور إذا نسيتها',

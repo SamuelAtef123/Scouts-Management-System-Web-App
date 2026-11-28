@@ -128,6 +128,7 @@ router.post(
     checkRoleTeam(user);
     checkManagerScope(req.user, user);
     await user.setPassword(password);
+    user.mustChangePassword = true; // they choose their own on first sign-in
     await user.save();
     res.status(201).json({ user });
   })
@@ -163,6 +164,8 @@ router.put(
     if (req.body.password) {
       if (String(req.body.password).length < 8) throw badRequest('The password must be at least 8 characters');
       await user.setPassword(String(req.body.password));
+      // A password reset by someone else is temporary: they choose their own on next sign-in.
+      if (!user._id.equals(req.user._id)) user.mustChangePassword = true;
     }
     await user.save();
     res.json({ user });

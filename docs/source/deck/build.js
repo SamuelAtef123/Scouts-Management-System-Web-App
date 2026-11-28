@@ -209,7 +209,7 @@ async function icon(name, color = 'FFFFFF') {
   s.addText('Getting started (everyone)', { placeholder: 'title' });
   steps(s, [
     'Open the app on your phone and sign in with the username and password from the Database team.',
-    'On first sign-in, enter your Egyptian mobile number: 11 digits starting with 010, 011, 012 or 015, and your email, then tap Continue.',
+    'On first sign-in, enter your Egyptian mobile number: 11 digits starting with 010, 011, 012 or 015, your email and your own password, then tap Continue.',
     'Prefer Arabic? Tap العربية on the sign-in screen or in your Profile.',
     'Add it to your home screen to open it like an app.',
     'Forgot your password? Tap Forgot your password? on the sign-in screen; a link arrives by email.',
@@ -280,7 +280,7 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
   s.addText('Database / Attendance team: managing members', { placeholder: 'title' });
   const mm = [
-    ['LuUserPlus', 'Add a member', 'Members → Add member: name, username, role, kadr. Password optional (scouts123 if empty).'],
+    ['LuUserPlus', 'Add a member', 'Members → Add member: name, username, role, kadr. Password optional (scouts123); they choose their own on first sign-in.'],
     ['LuKeyRound', 'Reset a password', 'Tap the member → Edit → new password → Save changes.'],
     ['LuBan', 'Deactivate a member', 'Tap the member → Edit → untick Active. Their past records stay.'],
   ];

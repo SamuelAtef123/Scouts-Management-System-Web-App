@@ -1,16 +1,24 @@
 import { useState } from 'react';
-import { api } from '../api.js';
+import { Eye, EyeOff } from 'lucide-react';
+import { api, tokenStore } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { LanguageSwitch, t as tr } from '../i18n.jsx';
 import { firstName, localPhone } from '../format.js';
 import PhoneInput from '../components/PhoneInput.jsx';
 import { ErrorBox, Field, Avatar } from '../components/ui.jsx';
 
-/** Shown after signing in while the account has no mobile number or email: both are required. */
+/**
+ * Shown after signing in while the account has no mobile number or email, or still has a password
+ * someone else set (a new account or a reset): all of these are needed before using the app.
+ */
 export default function CompleteProfile() {
   const { user, updateUser, logout } = useAuth();
   const [phone, setPhone] = useState(localPhone(user.phone));
   const [email, setEmail] = useState(user.email || '');
+  const needPassword = Boolean(user.mustChangePassword);
+  const [password, setPassword] = useState('');
+  const [again, setAgain] = useState('');
+  const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,7 +27,13 @@ export default function CompleteProfile() {
     setBusy(true);
     setError('');
     try {
-      const data = await api.put('/auth/me/profile', { phone, email });
+      if (needPassword && password !== again) {
+        setError(tr('The two passwords are not the same'));
+        setBusy(false);
+        return;
+      }
+      const data = await api.put('/auth/me/profile', { phone, email, ...(needPassword ? { newPassword: password } : {}) });
+      if (data.token) tokenStore.set(data.token);
       updateUser(data.user);
     } catch (err) {
       setError(err.message);
@@ -45,6 +59,21 @@ export default function CompleteProfile() {
           <Field label={tr('Email')} hint={tr('For notifications about your events and tasks, and to reset a forgotten password')}>
             <input type="email" dir="ltr" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={120} autoCapitalize="none" autoComplete="email" />
           </Field>
+          {needPassword && (
+            <>
+              <Field label={tr('Choose your own password')} hint={tr('Replaces the password you were given. At least 8 characters.')}>
+                <div className="password-input">
+                  <input type={show ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required autoComplete="new-password" />
+                  <button type="button" className="icon-btn" onClick={() => setShow((v) => !v)} aria-label={show ? tr('Hide password') : tr('Show password')}>
+                    {show ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </Field>
+              <Field label={tr('Repeat the new password')}>
+                <input type={show ? 'text' : 'password'} value={again} onChange={(e) => setAgain(e.target.value)} minLength={8} required autoComplete="new-password" />
+              </Field>
+            </>
+          )}
           {error && <ErrorBox message={error} />}
           <button className="btn btn-primary btn-block btn-lg" disabled={busy}>
             {busy ? tr('Saving…') : tr('Continue')}

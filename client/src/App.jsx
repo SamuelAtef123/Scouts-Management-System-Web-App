@@ -27,8 +27,8 @@ export default function App() {
   // "Forgot password?" link from an email: works whether or not someone is signed in on this device.
   if (window.location.pathname === '/reset-password') return <ResetPassword />;
   if (!user) return <Login />;
-  // The mobile number and email must be added before using the app.
-  if (!user.phone || !user.email) return <CompleteProfile />;
+  // The mobile number and email must be added, and a password set by someone else replaced, before using the app.
+  if (!user.phone || !user.email || user.mustChangePassword) return <CompleteProfile />;
 
   return (
     <Routes>
