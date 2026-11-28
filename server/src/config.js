@@ -37,6 +37,8 @@ export const config = {
   // Number of reverse proxies in front of the app (0 = none). See index.js.
   trustProxy: Number(process.env.TRUST_PROXY) || 0,
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB) || 25,
+  // The password of a new member when the Database member leaves the password empty.
+  defaultMemberPassword: process.env.DEFAULT_MEMBER_PASSWORD || 'scouts123',
   // Automatic emails (new events, tasks assigned, file reviews, "Forgot password?") are sent from the
   // group's Gmail through the Gmail API, with the same Google OAuth client as Google Drive. The refresh
   // token must include the "gmail.send" permission. GMAIL_REFRESH_TOKEN is only needed when the sending

@@ -77,8 +77,8 @@ function MemberForm({ member, onClose, onSaved }) {
             <PhoneInput value={form.phone} onChange={(phone) => setForm((f) => ({ ...f, phone }))} />
           </Field>
         </div>
-        <Field label={tr('Email')} hint={tr('For notifications and to reset a forgotten password')}>
-          <input type="email" dir="ltr" value={form.email} onChange={set('email')} required maxLength={120} autoCapitalize="none" autoComplete="off" />
+        <Field label={tr('Email (optional)')} hint={tr('If empty, they are asked for it the first time they sign in')}>
+          <input type="email" dir="ltr" value={form.email} onChange={set('email')} maxLength={120} autoCapitalize="none" autoComplete="off" />
         </Field>
         <div className="form-row">
           <Field label={tr('Role')}>
@@ -132,8 +132,11 @@ function MemberForm({ member, onClose, onSaved }) {
             </span>
           </label>
         )}
-        <Field label={member ? tr('New password (leave empty to keep)') : tr('Password')} hint={tr('At least 8 characters')}>
-          <input type="text" value={form.password} onChange={set('password')} minLength={8} required={!member} autoComplete="new-password" />
+        <Field
+          label={member ? tr('New password (leave empty to keep)') : tr('Password (optional)')}
+          hint={member ? tr('At least 8 characters') : tr('At least 8 characters. If empty, the password is {password}', { password: 'scouts123' })}
+        >
+          <input type="text" value={form.password} onChange={set('password')} minLength={8} autoComplete="new-password" />
         </Field>
         {member && !isSelf && (
           <label className="check">

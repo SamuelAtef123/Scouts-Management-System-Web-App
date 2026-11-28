@@ -9,6 +9,7 @@ import { ROLES, ROLE_VALUES, TEAMS } from '../constants.js';
 import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 import { normalizePhone } from '../utils/phone.js';
 import { normalizeEmail } from '../utils/email.js';
+import { config } from '../config.js';
 
 const router = Router();
 
@@ -21,8 +22,8 @@ function readUserFields(body, { partial }) {
   }
   if (!partial || body.username !== undefined) out.username = String(body.username || '').trim().toLowerCase();
   if (body.phone !== undefined) out.phone = normalizePhone(body.phone);
-  // Every member needs an email (notifications and "Forgot password?").
-  if (!partial || body.email !== undefined) out.email = normalizeEmail(body.email, { required: true });
+  // Optional here: a member without an email is asked for it on their next sign-in.
+  if (body.email !== undefined) out.email = normalizeEmail(body.email);
   if (!partial || body.role !== undefined) {
     if (!ROLE_VALUES.includes(body.role)) throw badRequest('Choose a valid role');
     out.role = body.role;
@@ -117,10 +118,11 @@ router.post(
   requireUserAdmin,
   asyncHandler(async (req, res) => {
     const fields = readUserFields(req.body, { partial: false });
-    const password = String(req.body.password || '');
+    // Optional: without one, the account starts with the default password (scouts123).
+    const password = String(req.body.password || '') || config.defaultMemberPassword;
     if (password.length < 8) throw badRequest('The password must be at least 8 characters');
     if (await User.exists({ username: fields.username })) throw badRequest('This username is already taken');
-    if (await User.exists({ email: fields.email })) throw badRequest('This email is already used by another member');
+    if (fields.email && (await User.exists({ email: fields.email }))) throw badRequest('This email is already used by another member');
 
     const user = new User(fields);
     checkRoleTeam(user);

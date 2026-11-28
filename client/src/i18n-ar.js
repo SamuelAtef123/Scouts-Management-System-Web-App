@@ -385,6 +385,10 @@ export const AR = {
   'The file could not be moved to Google Drive. Please tell the Database team.': 'تعذّر نقل الملف إلى Google Drive. برجاء إبلاغ فريق البيانات.',
   'Google Drive is not connected, so the file cannot be approved now. Please tell the Database team.': 'Google Drive غير متصل، لذا لا يمكن اعتماد الملف الآن. برجاء إبلاغ فريق البيانات.',
   "This username is not on the attendance list, so they won't take any kadr's attendance.": 'اسم المستخدم هذا غير موجود في قائمة الحضور، لذا لن يسجّل حضور أي كدر.',
+  'Email (optional)': 'البريد الإلكتروني (اختياري)',
+  'If empty, they are asked for it the first time they sign in': 'إن تُرك فارغًا يُطلب منه عند أول تسجيل دخول',
+  'Password (optional)': 'كلمة المرور (اختياري)',
+  'At least 8 characters. If empty, the password is {password}': '8 أحرف على الأقل. إن تُركت فارغة تكون كلمة المرور {password}',
   // ---------- Email ----------
   'Email': 'البريد الإلكتروني',
   'For notifications about your events and tasks, and to reset a forgotten password': 'لإشعارات أحداثك ومهامك، ولإعادة تعيين كلمة المرور إذا نسيتها',

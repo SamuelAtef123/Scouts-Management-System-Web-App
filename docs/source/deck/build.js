@@ -280,7 +280,7 @@ async function icon(name, color = 'FFFFFF') {
   s = pres.addSlide({ masterName: 'Content', sectionTitle: 'User guide' });
   s.addText('Database / Attendance team: managing members', { placeholder: 'title' });
   const mm = [
-    ['LuUserPlus', 'Add a member', 'Members → Add member: name, username, mobile, role, kadr and a starting password.'],
+    ['LuUserPlus', 'Add a member', 'Members → Add member: name, username, role, kadr. Password optional (scouts123 if empty).'],
     ['LuKeyRound', 'Reset a password', 'Tap the member → Edit → new password → Save changes.'],
     ['LuBan', 'Deactivate a member', 'Tap the member → Edit → untick Active. Their past records stay.'],
   ];
