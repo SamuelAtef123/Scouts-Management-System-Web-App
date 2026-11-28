@@ -2,7 +2,7 @@ import { config } from '../config.js';
 import { User } from '../models/User.js';
 import { ATTENDANCE_ASSIGNMENTS } from '../attendanceAssignments.js';
 import { ATTENDANCE_EVENT_TYPES } from '../constants.js';
-import { sendEmail, sendToMany } from './mailer.js';
+import { explain, sendEmail, sendToMany } from './mailer.js';
 
 /*
  * The automatic emails. Each one is short, in Arabic and English, and links to the app.
@@ -143,4 +143,4 @@ export async function sendPasswordReset(user, token, minutes) {
 }
 
 /** Runs a notification in the background: never delays or breaks the request that caused it. */
-export const inBackground = (promise) => promise.catch((err) => console.error(`Notification failed: ${err.message}`));
+export const inBackground = (promise) => promise.catch((err) => console.error(`Email failed: ${explain(err)}`));

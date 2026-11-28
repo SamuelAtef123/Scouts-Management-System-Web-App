@@ -14,7 +14,7 @@ The app uses the Google Drive API only to save the task materials that leaders u
 
 ## Emails
 
-The app emails members about new events for their kadr, tasks assigned to them, reviews of their uploaded files, and password-reset links they ask for. Emails are sent through [Brevo](https://www.brevo.com), which receives only the recipient's address and the email's content in order to deliver it. Each member can switch the automatic emails off on their Profile page.
+The app emails members about new events for their kadr, tasks assigned to them, reviews of their uploaded files, and password-reset links they ask for. Emails are sent from the group's own Gmail account through the Gmail API, which is used only to send these emails: the app does not read the mailbox. Each member can switch the automatic emails off on their Profile page.
 
 ## Sharing
 

@@ -17,7 +17,7 @@ The app is designed for phones first and also works on a computer.
 - **Home**: a personal summary showing open, done and overdue tasks, your next tasks and upcoming events.
 - **Members**: every member's details and attendance percentage. The Group Leader and Helpers view everyone; all 5 Database / Attendance members can add accounts, edit them, reset passwords and deactivate members (the 3 non-privileged ones only for their assigned kadr).
 - **Profile**: your mobile number and email (both editable), which automatic emails you get, your attendance, and changing your password. Members are shown by their initials on their kadr's colour (there are no profile photos). On first sign-in, anyone without a mobile number or email must add them before using the app.
-- **Emails** (in Arabic and English, sent through Brevo): a new event for your kadr (whole-group events: everyone, plus the Database member who takes that kadr's attendance), a task assigned to you, and your uploaded file approved or sent back (with the note). The person who did the action is not emailed, and each kind can be switched off on the Profile page.
+- **Emails** (in Arabic and English, sent from the group's Gmail): a new event for your kadr (whole-group events: everyone, plus the Database member who takes that kadr's attendance), a task assigned to you, and your uploaded file approved or sent back (with the note). The person who did the action is not emailed, and each kind can be switched off on the Profile page.
 - **Forgot password?** on the sign-in screen emails a link to choose a new password. It works once, for 1 hour, and signs out other devices. Every member has a required, unique email. Only Egyptian mobile numbers are accepted: 11 digits starting with 010, 011, 012 or 015, stored as +20.
 
 ## Who can do what
@@ -136,21 +136,23 @@ You need Node.js 20 or later and MongoDB. MongoDB can run on your machine, or yo
 
 If Google Drive is not configured, uploaded files are saved in `server/uploads/` so that everything still works during development.
 
-## Setting up emails (Brevo)
+## Setting up emails (the group's Gmail)
 
-1. Create a free account at [brevo.com](https://www.brevo.com) with the group's Gmail address.
-2. **Senders, domains & dedicated IPs → Senders → Add a sender** with that Gmail address, and confirm it from the email Brevo sends.
-3. **SMTP & API → API Keys → Generate a new API key**, and copy it.
-4. In `server/.env` (and on Render): `BREVO_API_KEY` = the key, `EMAIL_FROM` = the Gmail address, `EMAIL_FROM_NAME` (optional), and `APP_URL` = the site's https address (it defaults to `CLIENT_ORIGIN`) so the links in emails open the app.
+Emails are sent from the group's Gmail through the **Gmail API**, with the same Google Cloud project and OAuth client as Google Drive (set that up first, see below). It works over HTTPS, so hosts that block email ports are fine, and Gmail allows about 500 emails a day (a whole-group event sends about 60).
 
-Without a key nothing is sent: on a computer used for testing each email is printed in the server log instead, links included. The free plan allows about 300 emails a day; a whole-group event sends about 60. Emails from a Gmail address sent through Brevo can land in spam at first: ask members to mark them "Not spam". Your own domain later improves delivery.
+1. In Google Cloud Console → **APIs & Services → Library**, enable the **Gmail API** (next to the Google Drive API).
+2. In the [OAuth Playground](https://developers.google.com/oauthplayground) (⚙ → "Use your own OAuth credentials"), select **both** `https://www.googleapis.com/auth/drive` and `https://www.googleapis.com/auth/gmail.send`, sign in with the **group's Gmail** (the account that owns the Drive folder), and exchange the code for a refresh token.
+3. Put that token in `GOOGLE_OAUTH_REFRESH_TOKEN` (one token for Drive and email). Optional: `EMAIL_FROM_NAME` (the sender's name), `APP_URL` (the site's https address for the links in emails; it defaults to `CLIENT_ORIGIN`). If the sending Gmail is a different account from the Drive one, put its token in `GMAIL_REFRESH_TOKEN` instead.
+4. Restart. The server prints `Emails are sent from …@gmail.com (Gmail)`, or a warning that says what to fix (for example a token without the Gmail permission).
+
+Without a token nothing is sent: on a computer used for testing each email is printed in the server log instead, links included. `EMAIL=off` turns sending off. Made-up test addresses (`@example.com`, `.test`, `.invalid`, such as the demo accounts' emails) are never sent to, only logged, so testing cannot cause bounced emails.
 
 ## Connecting Google Drive
 
 1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the **Google Drive API**.
 2. Create the folder that will hold all materials in Google Drive. Copy its id (the part of the folder's URL after `/folders/`) into `GOOGLE_DRIVE_FOLDER_ID`.
 3. Choose one of the two ways to sign in:
-   - **Option A: a normal Google account (recommended).** Create an *OAuth client ID* of type "Web application" and add `https://developers.google.com/oauthplayground` as a redirect URI. In the [OAuth Playground](https://developers.google.com/oauthplayground), open the settings (⚙), choose "Use your own OAuth credentials", authorise the `https://www.googleapis.com/auth/drive` scope with the account that owns the folder, and exchange the code for a refresh token. Then fill in `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` and `GOOGLE_OAUTH_REFRESH_TOKEN`.
+   - **Option A: a normal Google account (recommended).** Create an *OAuth client ID* of type "Web application" and add `https://developers.google.com/oauthplayground` as a redirect URI. In the [OAuth Playground](https://developers.google.com/oauthplayground), open the settings (⚙), choose "Use your own OAuth credentials", authorise the `https://www.googleapis.com/auth/drive` scope (plus `https://www.googleapis.com/auth/gmail.send` for emails) with the account that owns the folder, and exchange the code for a refresh token. Then fill in `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` and `GOOGLE_OAUTH_REFRESH_TOKEN`.
    - **Option B: a service account.** This only works with Google Workspace Shared Drives, because service accounts have no storage of their own. Create a service account and a JSON key. Add the service account's email as a member of the Shared Drive. Then set `GOOGLE_SERVICE_ACCOUNT_KEY_FILE` (or `GOOGLE_SERVICE_ACCOUNT_JSON`).
 4. Restart the server. It prints `Uploads go to Google Drive`, and `GET /api/health` returns `"drive": true`.
 5. Files waiting for review are kept out of the shared folder. With Option A they wait in a private folder, **Scouts - waiting for review**, in the signed-in account's own Drive. With Option B they wait in a **_Waiting for review** folder inside the main folder; restrict who can open it, or set `GOOGLE_DRIVE_REVIEW_FOLDER_ID` to a private folder. Without Google Drive (local development) they wait in `server/uploads-pending`, which is never served publicly.
@@ -176,7 +178,7 @@ The Express server serves the built React app from `client/dist`, so one Node pr
 3. **Web service:** on render.com → New → Web Service → this repository, branch `main`, region Frankfurt (closest to Egypt; ideally the Atlas cluster is in Frankfurt too), plan Free, health check path `/api/health`.
    - Build command: `npm install --prefix server && npm install --prefix client --include=dev && npm run build` (`--include=dev` is needed: with `NODE_ENV=production` npm would skip the build tools).
    - Start command: `npm start`
-   - Environment: `NODE_ENV=production`, `TZ=Africa/Cairo`, `MONGO_URI` (the live database), a **new** `JWT_SECRET`, `CLIENT_ORIGIN=https://<app-name>.onrender.com`, `TRUST_PROXY=1`, the `GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_OAUTH_…` values, and `BREVO_API_KEY` and `EMAIL_FROM` (see [Setting up emails](#setting-up-emails-brevo)). Not `PORT` (Render sets it) and not `DNS_SERVERS`.
+   - Environment: `NODE_ENV=production`, `TZ=Africa/Cairo`, `MONGO_URI` (the live database), a **new** `JWT_SECRET`, `CLIENT_ORIGIN=https://<app-name>.onrender.com`, `TRUST_PROXY=1`, the `GOOGLE_DRIVE_FOLDER_ID` and `GOOGLE_OAUTH_…` values, with a refresh token that also allows Gmail sending (see [Setting up emails](#setting-up-emails-the-groups-gmail)). Not `PORT` (Render sets it) and not `DNS_SERVERS`.
 4. **First accounts:** on your computer, point `server/.env` at the live database, fill in the `SEED_ADMIN_…` and `SEED_DB_…` values (with their `…_EMAIL`, so "Forgot password?" works for them from the start), and run `npm run seed --prefix server`. Then point `.env` back at the test database.
 5. **Check:** `https://<app-name>.onrender.com/api/health` shows `"ok":true,"drive":true`; sign in, add a test member with your own email (an event and a task for them should arrive by email), try "Forgot password?", upload and approve a file, take attendance, and a minute after start-up a `scouts-backup-automatic-…` file appears in Google Drive. Remove the test data, then share the link.
 

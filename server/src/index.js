@@ -16,6 +16,7 @@ import taskRoutes from './routes/tasks.js';
 import statsRoutes from './routes/stats.js';
 import { LOCAL_UPLOAD_DIR, isDriveEnabled } from './services/storage.js';
 import { startAutoBackup } from './backup/auto.js';
+import { checkEmailSetup } from './services/mailer.js';
 import { TEAMS } from './constants.js';
 import { User } from './models/User.js';
 import { Task } from './models/Task.js';
@@ -195,6 +196,7 @@ async function start() {
     console.log(`Server running on http://localhost:${config.port}`);
     console.log(isDriveEnabled() ? 'Uploads go to Google Drive' : `Google Drive not configured: uploads saved in ${LOCAL_UPLOAD_DIR}`);
     startAutoBackup();
+    checkEmailSetup();
   });
 }
 
