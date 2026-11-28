@@ -12,23 +12,46 @@ import { config } from '../config.js';
  */
 const TEST_ADDRESS = /@(example\.(com|org|net)|[^@]+\.(test|invalid|example|localhost))$/i;
 
+const SEND_SCOPES = ['https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/gmail.compose', 'https://www.googleapis.com/auth/gmail.modify', 'https://mail.google.com/'];
+
+let auth;
 let gmail;
 function getGmail() {
   if (gmail !== undefined) return gmail;
   const { oauthClientId, oauthClientSecret } = config.drive;
   const { enabled, refreshToken } = config.email;
   if (!enabled || !oauthClientId || !oauthClientSecret || !refreshToken) return (gmail = null);
-  const auth = new google.auth.OAuth2(oauthClientId, oauthClientSecret);
+  auth = new google.auth.OAuth2(oauthClientId, oauthClientSecret);
   auth.setCredentials({ refresh_token: refreshToken });
   return (gmail = google.gmail({ version: 'v1', auth }));
 }
 
 export const isEmailEnabled = () => Boolean(getGmail());
 
-let sender; // "Name <address>", worked out once
-async function getSender(api) {
+/** The permissions the refresh token was given (read from Google, without sending anything). */
+async function tokenScopes() {
+  const { token } = await auth.getAccessToken();
+  const info = await auth.getTokenInfo(token);
+  return info.scopes || [];
+}
+
+let sender; // { name, address }, worked out once
+/**
+ * The sender's address: EMAIL_FROM, or the Google account itself. A send-only Gmail permission cannot
+ * read the account's address, so it is read through Google Drive (the same account and token).
+ */
+async function getSender() {
   if (sender) return sender;
-  const address = config.email.from || (await api.users.getProfile({ userId: 'me' })).data.emailAddress;
+  let address = config.email.from;
+  if (!address) {
+    try {
+      const { data } = await google.drive({ version: 'v3', auth }).about.get({ fields: 'user(emailAddress)' });
+      address = data.user?.emailAddress;
+    } catch {
+      /* no Drive permission on this token: EMAIL_FROM is needed */
+    }
+  }
+  if (!address) throw new Error('set EMAIL_FROM to the sending Gmail address');
   sender = { address, name: config.email.fromName };
   return sender;
 }
@@ -74,7 +97,7 @@ export async function sendEmail({ to, subject, html, text }) {
   if (TEST_ADDRESS.test(to)) return logInstead(to, subject, text, 'test address');
   const api = getGmail();
   if (!api) return logInstead(to, subject, text, 'email sending is not set up');
-  const from = await getSender(api);
+  const from = await getSender();
   await api.users.messages.send({ userId: 'me', requestBody: { raw: buildRawEmail({ from, to, subject, html, text }) } });
   return { sent: true };
 }
@@ -111,7 +134,11 @@ export async function checkEmailSetup() {
   const api = getGmail();
   if (!api) return console.log('Emails are not set up (no Google refresh token): they are written to this log instead');
   try {
-    const from = await getSender(api);
+    const scopes = await tokenScopes();
+    if (!scopes.some((x) => SEND_SCOPES.includes(x))) {
+      return console.warn('Warning: emails cannot be sent: the Google refresh token has no permission to send email: get a new one that includes gmail.send');
+    }
+    const from = await getSender();
     console.log(`Emails are sent from ${from.address} (Gmail)`);
   } catch (err) {
     console.warn(`Warning: emails cannot be sent: ${explain(err)}`);
